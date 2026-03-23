@@ -1,0 +1,20 @@
+name: Validate Commits
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Validar commits
+        run: |
+          git log origin/main..HEAD --pretty=format:%s | while read commit_msg; do
+            echo "$commit_msg" | grep -E '^(feat|fix|docs|style|refactor|test|chore|build|ci|perf|revert)(\([a-zA-Z0-9_.-]+\))?(!)?:\s.{10,}$' \
+            || (echo "Commit inválido: $commit_msg" && exit 1)
+          done
