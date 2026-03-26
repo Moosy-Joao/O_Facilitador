@@ -1,0 +1,197 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  /* Design System Colors */
+  --color-primary: #677DB7;
+  --color-primary-hover: #5569a0;
+  --color-primary-light: rgba(103, 125, 183, 0.12);
+  --color-primary-gradient: linear-gradient(135deg, #677DB7 0%, #5569a0 100%);
+
+  --color-cornsilk: #F6F1D1;
+  --color-cornsilk-dark: #e8e2b8;
+  --color-cotton-candy: #E4959E;
+  --color-cotton-candy-hover: #d47e88;
+  --color-cotton-candy-light: rgba(228, 149, 158, 0.15);
+  --color-twilight: #454B66;
+  --color-twilight-light: #5a6080;
+  --color-glaucous: #677DB7;
+  --color-wisteria: #9CA3DB;
+  --color-wisteria-light: rgba(156, 163, 219, 0.2);
+
+  /* Neutrals */
+  --color-white: #FFFFFF;
+  --color-bg: #F8F7F2;
+  --color-bg-card: #FFFFFF;
+  --color-bg-sidebar: #2D3250;
+  --color-border: #E8E5DC;
+  --color-border-focus: #677DB7;
+  --color-text-primary: #454B66;
+  --color-text-secondary: #7A7F99;
+  --color-text-muted: #A8ACBF;
+  --color-text-inverse: #FFFFFF;
+
+  /* Status Colors */
+  --color-success: #4CAF82;
+  --color-success-light: rgba(76, 175, 130, 0.12);
+  --color-warning: #F5A623;
+  --color-warning-light: rgba(245, 166, 35, 0.12);
+  --color-danger: #E4595E;
+  --color-danger-light: rgba(228, 89, 94, 0.12);
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  --spacing-3xl: 64px;
+
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(69, 75, 102, 0.06);
+  --shadow-md: 0 4px 12px rgba(69, 75, 102, 0.08);
+  --shadow-lg: 0 8px 32px rgba(69, 75, 102, 0.12);
+  --shadow-xl: 0 16px 48px rgba(69, 75, 102, 0.16);
+  --shadow-glow: 0 0 20px rgba(103, 125, 183, 0.3);
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Typography */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.8125rem;
+  --font-size-base: 0.9375rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.3125rem;
+  --font-size-2xl: 1.625rem;
+  --font-size-3xl: 2rem;
+  --font-size-4xl: 2.5rem;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-wisteria);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-primary);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
