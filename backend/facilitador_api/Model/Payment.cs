@@ -2,8 +2,8 @@
 {
     public class Payment : BaseModel
     {
-        private int ClientId { get; set; }
-        private decimal PaymentValue { get; set; }
-        private string? Observation { get; set; }
+        public int ClientId { get; private set; }
+        public decimal PaymentValue { get; private set; }
+        public string? Observation { get; private set; }
     }
 }

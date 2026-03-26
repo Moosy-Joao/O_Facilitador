@@ -1,12 +1,10 @@
-﻿using facilitador_api.Model;
-
-namespace facilitador_api.Repository
+﻿namespace facilitador_api.Model.IReposytories
 {
     public interface IUserRepository
     {
         void AddUser(User user);
-        User GetUser(int id);
-        List<User> GetUsers();
+        User GetUser(int userId);
+        List<User> GetUsers(bool ReturnInactives = false);
         void UpdateUser(User user);
         void DisableUser(int id);
     }

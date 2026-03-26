@@ -2,9 +2,9 @@
 {
     public class User : BaseModel
     {
-        private string Name { get; set; }
-        private string Email { get; set; }
-        private string Password { get; set; }
-        private string Role { get; set; }
+        public string Name { get; private set; }
+        public string Email { get; private set; }
+        public string Password { get; private set; }
+        public string Role { get; private set; }
     }
 }

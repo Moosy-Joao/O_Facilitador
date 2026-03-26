@@ -2,10 +2,10 @@
 {
     public class Client : BaseModel
     {
-        private string Name { get; set; }
-        private string CNPJ { get; set; }
-        private string Phone { get; set; }
-        private string Address { get; set; }
-        private decimal CreditLimit { get; set; }
+        public string Name { get; private set; }
+        public string CNPJ { get; private set; }
+        public string Phone { get; private set; }
+        public string Address { get; private set; }
+        public decimal CreditLimit { get; private set; }
     }
 }

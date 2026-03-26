@@ -2,8 +2,8 @@
 {
     public class Purchase : BaseModel
     {
-        private int ClientId { get; set; }
-        private decimal Value { get; set; }
-        private string? Description { get; set; }
+        public int ClientId { get; private set; }
+        public decimal Value { get; private set; }
+        public string? Description { get; private set; }
     }
 }

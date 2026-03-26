@@ -2,12 +2,12 @@
 {
     public class Address : BaseModel
     {
-        private string Country { get; set; }
-        private string State { get; set; }
-        private string City { get; set; }
-        private string Neighborhood { get; set; }
-        private string Street { get; set; }
-        private int? Number { get; set; }
-        private int CEP { get; set; }
+        public string Country { get; private set; }
+        public string State { get; private set; }
+        public string City { get; private set; }
+        public string Neighborhood { get; private set; }
+        public string Street { get; private set; }
+        public int? Number { get; private set; }
+        public int CEP { get; private set; }
     }
 }

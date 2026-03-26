@@ -1,12 +1,10 @@
-﻿using facilitador_api.Model;
-
-namespace facilitador_api.Repository
+﻿namespace facilitador_api.Model.IReposytories
 {
     public interface IPaymentRepository
     {
         void AddPayment(Payment payment);
-        Payment GetPayment(int id);
-        List<Payment> GetAllPayments();
+        Payment GetPayment(int paymentId);
+        List<Payment> GetAllPayments(bool ReturnInactives = false);
         void UpdatePayment(Payment payment);
         void DisablePayment(int id);
     }

@@ -19,7 +19,7 @@ services:
       - "5001:443"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=facilitador;Username=postgres;Password=postgres
+      - ConnectionStrings_DefaultConnection=Host=postgres;Port=5432;Database=facilitador;Username=postgres;Password=postgres
     depends_on:
       - postgres
     networks:

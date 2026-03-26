@@ -1,12 +1,10 @@
-﻿using facilitador_api.Model;
-
-namespace facilitador_api.Repository
+﻿namespace facilitador_api.Model.IReposytories
 {
     public interface IAddressRepository
     {
         void AddAddress(Address address);
-        Address GetAddress(int id);
-        List<Address> GetAddresses();
+        Address GetAddress(int addressId);
+        List<Address> GetAddresses(bool ReturnInactives = false);
         void UpdateAddress(Address address);
         void DisableAddress(int id);
     }

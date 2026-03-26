@@ -14,6 +14,7 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+// Config for JWT Authentication
 var key = "sua-chave-super-secreta-aqui"; // depois mover pro appsettings
 
 builder.Services.AddAuthentication("Bearer")
