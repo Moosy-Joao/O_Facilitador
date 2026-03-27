@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import styles from './Login.module.css';
+import { Landmark } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -35,7 +36,7 @@ export default function Login() {
     <div className={styles['login-page']}>
       <div className={styles['login-card']}>
         <div className={styles['login-brand']}>
-          <div className={styles['login-logo']}>💰</div>
+          <div className={styles['login-logo']}><Landmark size={32} strokeWidth={1.8} /></div>
           <h1>Facilitador</h1>
           <p>Sistema de crédito para comerciantes</p>
         </div>

@@ -3,6 +3,19 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { mockClientService, mockPurchaseService, mockPaymentService } from '../../services/mockData';
 import styles from './ClientDetail.module.css';
 import formStyles from './ClientForm.module.css';
+import {
+  FileText,
+  Phone,
+  MapPin,
+  Pencil,
+  Ban,
+  CheckCircle,
+  ShoppingCart,
+  Wallet,
+  ClipboardList,
+  Inbox,
+  CircleDot,
+} from 'lucide-react';
 
 export default function ClientDetail() {
   const { id } = useParams();
@@ -154,10 +167,10 @@ export default function ClientDetail() {
             <div>
               <h2 className={styles['profile-name']}>{client.name}</h2>
               <div className={styles['profile-meta']}>
-                <span className={styles['profile-meta-item']}>📄 {client.cnpj}</span>
-                <span className={styles['profile-meta-item']}>📞 {client.phone}</span>
+                <span className={styles['profile-meta-item']}><FileText size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} />{client.cnpj}</span>
+                <span className={styles['profile-meta-item']}><Phone size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} />{client.phone}</span>
                 {client.address && (
-                  <span className={styles['profile-meta-item']}>📍 {client.address}</span>
+                  <span className={styles['profile-meta-item']}><MapPin size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} />{client.address}</span>
                 )}
               </div>
             </div>
@@ -167,13 +180,16 @@ export default function ClientDetail() {
               className={styles['btn-sm']}
               onClick={() => navigate(`/clientes/${id}/editar`)}
             >
-              ✏️ Editar
+              <Pencil size={15} style={{ marginRight: 5, verticalAlign: 'middle' }} />
+              Editar
             </button>
             <button
               className={`${styles['btn-sm']} ${client.active ? styles.danger : styles.success}`}
               onClick={handleToggleActive}
             >
-              {client.active ? '🚫 Inativar' : '✅ Ativar'}
+              {client.active
+                ? <><Ban size={15} style={{ marginRight: 5, verticalAlign: 'middle' }} />Inativar</>
+                : <><CheckCircle size={15} style={{ marginRight: 5, verticalAlign: 'middle' }} />Ativar</>}
             </button>
           </div>
         </div>
@@ -198,7 +214,11 @@ export default function ClientDetail() {
           <div className={styles['finance-item']}>
             <div className={styles['finance-label']}>Status</div>
             <div className={styles['finance-value']}>
-              {!client.active ? '⚫ Inativo' : client.blocked ? '🔴 Bloqueado' : '🟢 Ativo'}
+              {!client.active
+                ? <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><CircleDot size={14} style={{ color: '#888' }} /> Inativo</span>
+                : client.blocked
+                ? <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Ban size={14} style={{ color: 'var(--color-cotton-candy)' }} /> Bloqueado</span>
+                : <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><CheckCircle size={14} style={{ color: 'var(--color-success)' }} /> Ativo</span>}
             </div>
           </div>
         </div>
@@ -206,21 +226,26 @@ export default function ClientDetail() {
 
       <div className={styles['transaction-section']}>
         <div className={styles['transaction-header']}>
-          <h3 className={styles['transaction-title']}>📋 Extrato de Transações</h3>
+          <h3 className={styles['transaction-title']}>
+            <ClipboardList size={18} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+            Extrato de Transações
+          </h3>
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
               className={`${styles['btn-action']} ${styles['btn-purchase']}`}
               onClick={() => openModal('purchase')}
               disabled={client.blocked || !client.active}
             >
-              🛒 Nova Venda
+              <ShoppingCart size={15} style={{ marginRight: 5, verticalAlign: 'middle' }} />
+              Nova Venda
             </button>
             <button
               className={`${styles['btn-action']} ${styles['btn-payment']}`}
               onClick={() => openModal('payment')}
               disabled={!client.active}
             >
-              💵 Registrar Pagamento
+              <Wallet size={15} style={{ marginRight: 5, verticalAlign: 'middle' }} />
+              Registrar Pagamento
             </button>
           </div>
         </div>
@@ -240,9 +265,11 @@ export default function ClientDetail() {
               {transactions.map((tx) => (
                 <tr key={tx.id} className={tx.reversed ? styles['tx-reversed'] : ''}>
                   <td>
-                    <span className={`${styles['tx-type']} ${styles[tx.type]}`}>
-                      {tx.type === 'purchase' ? '🛒 Compra' : '💵 Pagamento'}
-                    </span>
+                      <span className={`${styles['tx-type']} ${styles[tx.type]}`}>
+                        {tx.type === 'purchase'
+                          ? <><ShoppingCart size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} />Compra</>
+                          : <><Wallet size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} />Pagamento</>}
+                      </span>
                   </td>
                   <td>
                     {tx.description || tx.observation || '—'}
@@ -268,7 +295,7 @@ export default function ClientDetail() {
           </table>
         ) : (
           <div className={styles['empty-state']}>
-            <div className={styles['empty-state-icon']}>📭</div>
+            <div className={styles['empty-state-icon']}><Inbox size={40} /></div>
             Nenhuma transação registrada para este cliente
           </div>
         )}
@@ -280,7 +307,7 @@ export default function ClientDetail() {
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles['modal-header']}>
               <h3 className={styles['modal-title']}>
-                {modal === 'purchase' ? '🛒 Registrar Venda' : '💵 Registrar Pagamento'}
+                {modal === 'purchase' ? 'Registrar Venda' : 'Registrar Pagamento'}
               </h3>
               <button className={styles['modal-close']} onClick={closeModal}>
                 ✕

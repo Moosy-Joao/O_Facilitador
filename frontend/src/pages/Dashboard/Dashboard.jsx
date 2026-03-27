@@ -2,6 +2,16 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { mockDashboardService } from '../../services/mockData';
 import styles from './Dashboard.module.css';
+import {
+  Wallet,
+  Users,
+  ShieldOff,
+  ShoppingCart,
+  AlertTriangle,
+  ClipboardList,
+  CheckCircle2,
+  Inbox,
+} from 'lucide-react';
 
 export default function Dashboard() {
   const [summary, setSummary] = useState(null);
@@ -66,7 +76,7 @@ export default function Dashboard() {
         <div className={`${styles['stat-card']} ${styles.primary}`}>
           <div className={styles['stat-header']}>
             <span className={styles['stat-label']}>Total a Receber</span>
-            <div className={styles['stat-icon']}>💰</div>
+            <div className={styles['stat-icon']}><Wallet size={22} /></div>
           </div>
           <div className={styles['stat-value']}>{formatCurrency(summary?.totalReceivable || 0)}</div>
           <div className={styles['stat-detail']}>Total em aberto de todos os clientes</div>
@@ -75,7 +85,7 @@ export default function Dashboard() {
         <div className={`${styles['stat-card']} ${styles.warning}`}>
           <div className={styles['stat-header']}>
             <span className={styles['stat-label']}>Clientes Ativos</span>
-            <div className={styles['stat-icon']}>👥</div>
+            <div className={styles['stat-icon']}><Users size={22} /></div>
           </div>
           <div className={styles['stat-value']}>{summary?.totalClients || 0}</div>
           <div className={styles['stat-detail']}>{summary?.totalDebtors || 0} com saldo devedor</div>
@@ -84,7 +94,7 @@ export default function Dashboard() {
         <div className={`${styles['stat-card']} ${styles.danger}`}>
           <div className={styles['stat-header']}>
             <span className={styles['stat-label']}>Bloqueados</span>
-            <div className={styles['stat-icon']}>🚫</div>
+            <div className={styles['stat-icon']}><ShieldOff size={22} /></div>
           </div>
           <div className={styles['stat-value']}>{summary?.totalBlocked || 0}</div>
           <div className={styles['stat-detail']}>Clientes com crédito bloqueado</div>
@@ -93,7 +103,7 @@ export default function Dashboard() {
         <div className={`${styles['stat-card']} ${styles.success}`}>
           <div className={styles['stat-header']}>
             <span className={styles['stat-label']}>Vendas Hoje</span>
-            <div className={styles['stat-icon']}>🛒</div>
+            <div className={styles['stat-icon']}><ShoppingCart size={22} /></div>
           </div>
           <div className={styles['stat-value']}>{formatCurrency(summary?.todayPurchases || 0)}</div>
           <div className={styles['stat-detail']}>Pgtos: {formatCurrency(summary?.todayPayments || 0)}</div>
@@ -103,7 +113,10 @@ export default function Dashboard() {
       <div className={styles['dashboard-sections']}>
         <div className={styles['dashboard-section']}>
           <div className={styles['section-header']}>
-            <h2 className={styles['section-title']}>🔴 Maiores Devedores</h2>
+            <h2 className={styles['section-title']}>
+              <AlertTriangle size={18} style={{ marginRight: 6, verticalAlign: 'middle', color: 'var(--color-cotton-candy)' }} />
+              Maiores Devedores
+            </h2>
             <button className={styles['section-action']} onClick={() => navigate('/clientes')}>
               Ver todos →
             </button>
@@ -128,7 +141,7 @@ export default function Dashboard() {
               ))
             ) : (
               <div className={styles['empty-state']}>
-                <div className={styles['empty-state-icon']}>🎉</div>
+                <div className={styles['empty-state-icon']}><CheckCircle2 size={40} /></div>
                 Nenhum devedor no momento
               </div>
             )}
@@ -137,7 +150,10 @@ export default function Dashboard() {
 
         <div className={styles['dashboard-section']}>
           <div className={styles['section-header']}>
-            <h2 className={styles['section-title']}>📋 Últimas Movimentações</h2>
+            <h2 className={styles['section-title']}>
+              <ClipboardList size={18} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+              Últimas Movimentações
+            </h2>
           </div>
           <div className={styles['section-body']}>
             {summary?.recentTransactions?.length > 0 ? (
@@ -145,7 +161,7 @@ export default function Dashboard() {
                 <div key={tx.id} className={styles['transaction-item']}>
                   <div className={styles['transaction-info']}>
                     <div className={`${styles['transaction-icon']} ${styles[tx.type]}`}>
-                      {tx.type === 'purchase' ? '🛒' : '💵'}
+                      {tx.type === 'purchase' ? <ShoppingCart size={16} /> : <Wallet size={16} />}
                     </div>
                     <div>
                       <div className={styles['transaction-desc']}>
@@ -161,7 +177,7 @@ export default function Dashboard() {
               ))
             ) : (
               <div className={styles['empty-state']}>
-                <div className={styles['empty-state-icon']}>📭</div>
+                <div className={styles['empty-state-icon']}><Inbox size={40} /></div>
                 Nenhuma movimentação recente
               </div>
             )}

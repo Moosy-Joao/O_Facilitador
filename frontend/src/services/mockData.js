@@ -225,6 +225,22 @@ export const mockPaymentService = {
   },
 };
 
+// === PROFILE MOCK ===
+export const mockProfileService = {
+  update: async (userId, data) => {
+    await delay(MOCK_DELAY);
+    if (data.currentPassword && data.currentPassword.length < 3) {
+      throw new Error('Senha atual incorreta');
+    }
+    return {
+      id: userId,
+      name: data.name,
+      email: data.email,
+      role: 'gerente',
+    };
+  },
+};
+
 // === DASHBOARD MOCK ===
 export const mockDashboardService = {
   getSummary: async () => {

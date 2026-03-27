@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { mockClientService } from '../../services/mockData';
 import styles from './ClientForm.module.css';
+import { Pencil, UserRound } from 'lucide-react';
 
 export default function ClientForm() {
   const { id } = useParams();
@@ -92,7 +93,7 @@ export default function ClientForm() {
       <div className={styles['form-card']}>
         <div className={styles['form-card-header']}>
           <div className={styles['form-card-icon']}>
-            {isEditing ? '✏️' : '👤'}
+            {isEditing ? <Pencil size={22} /> : <UserRound size={22} />}
           </div>
           <div>
             <div className={styles['form-card-title']}>

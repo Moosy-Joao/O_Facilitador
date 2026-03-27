@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import ClientsList from './pages/Clients/ClientsList';
 import ClientForm from './pages/Clients/ClientForm';
 import ClientDetail from './pages/Clients/ClientDetail';
+import EditProfile from './pages/Profile/EditProfile';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -69,6 +70,7 @@ function App() {
             <Route path="/clientes/novo" element={<ClientForm />} />
             <Route path="/clientes/:id" element={<ClientDetail />} />
             <Route path="/clientes/:id/editar" element={<ClientForm />} />
+            <Route path="/perfil" element={<EditProfile />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

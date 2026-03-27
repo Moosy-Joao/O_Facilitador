@@ -1,15 +1,24 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import styles from './Sidebar.module.css';
+import {
+  LayoutDashboard,
+  Users,
+  UserPlus,
+  Landmark,
+  LogOut,
+  UserCog,
+} from 'lucide-react';
 
 export default function Sidebar({ isOpen, onClose }) {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navItems = [
-    { path: '/', icon: '📊', label: 'Painel', section: 'principal' },
-    { path: '/clientes', icon: '👥', label: 'Clientes', section: 'principal' },
-    { path: '/clientes/novo', icon: '➕', label: 'Novo Cliente', section: 'cadastro' },
+    { path: '/', icon: <LayoutDashboard size={18} />, label: 'Painel', section: 'principal' },
+    { path: '/clientes', icon: <Users size={18} />, label: 'Clientes', section: 'principal' },
+    { path: '/clientes/novo', icon: <UserPlus size={18} />, label: 'Novo Cliente', section: 'cadastro' },
   ];
 
   const sections = {
@@ -38,7 +47,9 @@ export default function Sidebar({ isOpen, onClose }) {
       <aside className={`${styles.sidebar} ${isOpen ? styles.open : ''}`}>
         <div className={styles['sidebar-header']}>
           <div className={styles['sidebar-brand']}>
-            <div className={styles['sidebar-logo']}>💰</div>
+            <div className={styles['sidebar-logo']}>
+              <Landmark size={22} strokeWidth={2} />
+            </div>
             <div>
               <div className={styles['sidebar-title']}>Facilitador</div>
               <div className={styles['sidebar-subtitle']}>Sistema de Crédito</div>
@@ -71,14 +82,28 @@ export default function Sidebar({ isOpen, onClose }) {
         </nav>
 
         <div className={styles['sidebar-footer']}>
-          <div className={styles['sidebar-user']}>
+          <div
+            className={styles['sidebar-user']}
+            onClick={() => { navigate('/perfil'); if (onClose) onClose(); }}
+            role="button"
+            tabIndex={0}
+            title="Editar perfil"
+            onKeyDown={(e) => e.key === 'Enter' && navigate('/perfil')}
+          >
             <div className={styles['sidebar-avatar']}>{getInitials(user?.name)}</div>
             <div className={styles['sidebar-user-info']}>
               <div className={styles['sidebar-user-name']}>{user?.name || 'Usuário'}</div>
               <div className={styles['sidebar-user-role']}>{user?.role || 'gerente'}</div>
             </div>
-            <button className={styles['sidebar-logout']} onClick={logout} title="Sair">
-              🚪
+            <button
+              className={styles['sidebar-edit-profile']}
+              onClick={(e) => { e.stopPropagation(); navigate('/perfil'); if (onClose) onClose(); }}
+              title="Editar perfil"
+            >
+              <UserCog size={16} />
+            </button>
+            <button className={styles['sidebar-logout']} onClick={(e) => { e.stopPropagation(); logout(); }} title="Sair">
+              <LogOut size={17} />
             </button>
           </div>
         </div>

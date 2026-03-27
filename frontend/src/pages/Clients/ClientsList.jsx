@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { mockClientService } from '../../services/mockData';
 import styles from './ClientsList.module.css';
+import { Search, UserPlus, Users } from 'lucide-react';
 
 export default function ClientsList() {
   const [clients, setClients] = useState([]);
@@ -96,7 +97,7 @@ export default function ClientsList() {
     <div className={styles['clients-page']}>
       <div className={styles['clients-toolbar']}>
         <div className={styles['search-box']}>
-          <span className={styles['search-icon']}>🔍</span>
+          <span className={styles['search-icon']}><Search size={16} /></span>
           <input
             id="client-search"
             className={styles['search-input']}
@@ -125,7 +126,8 @@ export default function ClientsList() {
             className={styles['btn-primary']}
             onClick={() => navigate('/clientes/novo')}
           >
-            ➕ Novo Cliente
+            <UserPlus size={16} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+            Novo Cliente
           </button>
         </div>
       </div>
@@ -208,7 +210,7 @@ export default function ClientsList() {
         </div>
       ) : (
         <div className={styles['empty-state']}>
-          <div className={styles['empty-state-icon']}>👥</div>
+          <div className={styles['empty-state-icon']}><Users size={40} /></div>
           <div className={styles['empty-state-title']}>
             {search || filter !== 'all' ? 'Nenhum cliente encontrado' : 'Nenhum cliente cadastrado'}
           </div>

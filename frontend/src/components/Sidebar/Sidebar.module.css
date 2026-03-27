@@ -181,6 +181,32 @@
   background: rgba(228, 149, 158, 0.15);
 }
 
+.sidebar-user {
+  cursor: pointer;
+}
+
+.sidebar-user:hover .sidebar-user-name {
+  color: var(--color-primary);
+}
+
+.sidebar-edit-profile {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 1rem;
+  padding: var(--spacing-xs);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-edit-profile:hover {
+  color: var(--color-wisteria);
+  background: rgba(156, 163, 219, 0.15);
+}
+
 /* Mobile overlay */
 .sidebar-overlay {
   display: none;
