@@ -52,7 +52,7 @@ export default function ClientForm() {
   const validate = () => {
     const newErrors = {};
     if (!form.name.trim()) newErrors.name = 'Nome é obrigatório';
-    if (!form.cnpj.trim()) newErrors.cnpj = 'CPF/CNPJ é obrigatório';
+    if (!form.cnpj.trim()) newErrors.cnpj = 'CNPJ é obrigatório';
     if (!form.phone.trim()) newErrors.phone = 'Telefone é obrigatório';
     if (!form.creditLimit || Number(form.creditLimit) <= 0) {
       newErrors.creditLimit = 'Limite deve ser maior que zero';
@@ -129,14 +129,14 @@ export default function ClientForm() {
               </div>
 
               <div className={styles['form-group']}>
-                <label className={styles['form-label']} htmlFor="client-cpf">
-                  CPF / CNPJ <span className={styles.required}>*</span>
+                <label className={styles['form-label']} htmlFor="client-cnpj">
+                  CNPJ <span className={styles.required}>*</span>
                 </label>
                 <input
-                  id="client-cpf"
+                  id="client-cnpj"
                   className={`${styles['form-input']} ${errors.cnpj ? styles.error : ''}`}
                   type="text"
-                  placeholder="000.000.000-00"
+                  placeholder="00.000.000/0001-00"
                   value={form.cnpj}
                   onChange={(e) => handleChange('cnpj', e.target.value)}
                 />

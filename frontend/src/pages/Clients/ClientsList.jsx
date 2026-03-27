@@ -102,7 +102,7 @@ export default function ClientsList() {
             id="client-search"
             className={styles['search-input']}
             type="text"
-            placeholder="Buscar por nome, CPF ou telefone..."
+            placeholder="Buscar por nome, CNPJ ou telefone..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -154,7 +154,7 @@ export default function ClientsList() {
                   </div>
                   <div className={styles['client-header-info']}>
                     <div className={styles['client-name']}>{client.name}</div>
-                    <div className={styles['client-cpf']}>{client.cnpj}</div>
+                    <div className={styles['client-cnpj']}>{client.cnpj}</div>
                   </div>
                   <span className={`${styles['client-status']} ${status.className}`}>
                     {status.label}
