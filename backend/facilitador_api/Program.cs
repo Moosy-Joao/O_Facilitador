@@ -1,24 +1,27 @@
+using facilitador_api.Application.Interfaces;
+using facilitador_api.Domain.Interfaces;
+using facilitador_api.Infrastructure.DB;
+using Microsoft.EntityFrameworkCore;
+using facilitador_api.Application.Services;
+using facilitador_api.Infrastructure.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Adiciona serviços
-builder.Services.AddControllers();
+// 🔹 Conexão com Supabase
+builder.Services.AddDbContext<ConnectionContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// 🔥 Swagger
-builder.Services.AddEndpointsApiExplorer();
+// 🔹 DI
+builder.Services.AddScoped<IClienteService, ClienteService>();
+builder.Services.AddScoped<IClienteRepository, facilitador_api.Infrastructure.Repositories.ClienteRepository>();
+
+builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// 🔥 Swagger middleware
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.MapControllers();
 

@@ -1,24 +1,63 @@
-﻿using facilitador_api.Domain.Entities;
-using facilitador_api.Model;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using facilitador_api.Domain.Entities;
 
 namespace facilitador_api.Infrastructure.DB
 {
     public class ConnectionContext : DbContext
     {
-        public DbSet<User> Users { get; private set; }
-        public DbSet<Client> Clients { get; private set; }
-        public DbSet<Address> Addresses { get; private set; }
-        public DbSet<Purchase> Purchases { get; private set; }
-        public DbSet<Payment> Payments { get; private set; }
-
-        public ConnectionContext()
+        public ConnectionContext(DbContextOptions<ConnectionContext> options)
+            : base(options)
         {
         }
+
+        //public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<Cliente> Clientes { get; set; }
+        //public DbSet<CompraFiado> ComprasFiado { get; set; }
+        //public DbSet<Pagamento> Pagamentos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Cliente>(entity =>
+            {
+                // 🔹 Nome da tabela (EXATO do banco)
+                entity.ToTable("Clientes");
+
+                // 🔹 Mapeamento das colunas (case-sensitive)
+                entity.Property(c => c.Id)
+                    .HasColumnName("id")
+                    .HasDefaultValueSql("gen_random_uuid()");
+
+                entity.Property(c => c.Nome)
+                    .HasColumnName("nome")
+                    .IsRequired();
+
+                entity.Property(c => c.Documento)
+                    .HasColumnName("documento")
+                    .IsRequired();
+
+                entity.Property(c => c.Telefone)
+                    .HasColumnName("telefone")
+                    .IsRequired();
+
+                // 🔹 Se quiser já mapear os outros campos do banco:
+                entity.Property<string?>("Endereco")
+                    .HasColumnName("endereco");
+
+                entity.Property<decimal>("LimiteCredito")
+                    .HasColumnName("limite_credito");
+
+                entity.Property<bool>("Ativo")
+                    .HasColumnName("ativo");
+
+                entity.Property<DateTime>("CriadoEm")
+                    .HasColumnName("criado_em");
+
+                // 🔹 Índice único
+                entity.HasIndex(c => c.Documento)
+                    .IsUnique();
+            });
         }
     }
 }
