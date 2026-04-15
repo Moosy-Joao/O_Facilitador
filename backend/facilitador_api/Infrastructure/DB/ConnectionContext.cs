@@ -1,4 +1,5 @@
-﻿using facilitador_api.Model;
+﻿using facilitador_api.Domain.Entities;
+using facilitador_api.Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace facilitador_api.Infrastructure.DB
