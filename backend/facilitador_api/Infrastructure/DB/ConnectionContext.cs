@@ -13,7 +13,7 @@ namespace facilitador_api.Infrastructure.DB
         //public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Cliente> Clientes { get; set; }
         //public DbSet<CompraFiado> ComprasFiado { get; set; }
-        //public DbSet<Pagamento> Pagamentos { get; set; }
+        public DbSet<Payment> Payment { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -41,7 +41,6 @@ namespace facilitador_api.Infrastructure.DB
                     .HasColumnName("telefone")
                     .IsRequired();
 
-                // 🔹 Se quiser já mapear os outros campos do banco:
                 entity.Property<string?>("Endereco")
                     .HasColumnName("endereco");
 
