@@ -4,7 +4,12 @@ namespace facilitador_api.Domain.Interfaces
 {
     public interface IClienteRepository
     {
-        void Adicionar(Cliente cliente);
-        Cliente? ObterPorDocumento(string documento);
+        void Cadastrar(Cliente cliente);
+        Cliente? BuscarPorId(Guid id);
+        Cliente? BuscarPorDocumento(string documento);
+        Cliente? BuscarPorNome(string nome);
+        Cliente? BuscarPorEmail(string email);
+        void Atualizar(Cliente cliente);
+        void Desativar(Guid id);
     }
 }
