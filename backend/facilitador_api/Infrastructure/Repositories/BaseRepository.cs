@@ -16,28 +16,28 @@ namespace facilitador_api.Infrastructure.Repositories
             _dbSet = _context.Set<T>();
         }
 
-        public Task AtualizarAsync(T entidade)
+        public Task Atualizar(T entidade)
         {
             _dbSet.Update(entidade);
             return Task.CompletedTask;
         }
 
-        public async Task<T> BuscarPorIdAsync(object id)
+        public async Task<T?> BuscarPorId(object id)
         {
             return await _dbSet.FindAsync(id);
         }
 
-        public async Task<IEnumerable<T>> BuscarTodosAsync()
+        public async Task<IEnumerable<T>> BuscarTodos()
         {
             return await _dbSet.ToListAsync();
         }
 
-        public async Task CadastrarAsync(T entidade)
+        public async Task Cadastrar(T entidade)
         {
             await _dbSet.AddAsync(entidade);
         }
 
-        public async Task DesativarAsync(object id)
+        public async Task Desativar(object id)
         {
             var entidadeExistente = await _dbSet.FindAsync(id);
             if (entidadeExistente == null)
@@ -53,7 +53,7 @@ namespace facilitador_api.Infrastructure.Repositories
             entidadeExistente.Desativar();
         }
 
-        public async Task SalvarAsync()
+        public async Task Salvar()
         {
             await _context.SaveChangesAsync();
         }

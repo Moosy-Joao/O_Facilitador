@@ -18,239 +18,131 @@ namespace facilitador_api.Application.Services
             _enderecoRepository = enderecoRepository;
         }
 
-        public bool Atualizar(Guid id, ClienteDTO dto)
+        public async Task<bool> Atualizar(Guid id, ClienteUpdateDTO dto)
         {
-            try
-            {
-                // Verificar se a empresa existe
-                var empresa = _empresaRepository.BuscarPorId(dto.Empresa);
-                if (empresa == null)
-                {
-                    return false;
-                }
+            // Verificar se a empresa existe
+            //var empresa = _empresaRepository.BuscarPorId(dto.Empresa);
+            //if (empresa == null)
+            //{
+            //    return false;
+            //}
 
-                // Verificar se o endereço existe
-                var endereco = _enderecoRepository.BuscarPorId(dto.Endereco);
-                if (endereco == null)
-                {
-                    return false;
-                }
+            // Verificar se o endereço existe
+            //var endereco = _enderecoRepository.BuscarPorId(dto.Endereco);
+            //if (endereco == null)
+            //{
+            //    return false;
+            //}
 
-                var cliente = _clienteRepository.BuscarPorId(id);
+            //var cliente = _clienteRepository.BuscarPorId(id);
 
-                if (cliente == null)
-                {
-                    return false;
-                }
+            //if (cliente == null)
+            //{
+            //    return false;
+            //}
 
-                var clienteAtualizado = new Cliente(
-                    empresaId: dto.Empresa,
-                    nome: dto.Nome,
-                    email: dto.Email,
-                    documento: dto.Documento,
-                    telefone: dto.Telefone,
-                    enderecoId: dto.Endereco,
-                    saldo: dto.Saldo,
-                    limiteCredito: dto.LimiteCredito
-                );
+            //var clienteAtualizado = new ClienteUpdateDTO();
 
-                _clienteRepository.Atualizar(clienteAtualizado);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            //_clienteRepository.Atualizar(clienteAtualizado);
+            //return true;
+
+            throw new NotImplementedException();
         }
 
-        public ClienteDTO? BuscarPorDocumento(string documento)
+        public async Task<ClienteResponseDTO?> BuscarPorDocumento(string documento)
         {
-            try
+            var cliente = _clienteRepository.BuscarPorDocumento(documento);
+            if (cliente == null)
             {
-                var cliente = _clienteRepository.BuscarPorDocumento(documento);
-                if (cliente == null)
-                {
-                    throw new Exception("Cliente não encontrado.");
-                }
-
-                var endereco = _enderecoRepository.BuscarPorId(cliente.EnderecoId);
-                if (endereco == null)
-                {
-                    throw new Exception("Endereço do cliente não encontrado.");
-                }
-
-                var empresa = _empresaRepository.BuscarPorId(cliente.EmpresaId);
-                if (empresa == null)
-                {
-                    throw new Exception("Empresa do cliente não encontrada.");
-                }
-
-                return new ClienteResponseDTO
-                {
-                    Id = cliente.Id,
-                    Nome = cliente.Nome,
-                    Email = cliente.Email,
-                    Documento = cliente.Documento,
-                    Telefone = cliente.Telefone,
-                    Saldo = cliente.Saldo,
-                    LimiteCredito = cliente.LimiteCredito,
-                    Endereco = new EnderecoResponseDTO
-                    {
-                        Id = endereco.Id,
-                        Pais = endereco.Pais,
-                        Cidade = endereco.Cidade,
-                        Estado = endereco.Estado,
-                        Bairro = endereco.Bairro,
-                        Rua = endereco.Rua,
-                        Numero = endereco.Numero,
-                        CEP = endereco.CEP
-                    },
-                    Empresa = new EmpresaResponseDTO
-                    {
-                        Id = empresa.Id,
-                        Nome = empresa.Nome,
-                        CNPJ = empresa.CNPJ,
-                        Ativo = empresa.Ativo,
-                        CriadoEm = empresa.CriadoEm
-                    },
-                    Ativo = cliente.Ativo,
-                    CriadoEm = cliente.CriadoEm
-                };
+                throw new Exception("Cliente não encontrado.");
             }
-            catch (Exception ex)
+
+            var endereco = _enderecoRepository.BuscarPorId(cliente.Id);
+            if (endereco == null)
             {
-                throw new Exception($"Ocorreu um erro ao buscar o cliente por documento: {ex.Message}");
+                throw new Exception("Endereço do cliente não encontrado.");
             }
+
+            var empresa = _empresaRepository.BuscarPorId(cliente.Id);
+            if (empresa == null)
+            {
+                throw new Exception("Empresa do cliente não encontrada.");
+            }
+
+            return new ClienteResponseDTO();
         }
 
-        public ClienteDTO? BuscarPorEmail(string email)
+        public async Task<ClienteResponseDTO?> BuscarPorEmail(string email)
         {
-            try
+            var cliente = _clienteRepository.BuscarPorEmail(email);
+            if (cliente == null)
             {
-                var cliente = _clienteRepository.BuscarPorEmail(email);
-                if (cliente == null)
-                {
-                    throw new Exception("Cliente não encontrado.");
-                }
-
-                var endereco = _enderecoRepository.BuscarPorId(cliente.EnderecoId);
-                if (endereco == null)
-                {
-                    throw new Exception("Endereço do cliente não encontrado.");
-                }
-
-                var empresa = _empresaRepository.BuscarPorId(cliente.EmpresaId);
-                if (empresa == null)
-                {
-                    throw new Exception("Empresa do cliente não encontrada.");
-                }
-
-                return new ClienteResponseDTO
-                {
-                    Id = cliente.Id,
-                    Nome = cliente.Nome,
-                    Email = cliente.Email,
-                    Documento = cliente.Documento,
-                    Telefone = cliente.Telefone,
-                    Saldo = cliente.Saldo,
-                    LimiteCredito = cliente.LimiteCredito,
-                    Endereco = new EnderecoResponseDTO
-                    {
-                        Id = endereco.Id,
-                        Pais = endereco.Pais,
-                        Cidade = endereco.Cidade,
-                        Estado = endereco.Estado,
-                        Bairro = endereco.Bairro,
-                        Rua = endereco.Rua,
-                        Numero = endereco.Numero,
-                        CEP = endereco.CEP
-                    },
-                    Empresa = new EmpresaResponseDTO
-                    {
-                        Id = empresa.Id,
-                        Nome = empresa.Nome,
-                        CNPJ = empresa.CNPJ,
-                        Ativo = empresa.Ativo,
-                        CriadoEm = empresa.CriadoEm
-                    },
-                    Ativo = cliente.Ativo,
-                    CriadoEm = cliente.CriadoEm
-                };
+                throw new Exception("Cliente não encontrado.");
             }
-            catch (Exception ex)
+
+            var endereco = _enderecoRepository.BuscarPorId(cliente.Id);
+            if (endereco == null)
             {
-                throw new Exception($"Ocorreu um erro ao buscar o cliente por email: {ex.Message}");
+                throw new Exception("Endereço do cliente não encontrado.");
             }
+
+            var empresa = _empresaRepository.BuscarPorId(cliente.Id);
+            if (empresa == null)
+            {
+                throw new Exception("Empresa do cliente não encontrada.");
+            }
+
+            return new ClienteResponseDTO();
         }
 
-        public ClienteDTO? BuscarPorId(Guid id)
+        public async Task<ClienteResponseDTO?> BuscarPorId(Guid id)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<ClienteDTO> BuscarPorNome(string nome)
+        public async Task<IEnumerable<ClienteResponseDTO>> BuscarPorNome(string nome)
         {
             throw new NotImplementedException();
         }
 
-        public bool Criar(ClienteDTO dto)
+        public async Task<bool> Criar(ClienteCreateDTO dto)
         {
-            try
-            {
-                // Verificar se a empresa existe
-                var empresa = _empresaRepository.BuscarPorId(dto.Empresa);
-                if (empresa == null)
-                {
-                    return false;
-                }
-
-                // Verificar se o endereço existe
-                var endereco = _enderecoRepository.BuscarPorId(dto.Endereco);
-                if (endereco == null)
-                {
-                    return false;
-                }
-
-                var cliente = new Cliente(
-                    nome: dto.Nome,
-                    email: dto.Email,
-                    documento: dto.Documento,
-                    telefone: dto.Telefone,
-                    saldo: dto.Saldo,
-                    limiteCredito: dto.LimiteCredito,
-                    enderecoId: dto.Endereco,
-                    empresaId: dto.Empresa
-                );
-
-                _clienteRepository.Cadastrar(cliente);
-                return true;
-            }
-            catch
+            // Verificar se a empresa existe
+            var empresa = _empresaRepository.BuscarPorId(dto.Empresa);
+            if (empresa == null)
             {
                 return false;
             }
+
+            // Verificar se o endereço existe
+            var endereco = _enderecoRepository.BuscarPorId(dto.Endereco);
+            if (endereco == null)
+            {
+                return false;
+            }
+
+            var clienteNovo = new Cliente(
+                dto,
+                dto.Empresa,
+                dto.Endereco
+            );
+
+            await _clienteRepository.Cadastrar(clienteNovo);
+            return true;
         }
 
-        public bool Desativar(Guid id)
+        public async Task<bool> Desativar(Guid id)
         {
-            try
-            {
-                var cliente = _clienteRepository.BuscarPorId(id);
-                if (cliente == null)
-                {
-                    return false;
-                }
-
-                cliente.Desativar();
-
-                _clienteRepository.Atualizar(cliente);
-                return true;
-
-            }
-            catch
+            var cliente = await _clienteRepository.BuscarPorId(id);
+            if (cliente == null)
             {
                 return false;
             }
+
+            cliente.Desativar();
+
+            await _clienteRepository.Salvar();
+            return true;
         }
     }
 }

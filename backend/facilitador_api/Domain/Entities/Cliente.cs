@@ -1,4 +1,6 @@
-﻿namespace facilitador_api.Domain.Entities
+﻿using facilitador_api.Application.DTOs;
+
+namespace facilitador_api.Domain.Entities
 {
     public class Cliente : BaseModel
     {
@@ -28,6 +30,19 @@
             EnderecoId = enderecoId;
             Saldo = saldo;
             LimiteCredito = limiteCredito;
+        }
+
+        public Cliente(ClienteCreateDTO dto, Guid empresaId, Guid enderecoId)
+        {
+            EmpresaId = dto.Empresa;
+            Nome = dto.Nome;
+            Email = dto.Email;
+            Documento = dto.Documento;
+            Telefone = dto.Telefone;
+            EnderecoId = enderecoId;
+            Saldo = dto.Saldo;
+            LimiteCredito = dto.LimiteCredito;
+            EnderecoId = enderecoId;
         }
     }
 }

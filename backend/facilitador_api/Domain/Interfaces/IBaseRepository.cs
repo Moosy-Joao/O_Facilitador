@@ -2,11 +2,11 @@
 {
     public interface IBaseRepository<T> where T : class
     {
-        Task<T> BuscarPorIdAsync(Object id);
-        Task<IEnumerable<T>> BuscarTodosAsync();
-        Task CadastrarAsync(T entidade);
-        Task AtualizarAsync(T entidade);
-        Task DesativarAsync(Object id);
-        Task SalvarAsync();
+        Task<T?> BuscarPorId(Object id);
+        Task<IEnumerable<T>> BuscarTodos();
+        Task Cadastrar(T entidade);
+        Task Atualizar(T entidade);
+        Task Desativar(Object id);
+        Task Salvar();
     }
 }

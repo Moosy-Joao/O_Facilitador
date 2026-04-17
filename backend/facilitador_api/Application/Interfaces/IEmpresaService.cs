@@ -4,11 +4,11 @@ namespace facilitador_api.Application.Interfaces
 {
     public interface IEmpresaService
     {
-        bool Criar(EmpresaDTO dto);
-        EmpresaDTO? BuscarPorId(Guid id);
-        EmpresaDTO? BuscarPorCNPJ(string cnpj);
-        IEnumerable<EmpresaDTO> BuscarPorNome(string nome);
-        bool Atualizar(Guid id, EmpresaDTO dto);
-        bool Desativar(Guid id);
+        Task<EmpresaDTO?> BuscarPorId(Guid id);
+        Task<EmpresaDTO?> BuscarPorCNPJ(string cnpj);
+        Task<IEnumerable<EmpresaDTO>> BuscarPorNome(string nome);
+        Task<bool> Criar(EmpresaDTO dto);
+        Task<bool> Atualizar(Guid id, EmpresaDTO dto);
+        Task<bool> Desativar(Guid id);
     }
 }

@@ -4,12 +4,12 @@ namespace facilitador_api.Application.Interfaces
 {
     public interface IClienteService
     {
-        bool Criar(ClienteDTO dto);
-        ClienteDTO? BuscarPorId(Guid id);
-        ClienteDTO? BuscarPorDocumento(string documento);
-        ClienteDTO? BuscarPorEmail(string email);
-        IEnumerable<ClienteDTO> BuscarPorNome(string nome);
-        bool Atualizar(Guid id, ClienteDTO dto);
-        bool Desativar(Guid id);
+        Task<ClienteResponseDTO?> BuscarPorId(Guid id);
+        Task<ClienteResponseDTO?> BuscarPorDocumento(string documento);
+        Task<ClienteResponseDTO?> BuscarPorEmail(string email);
+        Task<IEnumerable<ClienteResponseDTO>> BuscarPorNome(string nome);
+        Task<bool> Criar(ClienteCreateDTO dto);
+        Task<bool> Atualizar(Guid id, ClienteUpdateDTO dto);
+        Task<bool> Desativar(Guid id);
     }
 }

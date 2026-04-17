@@ -1,11 +1,10 @@
 ﻿using facilitador_api.Application.DTOs;
-using facilitador_api.Application.Interfaces;
 using facilitador_api.Domain.Entities;
 using facilitador_api.Domain.Interfaces;
 
 namespace facilitador_api.Application.Services
 {
-    public class EmpresaService : IEmpresaService
+    public class EmpresaService //: IEmpresaService
     {
         private readonly IEmpresaRepository _empresaRepository;
         private readonly IEnderecoRepository _enderecoRepository;
@@ -36,7 +35,7 @@ namespace facilitador_api.Application.Services
                     nome: dto.Nome,
                     cnpj: dto.CNPJ,
                     email: dto.Email,
-                    telefone: empresa.Telefone,
+                    telefone: dto.Telefone,
                     enderecoId: dto.Endereco
                 );
 
