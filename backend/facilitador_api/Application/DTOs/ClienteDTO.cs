@@ -15,6 +15,7 @@ namespace facilitador_api.Application.DTOs
         [Required(ErrorMessage = "O campo 'Documento' é obrigatório.")]
         public string Documento { get; set; } = string.Empty;
 
+        [Phone]
         public string Telefone { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "O campo 'Endereco' é obrigatório.")]
@@ -33,7 +34,7 @@ namespace facilitador_api.Application.DTOs
         public Guid Id { get; set; }
         public bool Ativo { get; set; }
         public DateTime CriadoEm { get; set; }
-        public EnderecoDTO? Endereco { get; set; }
-        public EmpresaDTO? Empresa { get; set; }
+        public new EnderecoDTO? Endereco { get; set; }
+        public new EmpresaDTO? Empresa { get; set; }
     }
 }

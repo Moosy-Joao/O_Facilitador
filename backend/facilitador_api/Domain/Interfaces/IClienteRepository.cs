@@ -2,14 +2,10 @@
 
 namespace facilitador_api.Domain.Interfaces
 {
-    public interface IClienteRepository
+    public interface IClienteRepository : IBaseRepository<Cliente>
     {
-        Task Cadastrar(Cliente cliente);
-        Task<Cliente?> BuscarPorId(Guid id);
         Task<Cliente?> BuscarPorDocumento(string documento);
         Task<Cliente?> BuscarPorNome(string nome);
         Task<Cliente?> BuscarPorEmail(string email);
-        Task Atualizar(Cliente cliente);
-        Task Desativar(Guid id);
     }
 }

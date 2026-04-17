@@ -2,12 +2,9 @@
 
 namespace facilitador_api.Domain.Interfaces
 {
-    public interface IEmpresaRepository
+    public interface IEmpresaRepository : IBaseRepository<Empresa>
     {
-        void Cadastrar(Empresa empresa);
-        Empresa? BuscarPorId(Guid id);
-        Empresa? BuscarPorNome(string nome);
-        void Atualizar(Empresa empresa);
-        void Desativar(Guid id);
+        Task<Empresa?> BuscarPorId(Guid id);
+        Task<Empresa?> BuscarPorNome(string nome);
     }
 }

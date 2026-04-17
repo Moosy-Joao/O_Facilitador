@@ -13,6 +13,8 @@ namespace facilitador_api.Application.DTOs
 
         [Required(ErrorMessage = "O campo Email é obrigatório.")]
         public string Email { get; set; } = string.Empty;
+
+        [Phone]
         public string Telefone { get; set; }
 
         // Chaves estrangeiras
@@ -22,7 +24,7 @@ namespace facilitador_api.Application.DTOs
     public class EmpresaResponseDTO : EmpresaDTO
     {
         public Guid Id { get; set; }
-        public EnderecoDTO? Endereco { get; set; }
+        public new EnderecoDTO? Endereco { get; set; }
         public bool Ativo { get; set; }
         public DateTime CriadoEm { get; set; }
     }
