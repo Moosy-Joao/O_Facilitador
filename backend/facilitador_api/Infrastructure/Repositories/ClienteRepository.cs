@@ -14,120 +14,71 @@ public class ClienteRepository : IClienteRepository
         _context = context;
     }
 
-    public void Atualizar(Cliente cliente)
+    public async Task Atualizar(Cliente cliente)
     {
-        try
+        var clienteExistente = _context.Clientes.Find(cliente.Id);
+        if (clienteExistente == null)
         {
-            var clienteExistente = _context.Clientes.Find(cliente.Id);
-            if (clienteExistente == null)
-            {
-                throw new Exception("Cliente não encontrado.");
-            }
-
-            clienteExistente = cliente;
-
-            _context.SaveChanges();
+            throw new Exception("Cliente não encontrado.");
         }
-        catch (Exception ex)
-        {
-            throw new Exception("Erro ao atualizar o cliente: " + ex.Message);
-        }
+
+        clienteExistente = cliente;
+
+        _context.SaveChanges();
     }
 
-    public Cliente? BuscarPorDocumento(string documento)
+    public async Task<Cliente?> BuscarPorDocumento(string documento)
     {
-        try
-        {
-            return _context.Clientes
-                .Include(c => c.Empresa)
-                .Include(c => c.Endereco)
-                .FirstOrDefault(c => c.Documento == documento);
-        }
-        catch (Exception ex)
-        {
-            throw new Exception("Erro ao buscar cliente por documento: " + ex.Message);
-        }
+        return await _context.Clientes
+            .Include(c => c.Empresa)
+            .Include(c => c.Endereco)
+            .FirstOrDefaultAsync(c => c.Documento == documento);
     }
 
-    public Cliente? BuscarPorEmail(string email)
+    public async Task<Cliente?> BuscarPorEmail(string email)
     {
-        try
-        {
-            return _context.Clientes
-                .Include(c => c.Empresa)
-                .Include(c => c.Endereco)
-                .FirstOrDefault(c => c.Email == email);
-        }
-        catch (Exception ex)
-        {
-            throw new Exception("Erro ao buscar cliente por email: " + ex.Message);
-        }
+        return await _context.Clientes
+            .Include(c => c.Empresa)
+            .Include(c => c.Endereco)
+            .FirstOrDefaultAsync(c => c.Email == email);
     }
 
-    public Cliente? BuscarPorId(Guid id)
+    public async Task<Cliente?> BuscarPorId(Guid id)
     {
-        try
-        {
-            return _context.Clientes
-                .Include(c => c.Empresa)
-                .Include(c => c.Endereco)
-                .FirstOrDefault(c => c.Id == id);
-        }
-        catch (Exception ex)
-        {
-            throw new Exception("Erro ao buscar cliente por ID: " + ex.Message);
-        }
+        return await _context.Clientes
+            .Include(c => c.Empresa)
+            .Include(c => c.Endereco)
+            .FirstOrDefaultAsync(c => c.Id == id);
     }
 
-    public Cliente? BuscarPorNome(string nome)
+    public async Task<Cliente?> BuscarPorNome(string nome)
     {
-        try
-        {
-            return _context.Clientes
-                .Include(c => c.Empresa)
-                .Include(c => c.Endereco)
-                .FirstOrDefault(c => c.Nome.ToLower() == nome.ToLower());
-        }
-        catch (Exception ex)
-        {
-            throw new Exception("Erro ao buscar cliente por nome: " + ex.Message);
-        }
+        return await _context.Clientes
+            .Include(c => c.Empresa)
+            .Include(c => c.Endereco)
+            .FirstOrDefaultAsync(c => c.Nome.ToLower() == nome.ToLower());
     }
 
-    public void Cadastrar(Cliente cliente)
+    public async Task Cadastrar(Cliente cliente)
     {
-        try
-        {
-            _context.Clientes.Add(cliente);
-            _context.SaveChanges();
-        }
-        catch (Exception ex)
-        {
-            throw new Exception("Erro ao cadastrar cliente: " + ex.Message);
-        }
+        _context.Clientes.Add(cliente);
+        await _context.SaveChangesAsync();
     }
 
-    public void Desativar(Guid id)
+    public async Task Desativar(Guid id)
     {
-        try
+        var cliente = await _context.Clientes.FindAsync(id);
+        if (cliente == null)
         {
-            var cliente = _context.Clientes.Find(id);
-            if (cliente == null)
-            {
-                throw new Exception("Cliente não encontrado.");
-            }
-
-            if (cliente.Ativo == false)
-            {
-                throw new Exception("Cliente já está desativado.");
-            }
-
-            cliente.Desativar();
-            _context.SaveChanges();
+            throw new Exception("Cliente não encontrado.");
         }
-        catch (Exception ex)
+
+        if (cliente.Ativo == false)
         {
-            throw new Exception("Erro ao desativar cliente: " + ex.Message);
+            throw new Exception("Cliente já está desativado.");
         }
+
+        cliente.Desativar();
+        await _context.SaveChangesAsync();
     }
 }
