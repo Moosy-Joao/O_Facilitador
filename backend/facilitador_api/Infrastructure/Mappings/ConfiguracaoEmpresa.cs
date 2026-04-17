@@ -8,7 +8,7 @@ namespace facilitador_api.Infrastructure.Mappings
     {
         public void Configure(EntityTypeBuilder<Empresa> builder)
         {
-            builder.ToTable("company");
+            builder.ToTable("empresa");
 
             builder.HasKey(e => e.Id);
             builder.Property(e => e.Id)
@@ -16,7 +16,7 @@ namespace facilitador_api.Infrastructure.Mappings
                 .ValueGeneratedOnAdd();
 
             builder.Property(e => e.Nome)
-                .HasColumnName("name")
+                .HasColumnName("nome")
                 .IsRequired();
 
             builder.Property(e => e.CNPJ)
@@ -28,7 +28,7 @@ namespace facilitador_api.Infrastructure.Mappings
                 .IsRequired();
 
             builder.Property(e => e.Telefone)
-                .HasColumnName("phone");
+                .HasColumnName("telefone");
 
             builder.HasOne(e => e.Endereco)
                 .WithOne()
@@ -36,16 +36,16 @@ namespace facilitador_api.Infrastructure.Mappings
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.Property(e => e.Ativo)
-                .HasColumnName("active")
+                .HasColumnName("ativo")
                 .IsRequired()
                 .HasDefaultValue(true);
 
             builder.Property(e => e.CriadoEm)
-                .HasColumnName("created_at")
+                .HasColumnName("criado_em")
                 .IsRequired();
 
             builder.Property(e => e.ModificadoEm)
-                .HasColumnName("updated_at")
+                .HasColumnName("modificado_em")
                 .IsRequired();
         }
     }

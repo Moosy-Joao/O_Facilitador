@@ -18,7 +18,7 @@ namespace facilitador_api.Application.Services
             _enderecoRepository = enderecoRepository;
         }
 
-        public string Atualizar(Guid id, ClienteDTO dto)
+        public bool Atualizar(Guid id, ClienteDTO dto)
         {
             try
             {
@@ -26,21 +26,21 @@ namespace facilitador_api.Application.Services
                 var empresa = _empresaRepository.BuscarPorId(dto.Empresa);
                 if (empresa == null)
                 {
-                    return "Empresa não encontrada.";
+                    return false;
                 }
 
                 // Verificar se o endereço existe
                 var endereco = _enderecoRepository.BuscarPorId(dto.Endereco);
                 if (endereco == null)
                 {
-                    return "Endereço não encontrado.";
+                    return false;
                 }
 
                 var cliente = _clienteRepository.BuscarPorId(id);
 
                 if (cliente == null)
                 {
-                    return "Cliente não encontrado.";
+                    return false;
                 }
 
                 var clienteAtualizado = new Cliente(
@@ -55,11 +55,11 @@ namespace facilitador_api.Application.Services
                 );
 
                 _clienteRepository.Atualizar(clienteAtualizado);
-                return "Cliente atualizado com sucesso.";
+                return true;
             }
             catch
             {
-                return "Ocorreu um erro ao atualizar o cliente.";
+                return false;
             }
         }
 
@@ -145,7 +145,37 @@ namespace facilitador_api.Application.Services
                     throw new Exception("Empresa do cliente não encontrada.");
                 }
 
-
+                return new ClienteResponseDTO
+                {
+                    Id = cliente.Id,
+                    Nome = cliente.Nome,
+                    Email = cliente.Email,
+                    Documento = cliente.Documento,
+                    Telefone = cliente.Telefone,
+                    Saldo = cliente.Saldo,
+                    LimiteCredito = cliente.LimiteCredito,
+                    Endereco = new EnderecoResponseDTO
+                    {
+                        Id = endereco.Id,
+                        Pais = endereco.Pais,
+                        Cidade = endereco.Cidade,
+                        Estado = endereco.Estado,
+                        Bairro = endereco.Bairro,
+                        Rua = endereco.Rua,
+                        Numero = endereco.Numero,
+                        CEP = endereco.CEP
+                    },
+                    Empresa = new EmpresaResponseDTO
+                    {
+                        Id = empresa.Id,
+                        Nome = empresa.Nome,
+                        CNPJ = empresa.CNPJ,
+                        Ativo = empresa.Ativo,
+                        CriadoEm = empresa.CriadoEm
+                    },
+                    Ativo = cliente.Ativo,
+                    CriadoEm = cliente.CriadoEm
+                };
             }
             catch (Exception ex)
             {
@@ -163,7 +193,7 @@ namespace facilitador_api.Application.Services
             throw new NotImplementedException();
         }
 
-        public string Criar(ClienteDTO dto)
+        public bool Criar(ClienteDTO dto)
         {
             try
             {
@@ -171,14 +201,14 @@ namespace facilitador_api.Application.Services
                 var empresa = _empresaRepository.BuscarPorId(dto.Empresa);
                 if (empresa == null)
                 {
-                    return "Empresa não encontrada.";
+                    return false;
                 }
 
                 // Verificar se o endereço existe
                 var endereco = _enderecoRepository.BuscarPorId(dto.Endereco);
                 if (endereco == null)
                 {
-                    return "Endereço não encontrado.";
+                    return false;
                 }
 
                 var cliente = new Cliente(
@@ -193,33 +223,33 @@ namespace facilitador_api.Application.Services
                 );
 
                 _clienteRepository.Cadastrar(cliente);
-                return "Cliente criado com sucesso.";
+                return true;
             }
             catch
             {
-                return "Ocorreu um erro ao criar o cliente.";
+                return false;
             }
         }
 
-        public string Desativar(Guid id)
+        public bool Desativar(Guid id)
         {
             try
             {
                 var cliente = _clienteRepository.BuscarPorId(id);
                 if (cliente == null)
                 {
-                    return "Cliente não encontrado.";
+                    return false;
                 }
 
                 cliente.Desativar();
 
                 _clienteRepository.Atualizar(cliente);
-                return "Cliente desativado com sucesso.";
+                return true;
 
             }
             catch
             {
-                return "Ocorreu um erro ao desativar o cliente.";
+                return false;
             }
         }
     }

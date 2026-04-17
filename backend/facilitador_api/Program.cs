@@ -2,6 +2,7 @@ using facilitador_api.Application.Interfaces;
 using facilitador_api.Application.Services;
 using facilitador_api.Domain.Interfaces;
 using facilitador_api.Infrastructure.DB;
+using facilitador_api.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,9 +11,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ConnectionContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// DI
+// Injeção de dependências
 builder.Services.AddScoped<IClienteService, ClienteService>();
-builder.Services.AddScoped<IClienteRepository, facilitador_api.Infrastructure.Repositories.ClienteRepository>();
+builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
+builder.Services.AddScoped<IEnderecoRepository, EnderecoRepository>();
 
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();

@@ -4,10 +4,10 @@ namespace facilitador_api.Application.Interfaces
 {
     public interface IEnderecoService
     {
-        string Criar(EnderecoDTO dto);
+        bool Criar(EnderecoDTO dto);
         EnderecoDTO? BuscarPorId(Guid id);
         EnderecoDTO? BuscarPorCEP(string cep);
-        string Atualizar(Guid id, EnderecoDTO dto);
-        string Desativar(Guid id);
+        bool Atualizar(Guid id, EnderecoDTO dto);
+        bool Desativar(Guid id);
     }
 }

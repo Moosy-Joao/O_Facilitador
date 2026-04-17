@@ -5,11 +5,12 @@
         // Relacionamento com Empresa
         public Guid EmpresaId { get; private set; }
         public Empresa? Empresa { get; private set; }
+
         public string Nome { get; private set; }
         public string Email { get; private set; }
-        public string? ResponsavelFiscal { get; private set; }
         public string Documento { get; private set; }
         public string Telefone { get; private set; }
+
         // Relacionamento com Endereco
         public Guid EnderecoId { get; private set; }
         public Endereco? Endereco { get; private set; }

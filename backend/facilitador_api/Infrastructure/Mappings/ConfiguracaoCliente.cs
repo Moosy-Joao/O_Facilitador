@@ -8,7 +8,7 @@ namespace facilitador_api.Infrastructure.Mappings
     {
         public void Configure(EntityTypeBuilder<Cliente> builder)
         {
-            builder.ToTable("client");
+            builder.ToTable("cliente");
 
             builder.HasKey(c => c.Id);
             builder.Property(c => c.Id)
@@ -21,22 +21,19 @@ namespace facilitador_api.Infrastructure.Mappings
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.Property(c => c.Nome)
-                .HasColumnName("name")
+                .HasColumnName("nome")
                 .IsRequired();
 
             builder.Property(c => c.Email)
                 .HasColumnName("email")
                 .IsRequired();
 
-            builder.Property(c => c.ResponsavelFiscal)
-                .HasColumnName("financial_officer");
-
             builder.Property(c => c.Documento)
-                .HasColumnName("document")
+                .HasColumnName("documento")
                 .IsRequired();
 
             builder.Property(c => c.Telefone)
-                .HasColumnName("phone");
+                .HasColumnName("telefone");
 
             builder.HasOne(c => c.Endereco)
                 .WithOne()
@@ -44,27 +41,27 @@ namespace facilitador_api.Infrastructure.Mappings
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.Property(c => c.Saldo)
-                .HasColumnName("balance")
+                .HasColumnName("saldo")
                 .IsRequired();
 
             builder.Property(c => c.LimiteCredito)
-                .HasColumnName("credit_limit")
+                .HasColumnName("limite_credito")
                 .IsRequired();
 
             builder.Property(c => c.Nota)
-                .HasColumnName("score");
+                .HasColumnName("nota");
 
             builder.Property(c => c.Ativo)
-                .HasColumnName("active")
+                .HasColumnName("ativo")
                 .IsRequired()
                 .HasDefaultValue(true);
 
             builder.Property(c => c.CriadoEm)
-                .HasColumnName("created_at")
+                .HasColumnName("criado_em")
                 .IsRequired();
 
             builder.Property(c => c.ModificadoEm)
-                .HasColumnName("updated_at")
+                .HasColumnName("modificado_em")
                 .IsRequired();
         }
     }

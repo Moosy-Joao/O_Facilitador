@@ -8,7 +8,7 @@ namespace facilitador_api.Infrastructure.Mappings
     {
         public void Configure(EntityTypeBuilder<Endereco> builder)
         {
-            builder.ToTable("address");
+            builder.ToTable("endereco");
 
             builder.HasKey(e => e.Id);
             builder.Property(e => e.Id)
@@ -16,27 +16,27 @@ namespace facilitador_api.Infrastructure.Mappings
                 .ValueGeneratedOnAdd();
 
             builder.Property(e => e.Pais)
-                .HasColumnName("country")
+                .HasColumnName("pais")
                 .IsRequired();
 
             builder.Property(e => e.Estado)
-                .HasColumnName("state")
+                .HasColumnName("estado")
                 .IsRequired();
 
             builder.Property(e => e.Cidade)
-                .HasColumnName("city")
+                .HasColumnName("cidade")
                 .IsRequired();
 
             builder.Property(e => e.Bairro)
-                .HasColumnName("neighborhood")
+                .HasColumnName("bairro")
                 .IsRequired();
 
             builder.Property(e => e.Rua)
-                .HasColumnName("street")
+                .HasColumnName("rua")
                 .IsRequired();
 
             builder.Property(e => e.Numero)
-                .HasColumnName("number")
+                .HasColumnName("numero")
                 .IsRequired();
 
             builder.Property(e => e.CEP)
@@ -44,15 +44,15 @@ namespace facilitador_api.Infrastructure.Mappings
                 .IsRequired();
 
             builder.Property(e => e.Ativo)
-                .HasColumnName("active")
+                .HasColumnName("ativo")
                 .IsRequired();
 
             builder.Property(e => e.CriadoEm)
-                .HasColumnName("created_at")
+                .HasColumnName("criado_em")
                 .IsRequired();
 
             builder.Property(e => e.ModificadoEm)
-                .HasColumnName("updated_at")
+                .HasColumnName("modificado_em")
                 .IsRequired();
         }
     }
