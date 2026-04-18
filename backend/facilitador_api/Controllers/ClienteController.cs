@@ -20,7 +20,7 @@ namespace facilitador_api.API.Controllers
         {
             var resultado = await _service.Criar(dto);
 
-            if (resultado = true)
+            if (resultado == true)
                 return BadRequest(resultado);
 
             return Ok(resultado);
