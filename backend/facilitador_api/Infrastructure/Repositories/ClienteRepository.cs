@@ -1,28 +1,37 @@
 ﻿using facilitador_api.Domain.Entities;
 using facilitador_api.Domain.Interfaces;
 using facilitador_api.Infrastructure.DB;
-using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace facilitador_api.Infrastructure.Repositories;
 
-public class ClienteRepository : IClienteRepository
+public class ClienteRepository : BaseRepository<Cliente>, IClienteRepository
 {
-    private readonly ConnectionContext _context;
-
-    public ClienteRepository(ConnectionContext context)
+    public ClienteRepository(ConnectionContext context) : base(context)
     {
-        _context = context;
     }
 
-    public void Adicionar(Cliente cliente)
+    public async Task<Cliente?> BuscarPorDocumento(string documento)
     {
-        _context.Clientes.Add(cliente);
-        _context.SaveChanges();
+        return await _context.Clientes
+            .Include(c => c.Empresa)
+            .Include(c => c.Endereco)
+            .FirstOrDefaultAsync(c => c.Documento == documento);
     }
 
-    public Cliente? ObterPorDocumento(string documento)
+    public async Task<Cliente?> BuscarPorEmail(string email)
     {
-        return _context.Clientes
-            .FirstOrDefault(c => c.Documento == documento);
+        return await _context.Clientes
+            .Include(c => c.Empresa)
+            .Include(c => c.Endereco)
+            .FirstOrDefaultAsync(c => c.Email == email);
+    }
+
+    public async Task<Cliente?> BuscarPorNome(string nome)
+    {
+        return await _context.Clientes
+            .Include(c => c.Empresa)
+            .Include(c => c.Endereco)
+            .FirstOrDefaultAsync(c => c.Nome.ToLower() == nome.ToLower());
     }
 }

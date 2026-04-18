@@ -1,63 +1,148 @@
-﻿using facilitador_api.Application.Interfaces;
-using facilitador_api.Application.DTOs;
-using facilitador_api.Domain.Interfaces;
+﻿using facilitador_api.Application.DTOs;
+using facilitador_api.Application.Interfaces;
 using facilitador_api.Domain.Entities;
-using System.Linq;
+using facilitador_api.Domain.Interfaces;
 
 namespace facilitador_api.Application.Services
 {
     public class ClienteService : IClienteService
     {
-        private readonly IClienteRepository _repository;
+        private readonly IClienteRepository _clienteRepository;
+        private readonly IEmpresaRepository _empresaRepository;
+        private readonly IEnderecoRepository _enderecoRepository;
 
-        public ClienteService(IClienteRepository repository)
+        public ClienteService(IClienteRepository repository, IEmpresaRepository empresaRepository, IEnderecoRepository enderecoRepository)
         {
-            _repository = repository;
+            _clienteRepository = repository;
+            _empresaRepository = empresaRepository;
+            _enderecoRepository = enderecoRepository;
         }
 
-        public string Criar(ClienteDTO dto)
+        public async Task<bool> Atualizar(Guid id, ClienteUpdateDTO dto)
         {
-            // 🔹 Validações
-            if (string.IsNullOrWhiteSpace(dto.Nome))
-                return "Nome é obrigatório";
+            // Verificar se a empresa existe
+            //var empresa = _empresaRepository.BuscarPorId(dto.Empresa);
+            //if (empresa == null)
+            //{
+            //    return false;
+            //}
 
-            if (!ValidarDocumento(dto.Documento))
-                return "CPF/CNPJ inválido";
+            // Verificar se o endereço existe
+            //var endereco = _enderecoRepository.BuscarPorId(dto.Endereco);
+            //if (endereco == null)
+            //{
+            //    return false;
+            //}
 
-            if (!ValidarTelefone(dto.Telefone))
-                return "Telefone inválido";
+            //var cliente = _clienteRepository.BuscarPorId(id);
 
-            // 🔹 Duplicidade
-            var existente = _repository.ObterPorDocumento(dto.Documento);
-            if (existente != null)
-                return "Cliente já cadastrado";
+            //if (cliente == null)
+            //{
+            //    return false;
+            //}
 
-            // 🔹 Criar entidade
-            var cliente = new Cliente(dto.Nome, dto.Documento, dto.Telefone);
+            //var clienteAtualizado = new ClienteUpdateDTO();
 
-            _repository.Adicionar(cliente);
+            //_clienteRepository.Atualizar(clienteAtualizado);
+            //return true;
 
-            return "Cliente cadastrado com sucesso";
+            throw new NotImplementedException();
         }
 
-        private bool ValidarDocumento(string doc)
+        public async Task<ClienteResponseDTO?> BuscarPorDocumento(string documento)
         {
-            if (string.IsNullOrWhiteSpace(doc))
+            var cliente = _clienteRepository.BuscarPorDocumento(documento);
+            if (cliente == null)
+            {
+                throw new Exception("Cliente não encontrado.");
+            }
+
+            var endereco = _enderecoRepository.BuscarPorId(cliente.Id);
+            if (endereco == null)
+            {
+                throw new Exception("Endereço do cliente não encontrado.");
+            }
+
+            var empresa = _empresaRepository.BuscarPorId(cliente.Id);
+            if (empresa == null)
+            {
+                throw new Exception("Empresa do cliente não encontrada.");
+            }
+
+            return new ClienteResponseDTO();
+        }
+
+        public async Task<ClienteResponseDTO?> BuscarPorEmail(string email)
+        {
+            var cliente = _clienteRepository.BuscarPorEmail(email);
+            if (cliente == null)
+            {
+                throw new Exception("Cliente não encontrado.");
+            }
+
+            var endereco = _enderecoRepository.BuscarPorId(cliente.Id);
+            if (endereco == null)
+            {
+                throw new Exception("Endereço do cliente não encontrado.");
+            }
+
+            var empresa = _empresaRepository.BuscarPorId(cliente.Id);
+            if (empresa == null)
+            {
+                throw new Exception("Empresa do cliente não encontrada.");
+            }
+
+            return new ClienteResponseDTO();
+        }
+
+        public async Task<ClienteResponseDTO?> BuscarPorId(Guid id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<IEnumerable<ClienteResponseDTO>> BuscarPorNome(string nome)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<bool> Criar(ClienteCreateDTO dto)
+        {
+            // Verificar se a empresa existe
+            var empresa = _empresaRepository.BuscarPorId(dto.Empresa);
+            if (empresa == null)
+            {
                 return false;
+            }
 
-            doc = new string(doc.Where(char.IsDigit).ToArray());
+            // Verificar se o endereço existe
+            var endereco = _enderecoRepository.BuscarPorId(dto.Endereco);
+            if (endereco == null)
+            {
+                return false;
+            }
 
-            return doc.Length == 11 || doc.Length == 14;
+            var clienteNovo = new Cliente(
+                dto,
+                dto.Empresa,
+                dto.Endereco
+            );
+
+            await _clienteRepository.Cadastrar(clienteNovo);
+            return true;
         }
 
-        private bool ValidarTelefone(string telefone)
+        public async Task<bool> Desativar(Guid id)
         {
-            if (string.IsNullOrWhiteSpace(telefone))
+            var cliente = await _clienteRepository.BuscarPorId(id);
+            if (cliente == null)
+            {
                 return false;
+            }
 
-            telefone = new string(telefone.Where(char.IsDigit).ToArray());
+            cliente.Desativar();
 
-            return telefone.Length >= 10 && telefone.Length <= 11;
+            await _clienteRepository.Salvar();
+            return true;
         }
     }
 }

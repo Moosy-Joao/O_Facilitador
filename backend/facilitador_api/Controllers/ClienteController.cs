@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace facilitador_api.API.Controllers
 {
     [ApiController]
-    [Route("Cliente")]
+    [Route("cliente")]
     public class ClienteController : ControllerBase
     {
         private readonly IClienteService _service;
@@ -16,11 +16,11 @@ namespace facilitador_api.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult CriarCliente(ClienteDTO dto)
+        public async Task<IActionResult> CriarCliente(ClienteCreateDTO dto)
         {
-            var resultado = _service.Criar(dto);
+            var resultado = await _service.Criar(dto);
 
-            if (resultado != "Cliente cadastrado com sucesso")
+            if (resultado == true)
                 return BadRequest(resultado);
 
             return Ok(resultado);
