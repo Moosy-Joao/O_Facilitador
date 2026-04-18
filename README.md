@@ -148,6 +148,16 @@ Login → Tela Inicial → Buscar Cliente → Registrar Dívida → Registrar Pa
 
 ---
 
+## Rodando o projeto
+
+### Backend
+
+docker compose up -d
+
+Abra o Swagger em http://localhost:5238/swagger/index.html;
+
+---
+
 ## 📄 Licença
 
 Distribuído sob a licença disponível em [LICENSE](LICENSE).
