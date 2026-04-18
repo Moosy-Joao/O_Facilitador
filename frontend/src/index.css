@@ -1,0 +1,53 @@
+:root {
+  --bg-color: #fcfbf5; /* slightly lighter than F6F1D1 for main bg */
+  --bg-gradient: linear-gradient(135deg, #F6F1D1 0%, #e8e2b8 100%);
+  
+  --card-bg: #ffffff;
+  --card-border: rgba(69, 75, 102, 0.1);
+  --card-shadow: 0 20px 40px rgba(69, 75, 102, 0.08);
+  
+  --primary-color: #677DB7;
+  --primary-hover: #454B66;
+  --accent-color: #E4959E;
+  --text-main: #454B66;
+  --text-muted: #9CA3DB;
+  --error-color: #E4959E;
+  --success-color: #2e7d32;
+
+  
+  --font-family: 'Outfit', sans-serif;
+  --border-radius: 12px;
+  --transition-speed: 0.3s;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background: var(--bg-color);
+  background-image: var(--bg-gradient);
+  color: var(--text-main);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+input, button {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  outline: none;
+}
+
+a {
+  text-decoration: none;
+  color: var(--primary-color);
+}
