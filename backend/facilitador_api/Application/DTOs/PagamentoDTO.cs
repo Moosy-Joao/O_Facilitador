@@ -10,7 +10,7 @@ namespace facilitador_api.Application.DTOs
         [Required(ErrorMessage = "O campo 'Observação' é obrigatório.")]
         public string Observacao { get; set; }
 
-        
+
     }
 
     public class PagamentoResponseDTO

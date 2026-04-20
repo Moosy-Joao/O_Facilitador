@@ -12,10 +12,15 @@ builder.Services.AddDbContext<ConnectionContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Injeção de dependências
-builder.Services.AddScoped<IClienteService, ClienteService>();
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
 builder.Services.AddScoped<IEnderecoRepository, EnderecoRepository>();
+//builder.Services.AddScoped<IPagamentoRepository, PagamentoRepository>();
+
+builder.Services.AddScoped<IClienteService, ClienteService>();
+builder.Services.AddScoped<IEmpresaService, EmpresaService>();
+//builder.Services.AddScoped<IEnderecoService, EnderecoService>();
+//builder.Services.AddScoped<IPagamentoService, PagamentoService>();
 
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();

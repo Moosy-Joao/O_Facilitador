@@ -2,69 +2,68 @@
 
 namespace facilitador_api.Application.DTOs
 {
-    public class BaseClienteDTO
+    public class ClienteDTO
     {
         [Required(ErrorMessage = "O campo 'Nome' é obrigatório.")]
         [StringLength(100, ErrorMessage = "O campo 'Nome' deve conter no máximo 100 caracteres.")]
-        public string Nome { get; set; } = string.Empty;
+        public string Nome { get; set; }
 
         [Required(ErrorMessage = "O campo 'Email' é obrigatório.")]
         [EmailAddress]
-        public string Email { get; set; } = string.Empty;
+        public string Email { get; set; }
 
         [Required(ErrorMessage = "O campo 'Documento' é obrigatório.")]
-        public string Documento { get; set; } = string.Empty;
+        public string Documento { get; set; }
     }
 
-    public class ClienteDTO : BaseClienteDTO
-    {
-        public Guid Id { get; set; }
-        public bool Ativo { get; set; }
-        public DateTime CriadoEm { get; set; }
-        public DateTime ModificadoEm { get; set; }
-    }
-
-    public class ClienteCreateDTO : BaseClienteDTO
+    public class ClienteCreateDTO : ClienteDTO
     {
         [Required(ErrorMessage = "O campo 'Saldo' é obrigatório.")]
-        public decimal Saldo { get; set; } = 0;
+        public decimal Saldo { get; set; }
 
         [Required(ErrorMessage = "O campo 'LimiteCredito' é obrigatório.")]
-        public decimal LimiteCredito { get; set; } = 0;
+        public decimal LimiteCredito { get; set; }
 
         [Phone]
         public string Telefone { get; set; } = string.Empty;
 
         // Chaves estrangeiras
         [Required(ErrorMessage = "O campo 'Endereco' é obrigatório.")]
-        public Guid Endereco { get; set; }
+        public Guid EnderecoId { get; set; }
         [Required(ErrorMessage = "O campo 'Empresa' é obrigatório.")]
-        public Guid Empresa { get; set; }
+        public Guid EmpresaId { get; set; }
     }
 
-    public class ClienteUpdateDTO : BaseClienteDTO
+    public class ClienteUpdateDTO
     {
+        [StringLength(100, ErrorMessage = "O campo 'Nome' deve conter no máximo 100 caracteres.")]
+        public string? Nome { get; set; }
+
+        [EmailAddress]
+        public string? Email { get; set; }
+
+        public string? Documento { get; set; }
+        public decimal? Saldo { get; set; }
+        public decimal? LimiteCredito { get; set; }
         [Phone]
-        public string? Telefone { get; set; } = null;
-
-        [Required(ErrorMessage = "O campo 'LimiteCredito' é obrigatório.")]
-        public decimal? LimiteCredito { get; set; } = null;
-
-        // Chaves estrangeiras
-        public Guid? Endereco { get; set; } = null;
+        public string? Telefone { get; set; }
+        public Guid? EnderecoId { get; set; }
+        public Guid? EmpresaId { get; set; }
     }
 
-    public class ClienteResponseDTO : ClienteDTO
+    public class ClienteResponseDTO
     {
-        public decimal Saldo { get; set; }
-
-        public decimal LimiteCredito { get; set; }
-
+        public Guid Id { get; set; }
+        public string Nome { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Documento { get; set; } = string.Empty;
         public string? Telefone { get; set; }
-
-        public float Nota { get; set; }
-
-        public EnderecoDTO? Endereco { get; set; }
-        public EmpresaDTO? Empresa { get; set; }
+        public decimal Saldo { get; set; }
+        public decimal LimiteCredito { get; set; }
+        public bool Ativo { get; set; }
+        public DateTime CriadoEm { get; set; }
+        public DateTime ModificadoEm { get; set; }
+        public EnderecoResponseDTO? Endereco { get; set; }
+        public EmpresaResponseDTO? Empresa { get; set; }
     }
 }

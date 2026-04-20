@@ -1,8 +1,6 @@
-﻿using System;
-
-public class Class1
+﻿public class PagamentoController
 {
-	public Class1()
-	{
-	}
+    public PagamentoController()
+    {
+    }
 }

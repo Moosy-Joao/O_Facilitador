@@ -1,10 +1,12 @@
 ﻿using facilitador_api.Application.DTOs;
+using facilitador_api.Application.Interfaces;
+using facilitador_api.Application.Mapping;
 using facilitador_api.Domain.Entities;
 using facilitador_api.Domain.Interfaces;
 
 namespace facilitador_api.Application.Services
 {
-    public class EmpresaService //: IEmpresaService
+    public class EmpresaService : IEmpresaService
     {
         private readonly IEmpresaRepository _empresaRepository;
         private readonly IEnderecoRepository _enderecoRepository;
@@ -15,98 +17,62 @@ namespace facilitador_api.Application.Services
             _enderecoRepository = enderecoRepository;
         }
 
-        public string Atualizar(Guid id, EmpresaDTO dto)
-        {
-            try
-            {
-                var endereco = _enderecoRepository.BuscarPorId(dto.Endereco);
-                if (endereco == null)
-                {
-                    return "Endereço não encontrado.";
-                }
-
-                var empresa = _empresaRepository.BuscarPorId(id);
-                if (empresa == null)
-                {
-                    return "Empresa não encontrada.";
-                }
-
-                var empresaAtualizada = new Empresa(
-                    nome: dto.Nome,
-                    cnpj: dto.CNPJ,
-                    email: dto.Email,
-                    telefone: dto.Telefone,
-                    enderecoId: dto.Endereco
-                );
-
-                _empresaRepository.Atualizar(empresaAtualizada);
-                return "Empresa atualizada com sucesso.";
-            }
-            catch
-            {
-                return "Erro ao atualizar empresa.";
-            }
-        }
-
-        public EmpresaDTO? BuscarPorCNPJ(string cnpj)
+        public async Task<bool> Atualizar(Guid id, EmpresaUpdateDTO dto)
         {
             throw new NotImplementedException();
         }
 
-        public EmpresaDTO? BuscarPorId(Guid id)
+        public async Task<EmpresaResponseDTO?> BuscarPorCNPJ(string cnpj)
         {
-            throw new NotImplementedException();
+            var empresa = await _empresaRepository.BuscarPorCNPJ(cnpj);
+            return empresa?.ToResponseDTO();
         }
 
-        public IEnumerable<EmpresaDTO> BuscarPorNome(string nome)
+        public async Task<EmpresaResponseDTO?> BuscarPorId(Guid id)
         {
-            throw new NotImplementedException();
+            var empresa = await _empresaRepository.BuscarPorId(id);
+            return empresa?.ToResponseDTO();
         }
 
-        public string Criar(EmpresaDTO dto)
+        public async Task<IEnumerable<EmpresaResponseDTO>?> BuscarPorNome(string nome)
         {
-            try
+            var empresas = await _empresaRepository.BuscarPorNome(nome);
+            if (!empresas.Any())
             {
-                var endereco = _enderecoRepository.BuscarPorId(dto.Endereco);
-                if (endereco == null)
-                {
-                    return "Endereço não encontrado.";
-                }
-
-                var empresa = new Empresa(
-                    nome: dto.Nome,
-                    cnpj: dto.CNPJ,
-                    email: dto.Email,
-                    telefone: dto.Telefone,
-                    enderecoId: dto.Endereco
-                );
-
-                _empresaRepository.Cadastrar(empresa);
-                return "Empresa criada com sucesso.";
+                return null;
             }
-            catch
-            {
-                return "Erro ao criar empresa.";
-            }
+
+            return empresas.Select(e => e.ToResponseDTO()).ToList();
         }
 
-        public string Desativar(Guid id)
+        public async Task<bool> Criar(EmpresaCreateDTO dto)
         {
-            try
+            var endereco = await _enderecoRepository.BuscarPorId(dto.EnderecoId);
+            if (endereco == null)
             {
-                var empresa = _empresaRepository.BuscarPorId(id);
-                if (empresa == null)
-                {
-                    return "Empresa não encontrada.";
-                }
+                return false;
+            }
 
-                _empresaRepository.Desativar(id);
-                return "Empresa desativada com sucesso.";
-            }
-            catch
+            var empresa = new Empresa(dto, dto.EnderecoId);
+
+            await _empresaRepository.Cadastrar(empresa);
+            await _empresaRepository.Salvar();
+
+            return true;
+        }
+
+        public async Task<bool> Desativar(Guid id)
+        {
+            var empresa = await _empresaRepository.BuscarPorId(id);
+            if (empresa == null)
             {
-                return "Erro ao desativar empresa.";
+                return false;
             }
+
+            await _empresaRepository.Desativar(id);
+
+            await _empresaRepository.Salvar();
+            return true;
         }
     }
 }

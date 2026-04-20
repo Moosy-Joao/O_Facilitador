@@ -42,7 +42,7 @@ namespace facilitador_api.Infrastructure.Repositories
             var entidadeExistente = await _dbSet.FindAsync(id);
             if (entidadeExistente == null)
             {
-                throw new Exception("Entidade não encontrada.");
+                return;
             }
 
             if (entidadeExistente.Ativo == false)

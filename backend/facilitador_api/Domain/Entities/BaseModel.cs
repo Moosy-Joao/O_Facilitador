@@ -25,5 +25,10 @@
             Ativo = false;
             ModificadoEm = DateTime.UtcNow;
         }
+
+        public void AtualizarModificadoEm(DateTime dataHora)
+        {
+            ModificadoEm = dataHora;
+        }
     }
 }

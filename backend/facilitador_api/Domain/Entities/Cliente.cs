@@ -34,7 +34,7 @@ namespace facilitador_api.Domain.Entities
 
         public Cliente(ClienteCreateDTO dto, Guid empresaId, Guid enderecoId)
         {
-            EmpresaId = dto.Empresa;
+            EmpresaId = empresaId;
             Nome = dto.Nome;
             Email = dto.Email;
             Documento = dto.Documento;
@@ -44,5 +44,37 @@ namespace facilitador_api.Domain.Entities
             LimiteCredito = dto.LimiteCredito;
             EnderecoId = enderecoId;
         }
+
+        public void AtualizarNome(string nome)
+        {
+            if (string.IsNullOrWhiteSpace(nome)) return;
+            Nome = nome;
+        }
+
+        public void AtualizarEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return;
+            Email = email;
+        }
+
+        public void AtualizarDocumento(string documento)
+        {
+            if (string.IsNullOrWhiteSpace(documento)) return;
+            Documento = documento;
+        }
+
+        public void AtualizarTelefone(string telefone)
+        {
+            if (string.IsNullOrWhiteSpace(telefone)) return;
+            Telefone = telefone;
+        }
+
+        public void AtualizarSaldo(decimal saldo) => Saldo = saldo;
+
+        public void AtualizarLimiteCredito(decimal limite) => LimiteCredito = limite;
+
+        public void AtualizarEnderecoId(Guid enderecoId) => EnderecoId = enderecoId;
+
+        public void AtualizarEmpresaId(Guid empresaId) => EmpresaId = empresaId;
     }
 }

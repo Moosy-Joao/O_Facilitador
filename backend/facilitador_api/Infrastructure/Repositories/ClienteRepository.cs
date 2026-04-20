@@ -27,11 +27,12 @@ public class ClienteRepository : BaseRepository<Cliente>, IClienteRepository
             .FirstOrDefaultAsync(c => c.Email == email);
     }
 
-    public async Task<Cliente?> BuscarPorNome(string nome)
+    public async Task<IEnumerable<Cliente>> BuscarPorNome(string nome)
     {
         return await _context.Clientes
-            .Include(c => c.Empresa)
             .Include(c => c.Endereco)
-            .FirstOrDefaultAsync(c => c.Nome.ToLower() == nome.ToLower());
+            .Include(c => c.Empresa)
+            .Where(c => c.Nome.ToLower().Contains(nome.ToLower()))
+            .ToListAsync();
     }
 }

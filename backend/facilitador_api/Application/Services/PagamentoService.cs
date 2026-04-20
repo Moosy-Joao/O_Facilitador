@@ -1,8 +1,6 @@
-﻿using System;
-
-public class Class1
+﻿public class PagamentoService
 {
-	public Class1()
-	{
-	}
+    public PagamentoService()
+    {
+    }
 }

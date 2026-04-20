@@ -1,4 +1,6 @@
-﻿namespace facilitador_api.Domain.Entities
+﻿using facilitador_api.Application.DTOs;
+
+namespace facilitador_api.Domain.Entities
 {
     public class Endereco : BaseModel
     {
@@ -10,6 +12,8 @@
         public string Numero { get; private set; }
         public string CEP { get; private set; }
 
+        public Endereco() { }
+
         public Endereco(string pais, string estado, string cidade, string bairro, string rua, string numero, string cep)
         {
             Pais = pais;
@@ -19,6 +23,11 @@
             Rua = rua;
             Numero = numero;
             CEP = cep;
+        }
+
+        internal EnderecoDTO ToDTO()
+        {
+            throw new NotImplementedException();
         }
     }
 }
