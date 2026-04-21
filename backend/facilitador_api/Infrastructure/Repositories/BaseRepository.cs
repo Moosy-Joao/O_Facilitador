@@ -7,8 +7,8 @@ namespace facilitador_api.Infrastructure.Repositories
 {
     public class BaseRepository<T> : IBaseRepository<T> where T : BaseModel
     {
-        protected readonly ConnectionContext _context = null;
-        protected readonly DbSet<T> _dbSet = null;
+        protected readonly ConnectionContext _context;
+        protected readonly DbSet<T> _dbSet;
 
         public BaseRepository(ConnectionContext context)
         {
@@ -16,15 +16,15 @@ namespace facilitador_api.Infrastructure.Repositories
             _dbSet = _context.Set<T>();
         }
 
-        public Task Atualizar(T entidade)
+        public async Task Atualizar(T entidade)
         {
             _dbSet.Update(entidade);
-            return Task.CompletedTask;
+            await Task.CompletedTask;
         }
 
-        public async Task<T?> BuscarPorId(object id)
+        public async Task<T?> BuscarPorId(Guid id)
         {
-            return await _dbSet.FindAsync(id);
+            return await _dbSet.FirstOrDefaultAsync(e => e.Id == id, CancellationToken.None);
         }
 
         public async Task<IEnumerable<T>> BuscarTodos()
@@ -37,7 +37,7 @@ namespace facilitador_api.Infrastructure.Repositories
             await _dbSet.AddAsync(entidade);
         }
 
-        public async Task Desativar(object id)
+        public async Task Desativar(Guid id)
         {
             var entidadeExistente = await _dbSet.FindAsync(id);
             if (entidadeExistente == null)
@@ -55,7 +55,16 @@ namespace facilitador_api.Infrastructure.Repositories
 
         public async Task Salvar()
         {
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (ObjectDisposedException ex)
+            {
+                // Log do erro
+                Console.WriteLine($"ObjectDisposedException ao salvar: {ex.Message}");
+                throw;
+            }
         }
     }
 }

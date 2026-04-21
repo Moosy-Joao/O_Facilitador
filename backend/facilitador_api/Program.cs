@@ -19,7 +19,7 @@ builder.Services.AddScoped<IEnderecoRepository, EnderecoRepository>();
 
 builder.Services.AddScoped<IClienteService, ClienteService>();
 builder.Services.AddScoped<IEmpresaService, EmpresaService>();
-//builder.Services.AddScoped<IEnderecoService, EnderecoService>();
+builder.Services.AddScoped<IEnderecoService, EnderecoService>();
 //builder.Services.AddScoped<IPagamentoService, PagamentoService>();
 
 builder.Services.AddControllers();

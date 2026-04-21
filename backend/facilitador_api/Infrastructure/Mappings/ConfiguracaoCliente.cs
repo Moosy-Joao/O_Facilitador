@@ -15,10 +15,14 @@ namespace facilitador_api.Infrastructure.Mappings
                 .HasColumnName("id")
                 .ValueGeneratedOnAdd();
 
+            // Configura o relacionamento com Empresa
             builder.HasOne(c => c.Empresa)
                 .WithMany(c => c.Clientes)
                 .HasForeignKey(c => c.EmpresaId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Property(c => c.EmpresaId)
+                .HasColumnName("empresa_id");
 
             builder.Property(c => c.Nome)
                 .HasColumnName("nome")
@@ -35,10 +39,14 @@ namespace facilitador_api.Infrastructure.Mappings
             builder.Property(c => c.Telefone)
                 .HasColumnName("telefone");
 
+            // Configura o relacionamento com Endereco
             builder.HasOne(c => c.Endereco)
-                .WithOne()
-                .HasForeignKey<Cliente>(c => c.EnderecoId)
+                .WithMany()
+                .HasForeignKey(c => c.EnderecoId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Property(c => c.EnderecoId)
+                .HasColumnName("endereco_id");
 
             builder.Property(c => c.Saldo)
                 .HasColumnName("saldo")

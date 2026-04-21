@@ -4,10 +4,10 @@ namespace facilitador_api.Application.Interfaces
 {
     public interface IEnderecoService
     {
-        Task<EnderecoDTO?> BuscarPorId(Guid id);
-        Task<EnderecoDTO?> BuscarPorCEP(string cep);
-        Task<bool> Criar(EnderecoDTO dto);
-        Task<bool> Atualizar(Guid id, EnderecoDTO dto);
+        Task<EnderecoResponseDTO?> BuscarPorId(Guid id);
+        Task<EnderecoResponseDTO?> BuscarPorCEP(string cep);
+        Task<bool> Criar(EnderecoCreateDTO dto);
+        Task<bool> Atualizar(Guid id, EnderecoUpdateDTO dto);
         Task<bool> Desativar(Guid id);
     }
 }

@@ -63,7 +63,7 @@ namespace facilitador_api.Application.Services
             }
 
             // 5. Atualizar timestamp de modificação
-            cliente.AtualizarModificadoEm(DateTime.UtcNow);
+            //cliente.AtualizarModificadoEm(DateTime.UtcNow);
 
             // 6. Persistir as alterações no banco
             await _clienteRepository.Salvar();
@@ -103,14 +103,14 @@ namespace facilitador_api.Application.Services
         public async Task<bool> Criar(ClienteCreateDTO dto)
         {
             // Verificar se a empresa existe
-            var empresa = _empresaRepository.BuscarPorId(dto.EmpresaId);
+            var empresa = await _empresaRepository.BuscarPorId(dto.EmpresaId);
             if (empresa == null)
             {
                 return false;
             }
 
             // Verificar se o endereço existe
-            var endereco = _enderecoRepository.BuscarPorId(dto.EnderecoId);
+            var endereco = await _enderecoRepository.BuscarPorId(dto.EnderecoId);
             if (endereco == null)
             {
                 return false;
@@ -133,8 +133,8 @@ namespace facilitador_api.Application.Services
             }
 
             cliente.Desativar();
-
             await _clienteRepository.Salvar();
+
             return true;
         }
     }

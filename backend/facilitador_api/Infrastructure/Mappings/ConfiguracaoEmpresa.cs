@@ -30,10 +30,14 @@ namespace facilitador_api.Infrastructure.Mappings
             builder.Property(e => e.Telefone)
                 .HasColumnName("telefone");
 
+            // Configura o relacionamento com Endereco
             builder.HasOne(e => e.Endereco)
-                .WithOne()
-                .HasForeignKey<Empresa>(c => c.EnderecoId)
+                .WithMany()
+                .HasForeignKey(e => e.EnderecoId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Property(c => c.EnderecoId)
+                .HasColumnName("endereco_id");
 
             builder.Property(e => e.Ativo)
                 .HasColumnName("ativo")
