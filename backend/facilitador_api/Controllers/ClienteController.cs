@@ -18,12 +18,13 @@ namespace facilitador_api.API.Controllers
         [HttpGet]
         public async Task<IActionResult> ObterClientes()
         {
-            var resultado = await Task.FromResult(new List<ClienteDTO>());
-            if (resultado == null || !resultado.Any())
-            {
-                return NotFound("Nenhum cliente encontrado.");
-            }
-            return Ok(resultado);
+            Console.WriteLine("CONTROLLER CHAMADO");
+
+            var result = await _service.BuscarClientes();
+
+            Console.WriteLine("RETORNANDO RESULTADO");
+
+            return Ok(result);
         }
 
         [HttpPost]
@@ -31,9 +32,33 @@ namespace facilitador_api.API.Controllers
         {
             var resultado = await _service.Criar(dto);
 
-            if (resultado == true)
-                return BadRequest(resultado);
+            if (resultado == false)
+            {
+                return BadRequest("Erro ao criar cliente." + true);
+            }
 
+            return Ok(resultado);
+        }
+
+        [HttpPatch]
+        public async Task<IActionResult> AtualizarCliente(Guid id, ClienteUpdateDTO dto)
+        {
+            var resultado = await _service.Atualizar(id, dto);
+            if (resultado == false)
+            {
+                return BadRequest("Erro ao atualizar cliente." + true);
+            }
+            return Ok(resultado);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DesativarCliente(Guid id)
+        {
+            var resultado = await _service.Desativar(id);
+            if (resultado == false)
+            {
+                return BadRequest("Erro ao desativar cliente." + true);
+            }
             return Ok(resultado);
         }
     }

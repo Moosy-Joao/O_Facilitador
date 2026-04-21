@@ -52,7 +52,7 @@ namespace facilitador_api.Application.Services
                 endereco.AtualizarCEP(dto.CEP);
             }
 
-            _enderecoRepository.Salvar();
+            await _enderecoRepository.Salvar();
 
             return true;
         }
@@ -69,12 +69,18 @@ namespace facilitador_api.Application.Services
             return endereco?.ToResponseDTO();
         }
 
+        public async Task<List<EnderecoResponseDTO>?> BuscarEnderecos()
+        {
+            var enderecos = await _enderecoRepository.BuscarTodos();
+            return enderecos.Select(e => e.ToResponseDTO()).ToList();
+        }
+
         public async Task<bool> Criar(EnderecoCreateDTO dto)
         {
             var enderecoNovo = new Endereco(dto);
 
             await _enderecoRepository.Cadastrar(enderecoNovo);
-            _enderecoRepository.Salvar();
+            await _enderecoRepository.Salvar();
 
             return true;
         }
@@ -88,7 +94,7 @@ namespace facilitador_api.Application.Services
             }
 
             endereco.Desativar();
-            _enderecoRepository.Salvar();
+            await _enderecoRepository.Salvar();
 
             return true;
         }

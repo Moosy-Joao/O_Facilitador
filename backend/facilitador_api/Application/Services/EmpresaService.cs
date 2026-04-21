@@ -19,7 +19,42 @@ namespace facilitador_api.Application.Services
 
         public async Task<bool> Atualizar(Guid id, EmpresaUpdateDTO dto)
         {
-            throw new NotImplementedException();
+            var empresa = await _empresaRepository.BuscarPorId(id);
+            if (empresa == null)
+            {
+                return false;
+            }
+
+            if (dto.Nome != null)
+            {
+                empresa.AtualizarNome(dto.Nome);
+            }
+            if (!string.IsNullOrWhiteSpace(dto.Email))
+            {
+                empresa.AtualizarEmail(dto.Email);
+            }
+            if (!string.IsNullOrWhiteSpace(dto.CNPJ))
+            {
+                empresa.AtualizarCNPJ(dto.CNPJ);
+            }
+            if (!string.IsNullOrWhiteSpace(dto.Telefone))
+            {
+                empresa.AtualizarTelefone(dto.Telefone);
+            }
+            if (dto.EnderecoId != null)
+            {
+                var endereco = await _enderecoRepository.Existe(dto.EnderecoId.Value);
+                if (!endereco)
+                {
+                    return false;
+                }
+                empresa.AtualizarEndereco(dto.EnderecoId.Value);
+            }
+
+
+            await _empresaRepository.Salvar();
+
+            return true;
         }
 
         public async Task<EmpresaResponseDTO?> BuscarPorCNPJ(string cnpj)
@@ -34,7 +69,7 @@ namespace facilitador_api.Application.Services
             return empresa?.ToResponseDTO();
         }
 
-        public async Task<IEnumerable<EmpresaResponseDTO>?> BuscarPorNome(string nome)
+        public async Task<List<EmpresaResponseDTO>?> BuscarPorNome(string nome)
         {
             var empresas = await _empresaRepository.BuscarPorNome(nome);
             if (!empresas.Any())
@@ -45,10 +80,16 @@ namespace facilitador_api.Application.Services
             return empresas.Select(e => e.ToResponseDTO()).ToList();
         }
 
+        public async Task<List<EmpresaResponseDTO>?> BuscarEmpresas()
+        {
+            var empresas = await _empresaRepository.BuscarTodos();
+            return empresas.Select(e => e.ToResponseDTO()).ToList();
+        }
+
         public async Task<bool> Criar(EmpresaCreateDTO dto)
         {
-            var endereco = await _enderecoRepository.BuscarPorId(dto.EnderecoId);
-            if (endereco == null)
+            var endereco = await _enderecoRepository.Existe(dto.EnderecoId);
+            if (!endereco)
             {
                 return false;
             }
@@ -63,15 +104,15 @@ namespace facilitador_api.Application.Services
 
         public async Task<bool> Desativar(Guid id)
         {
-            var empresa = await _empresaRepository.BuscarPorId(id);
-            if (empresa == null)
+            var empresa = await _empresaRepository.Existe(id);
+            if (!empresa)
             {
                 return false;
             }
 
             await _empresaRepository.Desativar(id);
-
             await _empresaRepository.Salvar();
+
             return true;
         }
     }

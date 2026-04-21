@@ -16,20 +16,21 @@ namespace facilitador_api.Infrastructure.Repositories
             _dbSet = _context.Set<T>();
         }
 
-        public async Task Atualizar(T entidade)
+        public Task Atualizar(T entidade)
         {
             _dbSet.Update(entidade);
-            await Task.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public async Task<T?> BuscarPorId(Guid id)
         {
-            return await _dbSet.FirstOrDefaultAsync(e => e.Id == id, CancellationToken.None);
+            return await _dbSet.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
         }
 
-        public async Task<IEnumerable<T>> BuscarTodos()
+        public async virtual Task<List<T>> BuscarTodos()
         {
-            return await _dbSet.ToListAsync();
+            return await _dbSet
+                .ToListAsync();
         }
 
         public async Task Cadastrar(T entidade)
@@ -53,18 +54,14 @@ namespace facilitador_api.Infrastructure.Repositories
             entidadeExistente.Desativar();
         }
 
-        public async Task Salvar()
+        public async Task<bool> Existe(Guid id)
         {
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (ObjectDisposedException ex)
-            {
-                // Log do erro
-                Console.WriteLine($"ObjectDisposedException ao salvar: {ex.Message}");
-                throw;
-            }
+            return await _dbSet.AsNoTracking().AnyAsync(e => e.Id == id);
+        }
+
+        public Task Salvar()
+        {
+            return _context.SaveChangesAsync();
         }
     }
 }

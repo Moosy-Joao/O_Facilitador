@@ -20,7 +20,7 @@ namespace facilitador_api.Infrastructure.Repositories
             return empresa;
         }
 
-        public async Task<IEnumerable<Empresa>?> BuscarPorNome(string nome)
+        public async Task<List<Empresa>?> BuscarPorNome(string nome)
         {
             var empresas = await _context.Empresas
                 .Include(e => e.Endereco)

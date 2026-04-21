@@ -4,7 +4,7 @@ namespace facilitador_api.Domain.Interfaces
 {
     public interface IEmpresaRepository : IBaseRepository<Empresa>
     {
-        Task<IEnumerable<Empresa>?> BuscarPorNome(string nome);
+        Task<List<Empresa>?> BuscarPorNome(string nome);
         Task<Empresa?> BuscarPorCNPJ(string cnpj);
     }
 }

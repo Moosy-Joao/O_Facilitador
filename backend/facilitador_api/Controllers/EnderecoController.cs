@@ -18,7 +18,7 @@ namespace facilitador_api.Controllers
         [HttpGet]
         public async Task<IActionResult> ObterEnderecos()
         {
-            var resultado = await Task.FromResult(new List<EnderecoDTO>());
+            var resultado = await _service.BuscarEnderecos();
             if (resultado == null || !resultado.Any())
             {
                 return NotFound("Nenhum endereço encontrado.");
@@ -35,6 +35,28 @@ namespace facilitador_api.Controllers
                 return BadRequest("Erro ao criar o endereço: " + resultado);
             }
             return Ok("Endereço criado com sucesso: " + resultado);
+        }
+
+        [HttpPatch]
+        public async Task<IActionResult> AtualizarEndereco(Guid id, EnderecoUpdateDTO dto)
+        {
+            var resultado = await _service.Atualizar(id, dto);
+            if (!resultado)
+            {
+                return BadRequest("Erro ao atualizar o endereço: " + resultado);
+            }
+            return Ok("Endereço atualizado com sucesso: " + resultado);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeletarEndereco(Guid id)
+        {
+            var resultado = await _service.Desativar(id);
+            if (!resultado)
+            {
+                return BadRequest("Erro ao deletar o endereço: " + resultado);
+            }
+            return Ok("Endereço deletado com sucesso: " + resultado);
         }
     }
 }

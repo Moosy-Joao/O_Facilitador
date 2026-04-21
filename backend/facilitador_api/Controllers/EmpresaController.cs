@@ -18,7 +18,7 @@ namespace facilitador_api.API.Controllers
         [HttpGet]
         public async Task<IActionResult> ObterEmpresas()
         {
-            var resultado = await Task.FromResult(new List<EmpresaDTO>());
+            var resultado = await _service.BuscarEmpresas();
             if (resultado == null || !resultado.Any())
             {
                 return NotFound("Nenhuma empresa encontrada.");
@@ -37,6 +37,28 @@ namespace facilitador_api.API.Controllers
             }
 
             return Ok("Empresa criada com sucesso: " + resultado);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> AtualizarEmpresa(Guid id, EmpresaUpdateDTO dto)
+        {
+            var resultado = await _service.Atualizar(id, dto);
+            if (!resultado)
+            {
+                return BadRequest("Erro ao atualizar a empresa: " + resultado);
+            }
+            return Ok("Empresa atualizada com sucesso: " + resultado);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeletarEmpresa(Guid id)
+        {
+            var resultado = await _service.Desativar(id);
+            if (!resultado)
+            {
+                return BadRequest("Erro ao deletar a empresa: " + resultado);
+            }
+            return Ok("Empresa deletada com sucesso: " + resultado);
         }
     }
 }
