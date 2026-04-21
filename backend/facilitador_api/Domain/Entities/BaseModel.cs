@@ -17,13 +17,11 @@
         public void Ativar()
         {
             Ativo = true;
-            ModificadoEm = DateTime.UtcNow;
         }
 
         public void Desativar()
         {
             Ativo = false;
-            ModificadoEm = DateTime.UtcNow;
         }
 
         public void AtualizarModificadoEm(DateTime dataHora)

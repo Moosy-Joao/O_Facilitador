@@ -54,6 +54,22 @@ namespace facilitador_api.Infrastructure.Repositories
             entidadeExistente.Desativar();
         }
 
+        public async Task Ativar(Guid id)
+        {
+            var entidadeExistente = await _dbSet.FindAsync(id);
+            if (entidadeExistente == null)
+            {
+                return;
+            }
+
+            if (entidadeExistente.Ativo == true)
+            {
+                throw new Exception("Entidade já está Ativada.");
+            }
+
+            entidadeExistente.Ativar();
+        }
+
         public async Task<bool> Existe(Guid id)
         {
             return await _dbSet.AsNoTracking().AnyAsync(e => e.Id == id);

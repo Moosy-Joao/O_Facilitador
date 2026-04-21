@@ -11,6 +11,7 @@ namespace facilitador_api.Application.Interfaces
         Task<List<ClienteResponseDTO>> BuscarClientes();
         Task<bool> Criar(ClienteCreateDTO dto);
         Task<bool> Atualizar(Guid id, ClienteUpdateDTO dto);
+        Task<bool> Ativar(Guid id);
         Task<bool> Desativar(Guid id);
     }
 }

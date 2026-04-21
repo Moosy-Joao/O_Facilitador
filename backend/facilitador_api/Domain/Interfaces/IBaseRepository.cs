@@ -7,6 +7,7 @@
         Task<bool> Existe(Guid id);
         Task Cadastrar(T entidade);
         Task Atualizar(T entidade);
+        Task Ativar(Guid id);
         Task Desativar(Guid id);
         Task Salvar();
     }

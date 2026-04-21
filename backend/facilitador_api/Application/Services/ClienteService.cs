@@ -146,5 +146,19 @@ namespace facilitador_api.Application.Services
 
             return true;
         }
+
+        public async Task<bool> Ativar(Guid id)
+        {
+            var cliente = await _clienteRepository.Existe(id);
+            if (!cliente)
+            {
+                return false;
+            }
+
+            await _clienteRepository.Ativar(id);
+            await _clienteRepository.Salvar();
+
+            return true;
+        }
     }
 }

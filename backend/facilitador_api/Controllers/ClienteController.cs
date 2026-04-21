@@ -46,13 +46,24 @@ namespace facilitador_api.API.Controllers
             return Ok(resultado);
         }
 
-        [HttpDelete]
+        [HttpPost("ativar")]
+        public async Task<IActionResult> AtivarCliente(Guid id)
+        {
+            var resultado = await _service.Ativar(id);
+            if (resultado == false)
+            {
+                return BadRequest("Erro ao ativar cliente.");
+            }
+            return Ok(resultado);
+        }
+
+        [HttpDelete("desativar")]
         public async Task<IActionResult> DesativarCliente(Guid id)
         {
             var resultado = await _service.Desativar(id);
             if (resultado == false)
             {
-                return BadRequest("Erro ao desativar cliente." + true);
+                return BadRequest("Erro ao desativar cliente.");
             }
             return Ok(resultado);
         }
