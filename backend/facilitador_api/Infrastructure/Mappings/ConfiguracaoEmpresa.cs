@@ -36,7 +36,7 @@ namespace facilitador_api.Infrastructure.Mappings
                 .HasForeignKey(e => e.EnderecoId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Property(c => c.EnderecoId)
+            builder.Property(e => e.EnderecoId)
                 .HasColumnName("endereco_id");
 
             builder.Property(e => e.Ativo)

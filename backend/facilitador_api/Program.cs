@@ -9,8 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Conexão com Supabase
 builder.Services.AddDbContext<ConnectionContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), o => o
-        .CommandTimeout(500)));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")),
+    //.LogTo(Console.WriteLine, LogLevel.Information)
+    //.EnableSensitiveDataLogging()
+    //.EnableDetailedErrors(),
+    ServiceLifetime.Scoped);
 
 // Injeção de dependências
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();

@@ -38,9 +38,9 @@ public class ClienteRepository : BaseRepository<Cliente>, IClienteRepository
     {
         return await _context.Clientes
             .AsNoTracking()
-            //.Include(c => c.Empresa)
-            //.ThenInclude(e => e.Endereco)
-            //.Include(c => c.Endereco)
+            .Include(c => c.Empresa)
+            .ThenInclude(e => e.Endereco)
+            .Include(c => c.Endereco)
             .ToListAsync();
     }
 }

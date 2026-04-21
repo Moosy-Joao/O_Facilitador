@@ -29,5 +29,14 @@ namespace facilitador_api.Infrastructure.Repositories
 
             return empresas;
         }
+
+        // Override para incluir Endereco
+        public override async Task<List<Empresa>> BuscarTodos()
+        {
+            var empresas = await _context.Empresas
+                .Include(e => e.Endereco)
+                .ToListAsync();
+            return empresas;
+        }
     }
 }

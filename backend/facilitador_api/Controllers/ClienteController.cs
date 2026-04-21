@@ -18,12 +18,7 @@ namespace facilitador_api.API.Controllers
         [HttpGet]
         public async Task<IActionResult> ObterClientes()
         {
-            Console.WriteLine("CONTROLLER CHAMADO");
-
             var result = await _service.BuscarClientes();
-
-            Console.WriteLine("RETORNANDO RESULTADO");
-
             return Ok(result);
         }
 

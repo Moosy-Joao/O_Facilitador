@@ -21,8 +21,8 @@ namespace facilitador_api.Application.Mapping
                 Ativo = cliente.Ativo,
                 CriadoEm = cliente.CriadoEm,
                 ModificadoEm = cliente.ModificadoEm,
-                //Endereco = cliente.Endereco?.ToResponseDTO(),
-                //Empresa = cliente.Empresa?.ToResponseDTO()
+                Endereco = cliente.Endereco?.ToResponseDTO(),
+                Empresa = cliente.Empresa?.ToResponseDTO()
             };
         }
     }
