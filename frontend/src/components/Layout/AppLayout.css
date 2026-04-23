@@ -1,0 +1,97 @@
+/* ================================================
+   O Facilitador — App Shell (Light Theme)
+   ================================================ */
+
+.app-shell {
+  position: relative;
+  min-height: 100vh;
+  /* Fundo claro super premium (off-white com levíssimo toque verde/quente) */
+  background: #f7f9f7;
+  overflow-x: hidden;
+  color: #1a2318;
+}
+
+/* ── Ambient mesh gradient orbs ── */
+.mesh-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.mesh-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.5; /* Mais visível no tema claro */
+}
+
+.mesh-orb-1 {
+  width: 600px;
+  height: 600px;
+  top: -15%;
+  right: -8%;
+  background: radial-gradient(circle, rgba(74, 222, 128, 0.18) 0%, transparent 70%);
+  animation: orbFloat1 18s ease-in-out infinite;
+}
+
+.mesh-orb-2 {
+  width: 500px;
+  height: 500px;
+  bottom: -10%;
+  left: -5%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+  animation: orbFloat2 22s ease-in-out infinite;
+}
+
+.mesh-orb-3 {
+  width: 350px;
+  height: 350px;
+  top: 40%;
+  left: 50%;
+  background: radial-gradient(circle, rgba(74, 222, 128, 0.1) 0%, transparent 70%);
+  animation: orbFloat3 15s ease-in-out infinite;
+}
+
+@keyframes orbFloat1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-40px, 30px) scale(1.08); }
+  66% { transform: translate(20px, -20px) scale(0.95); }
+}
+
+@keyframes orbFloat2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40% { transform: translate(30px, -25px) scale(1.05); }
+  70% { transform: translate(-20px, 15px) scale(0.97); }
+}
+
+@keyframes orbFloat3 {
+  0%, 100% { transform: translate(-50%, 0) scale(1); opacity: 0.5; }
+  50% { transform: translate(-50%, -30px) scale(1.12); opacity: 0.3; }
+}
+
+/* ── Main canvas ── */
+.app-canvas {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 6.5rem 2rem 3rem;
+  min-height: 100vh;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .app-canvas {
+    padding: 5.5rem 1rem 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-canvas {
+    padding: 5rem 0.75rem 2rem;
+  }
+
+  .mesh-orb { opacity: 0.3; }
+}
