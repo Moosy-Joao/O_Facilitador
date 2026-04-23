@@ -1,11 +1,11 @@
-﻿namespace facilitador_api.Model
+namespace facilitador_api.Model
 {
     public class Client : BaseModel
     {
-        private string Name { get; set; }
-        private string CNPJ { get; set; }
-        private string Phone { get; set; }
-        private string Address { get; set; }
-        private decimal CreditLimit { get; set; }
+        public string Name { get; set; }
+        public string CNPJ { get; set; }
+        public string Phone { get; set; }
+        public string Address { get; set; }
+        public decimal CreditLimit { get; set; }
     }
 }

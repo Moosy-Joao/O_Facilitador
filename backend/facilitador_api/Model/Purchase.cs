@@ -1,9 +1,9 @@
-﻿namespace facilitador_api.Model
+namespace facilitador_api.Model
 {
     public class Purchase : BaseModel
     {
-        private int ClientId { get; set; }
-        private decimal Value { get; set; }
-        private string? Description { get; set; }
+        public int ClientId { get; set; }
+        public decimal Value { get; set; }
+        public string? Description { get; set; }
     }
 }
