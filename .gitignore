@@ -54,3 +54,8 @@ TestResult.xml
 nunit-*.xml
 /.vs
 /backend/.vs/facilitador_api.slnx
+
+# Environment variables (secrets)
+.env
+.env.*
+!.env.example
