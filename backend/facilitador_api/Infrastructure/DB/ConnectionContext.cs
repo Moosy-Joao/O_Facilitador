@@ -1,22 +1,25 @@
-﻿using facilitador_api.Model;
+﻿using facilitador_api.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace facilitador_api.Infrastructure.DB
 {
     public class ConnectionContext : DbContext
     {
-        public DbSet<User> Users { get; set; }
-        public DbSet<Client> Clients { get; set; }
-        public DbSet<Address> Addresses { get; set; }
-        public DbSet<Purchase> Purchases { get; set; }
-        public DbSet<Payment> Payments { get; set; }
-
-        public ConnectionContext(DbContextOptions<ConnectionContext> options) : base(options)
+        public ConnectionContext(DbContextOptions<ConnectionContext> options)
+            : base(options)
         {
         }
 
+        public DbSet<Cliente> Clientes { get; set; }
+        public DbSet<Endereco> Enderecos { get; set; }
+        public DbSet<Empresa> Empresas { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.ApplyConfigurationsFromAssembly(
+                Assembly.GetExecutingAssembly()
+            );
             base.OnModelCreating(modelBuilder);
         }
     }
