@@ -2,11 +2,13 @@
 {
     public interface IBaseRepository<T> where T : class
     {
-        Task<T?> BuscarPorId(Object id);
-        Task<IEnumerable<T>> BuscarTodos();
+        Task<T?> BuscarPorId(Guid id);
+        Task<List<T>> BuscarTodos();
+        Task<bool> Existe(Guid id);
         Task Cadastrar(T entidade);
         Task Atualizar(T entidade);
-        Task Desativar(Object id);
+        Task Ativar(Guid id);
+        Task Desativar(Guid id);
         Task Salvar();
     }
 }

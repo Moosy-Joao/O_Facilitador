@@ -45,7 +45,8 @@ namespace facilitador_api.Infrastructure.Mappings
 
             builder.Property(e => e.Ativo)
                 .HasColumnName("ativo")
-                .IsRequired();
+                .IsRequired()
+                .HasDefaultValue(true);
 
             builder.Property(e => e.CriadoEm)
                 .HasColumnName("criado_em")

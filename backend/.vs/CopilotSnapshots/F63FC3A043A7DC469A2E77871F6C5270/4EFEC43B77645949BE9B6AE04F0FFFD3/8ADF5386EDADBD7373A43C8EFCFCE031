@@ -1,4 +1,4 @@
-using facilitador_api.Application.Interfaces;
+﻿using facilitador_api.Application.Interfaces;
 using facilitador_api.Application.Services;
 using facilitador_api.Domain.Interfaces;
 using facilitador_api.Infrastructure.DB;
@@ -9,11 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Conexão com Supabase
 builder.Services.AddDbContext<ConnectionContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")),
-    //.LogTo(Console.WriteLine, LogLevel.Information)
-    //.EnableSensitiveDataLogging()
-    //.EnableDetailedErrors(),
-    ServiceLifetime.Scoped);
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
+    o => o.CommandTimeout(30).UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
 // Injeção de dependências
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();

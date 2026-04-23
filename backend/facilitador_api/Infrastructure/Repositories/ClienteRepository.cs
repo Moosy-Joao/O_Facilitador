@@ -14,24 +14,33 @@ public class ClienteRepository : BaseRepository<Cliente>, IClienteRepository
     public async Task<Cliente?> BuscarPorDocumento(string documento)
     {
         return await _context.Clientes
-            .Include(c => c.Empresa)
-            .Include(c => c.Endereco)
+            .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Documento == documento);
     }
 
     public async Task<Cliente?> BuscarPorEmail(string email)
     {
         return await _context.Clientes
-            .Include(c => c.Empresa)
-            .Include(c => c.Endereco)
+            .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Email == email);
     }
 
-    public async Task<Cliente?> BuscarPorNome(string nome)
+    public async Task<List<Cliente>> BuscarPorNome(string nome)
     {
         return await _context.Clientes
+            .AsNoTracking()
+            .Where(c => c.Nome.ToLower().Contains(nome.ToLower()))
+            .ToListAsync();
+    }
+
+    // Override para incluir Endereco e Empresa
+    public override async Task<List<Cliente>> BuscarTodos()
+    {
+        return await _context.Clientes
+            .AsNoTracking()
             .Include(c => c.Empresa)
+            .ThenInclude(e => e.Endereco)
             .Include(c => c.Endereco)
-            .FirstOrDefaultAsync(c => c.Nome.ToLower() == nome.ToLower());
+            .ToListAsync();
     }
 }

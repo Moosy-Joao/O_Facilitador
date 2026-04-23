@@ -7,8 +7,8 @@ namespace facilitador_api.Infrastructure.Repositories
 {
     public class BaseRepository<T> : IBaseRepository<T> where T : BaseModel
     {
-        protected readonly ConnectionContext _context = null;
-        protected readonly DbSet<T> _dbSet = null;
+        protected readonly ConnectionContext _context;
+        protected readonly DbSet<T> _dbSet;
 
         public BaseRepository(ConnectionContext context)
         {
@@ -22,14 +22,15 @@ namespace facilitador_api.Infrastructure.Repositories
             return Task.CompletedTask;
         }
 
-        public async Task<T?> BuscarPorId(object id)
+        public async Task<T?> BuscarPorId(Guid id)
         {
-            return await _dbSet.FindAsync(id);
+            return await _dbSet.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
         }
 
-        public async Task<IEnumerable<T>> BuscarTodos()
+        public async virtual Task<List<T>> BuscarTodos()
         {
-            return await _dbSet.ToListAsync();
+            return await _dbSet
+                .ToListAsync();
         }
 
         public async Task Cadastrar(T entidade)
@@ -37,12 +38,12 @@ namespace facilitador_api.Infrastructure.Repositories
             await _dbSet.AddAsync(entidade);
         }
 
-        public async Task Desativar(object id)
+        public async Task Desativar(Guid id)
         {
             var entidadeExistente = await _dbSet.FindAsync(id);
             if (entidadeExistente == null)
             {
-                throw new Exception("Entidade não encontrada.");
+                return;
             }
 
             if (entidadeExistente.Ativo == false)
@@ -53,9 +54,30 @@ namespace facilitador_api.Infrastructure.Repositories
             entidadeExistente.Desativar();
         }
 
-        public async Task Salvar()
+        public async Task Ativar(Guid id)
         {
-            await _context.SaveChangesAsync();
+            var entidadeExistente = await _dbSet.FindAsync(id);
+            if (entidadeExistente == null)
+            {
+                return;
+            }
+
+            if (entidadeExistente.Ativo == true)
+            {
+                throw new Exception("Entidade já está Ativada.");
+            }
+
+            entidadeExistente.Ativar();
+        }
+
+        public async Task<bool> Existe(Guid id)
+        {
+            return await _dbSet.AsNoTracking().AnyAsync(e => e.Id == id);
+        }
+
+        public Task Salvar()
+        {
+            return _context.SaveChangesAsync();
         }
     }
 }

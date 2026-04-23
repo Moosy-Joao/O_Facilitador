@@ -6,6 +6,10 @@ namespace facilitador_api.Infrastructure.DB
 {
     public class ConnectionContext : DbContext
     {
+        public ConnectionContext()
+        {
+        }
+
         public ConnectionContext(DbContextOptions<ConnectionContext> options)
             : base(options)
         {

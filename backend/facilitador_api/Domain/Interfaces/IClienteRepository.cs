@@ -5,7 +5,7 @@ namespace facilitador_api.Domain.Interfaces
     public interface IClienteRepository : IBaseRepository<Cliente>
     {
         Task<Cliente?> BuscarPorDocumento(string documento);
-        Task<Cliente?> BuscarPorNome(string nome);
+        Task<List<Cliente>> BuscarPorNome(string nome);
         Task<Cliente?> BuscarPorEmail(string email);
     }
 }

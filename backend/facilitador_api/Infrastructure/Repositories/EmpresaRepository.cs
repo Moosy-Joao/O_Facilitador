@@ -11,32 +11,32 @@ namespace facilitador_api.Infrastructure.Repositories
         {
         }
 
-        public async Task<Empresa?> BuscarPorId(Guid id)
+        public async Task<Empresa?> BuscarPorCNPJ(string cnpj)
         {
-            var empresa = _context.Empresas
+            var empresa = await _context.Empresas
                 .Include(e => e.Endereco)
-                .FirstOrDefaultAsync(e => e.Id == id);
+                .FirstOrDefaultAsync(e => e.CNPJ == cnpj);
 
-            if (empresa == null)
-            {
-                throw new Exception("Empresa não encontrada.");
-            }
-
-            return await empresa;
+            return empresa;
         }
 
-        public async Task<Empresa?> BuscarPorNome(string nome)
+        public async Task<List<Empresa>?> BuscarPorNome(string nome)
         {
-            var empresa = _context.Empresas
+            var empresas = await _context.Empresas
                 .Include(e => e.Endereco)
-                .FirstOrDefaultAsync(e => e.Nome.ToLower() == nome.ToLower());
+                .Where(e => e.Nome.ToLower() == nome.ToLower())
+                .ToListAsync();
 
-            if (empresa == null)
-            {
-                throw new Exception("Empresa não encontrada.");
-            }
+            return empresas;
+        }
 
-            return await empresa;
+        // Override para incluir Endereco
+        public override async Task<List<Empresa>> BuscarTodos()
+        {
+            var empresas = await _context.Empresas
+                .Include(e => e.Endereco)
+                .ToListAsync();
+            return empresas;
         }
     }
 }

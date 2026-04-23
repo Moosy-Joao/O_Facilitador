@@ -1,4 +1,6 @@
-﻿namespace facilitador_api.Domain.Entities
+﻿using facilitador_api.Application.DTOs;
+
+namespace facilitador_api.Domain.Entities
 {
     public class Empresa : BaseModel
     {
@@ -14,6 +16,10 @@
         private readonly List<Cliente> _clientes = new();
         public IReadOnlyCollection<Cliente> Clientes => _clientes;
 
+        public Empresa()
+        {
+        }
+
         public Empresa(string nome, string cnpj, string telefone, string email, Guid enderecoId)
         {
             Nome = nome;
@@ -23,7 +29,42 @@
             EnderecoId = enderecoId;
         }
 
+        public Empresa(EmpresaCreateDTO dto, Guid enderecoId)
+        {
+            Nome = dto.Nome;
+            CNPJ = dto.CNPJ;
+            Email = dto.Email;
+            Telefone = dto.Telefone;
+            EnderecoId = enderecoId;
+        }
+
         // Método para adicionar um cliente à empresa
         public void AdicionarCliente(Cliente cliente) => _clientes.Add(cliente);
+
+        public void AtualizarNome(string nome)
+        {
+            if (string.IsNullOrWhiteSpace(nome)) return;
+            Nome = nome;
+        }
+
+        public void AtualizarCNPJ(string cnpj)
+        {
+            if (string.IsNullOrWhiteSpace(cnpj)) return;
+            CNPJ = cnpj;
+        }
+
+        public void AtualizarEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return;
+            Email = email;
+        }
+
+        public void AtualizarTelefone(string telefone)
+        {
+            if (string.IsNullOrWhiteSpace(telefone)) return;
+            Telefone = telefone;
+        }
+
+        public void AtualizarEndereco(Guid enderecoId) => EnderecoId = enderecoId;
     }
 }
