@@ -45,29 +45,13 @@ namespace facilitador_api.Domain.Entities
             EnderecoId = enderecoId;
         }
 
-        public void AtualizarNome(string nome)
-        {
-            if (string.IsNullOrWhiteSpace(nome)) return;
-            Nome = nome;
-        }
+        public void AtualizarNome(string nome) => Nome = nome;
 
-        public void AtualizarEmail(string email)
-        {
-            if (string.IsNullOrWhiteSpace(email)) return;
-            Email = email;
-        }
+        public void AtualizarEmail(string email) => Email = email;
 
-        public void AtualizarDocumento(string documento)
-        {
-            if (string.IsNullOrWhiteSpace(documento)) return;
-            Documento = documento;
-        }
+        public void AtualizarDocumento(string documento) => Documento = documento;
 
-        public void AtualizarTelefone(string telefone)
-        {
-            if (string.IsNullOrWhiteSpace(telefone)) return;
-            Telefone = telefone;
-        }
+        public void AtualizarTelefone(string telefone) => Telefone = telefone;
 
         public void AtualizarSaldo(decimal saldo) => Saldo = saldo;
 

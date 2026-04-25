@@ -34,22 +34,11 @@
         //    DataPagamento = dto.DataPagamento;
         //}
 
-        public void AtualizarValorPagamento(decimal novoValor)
-        {
-            if (novoValor <= 0) return;
-            ValorPagamento = novoValor;
-        }
+        public void AtualizarValorPagamento(decimal novoValor) => ValorPagamento = novoValor;
 
-        public void AtualizarObservacao(string novaObservacao)
-        {
-            if (string.IsNullOrEmpty(novaObservacao)) return;
-            Observacao = novaObservacao;
-        }
+        public void AtualizarObservacao(string novaObservacao) => Observacao = novaObservacao;
 
-        public void AtualizarDataPagamento(DateTime novaData)
-        {
-            DataPagamento = novaData;
-        }
+        public void AtualizarDataPagamento(DateTime novaData) => DataPagamento = novaData;
 
         public void AtualizarClienteId(Guid clienteId) => ClienteId = clienteId;
 

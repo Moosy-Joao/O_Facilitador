@@ -36,34 +36,14 @@
 
         public void AtualizarEmpresa(Guid empresaId) => EmpresaId = empresaId;
 
-        public void AtualizarNome(string nome)
-        {
-            if (string.IsNullOrWhiteSpace(nome)) return;
-            Nome = nome;
-        }
+        public void AtualizarNome(string nome) => Nome = nome;
 
-        public void AtualizarEmail(string email)
-        {
-            if (string.IsNullOrWhiteSpace(email)) return;
-            Email = email;
-        }
+        public void AtualizarEmail(string email) => Email = email;
 
-        public void AtualizarSenha(string senha)
-        {
-            if (string.IsNullOrWhiteSpace(senha)) return;
-            Senha = senha;
-        }
+        public void AtualizarSenha(string senha) => Senha = senha;
 
-        public void AtualizarCargo(string cargo)
-        {
-            if (string.IsNullOrWhiteSpace(cargo)) return;
-            Cargo = cargo;
-        }
+        public void AtualizarCargo(string cargo) => Cargo = cargo;
 
-        public void AtualizarImagem(string imagem)
-        {
-            if (string.IsNullOrWhiteSpace(imagem)) return;
-            Imagem = imagem;
-        }
+        public void AtualizarImagem(string imagem) => Imagem = imagem;
     }
 }

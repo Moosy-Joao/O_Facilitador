@@ -38,46 +38,18 @@ namespace facilitador_api.Domain.Entities
             CEP = dto.CEP;
         }
 
-        public void AtualizarPais(string pais)
-        {
-            if (string.IsNullOrWhiteSpace(pais)) return;
-            Pais = pais;
-        }
+        public void AtualizarPais(string pais) => Pais = pais;
 
-        public void AtualizarEstado(string estado)
-        {
-            if (string.IsNullOrWhiteSpace(estado)) return;
-            Estado = estado;
-        }
+        public void AtualizarEstado(string estado) => Estado = estado;
 
-        public void AtualizarCidade(string cidade)
-        {
-            if (string.IsNullOrWhiteSpace(cidade)) return;
-            Cidade = cidade;
-        }
+        public void AtualizarCidade(string cidade) => Cidade = cidade;
 
-        public void AtualizarBairro(string bairro)
-        {
-            if (string.IsNullOrWhiteSpace(bairro)) return;
-            Bairro = bairro;
-        }
+        public void AtualizarBairro(string bairro) => Bairro = bairro;
 
-        public void AtualizarRua(string rua)
-        {
-            if (string.IsNullOrWhiteSpace(rua)) return;
-            Rua = rua;
-        }
+        public void AtualizarRua(string rua) => Rua = rua;
 
-        public void AtualizarNumero(string numero)
-        {
-            if (string.IsNullOrWhiteSpace(numero)) return;
-            Numero = numero;
-        }
+        public void AtualizarNumero(string numero) => Numero = numero;
 
-        public void AtualizarCEP(string cep)
-        {
-            if (string.IsNullOrWhiteSpace(cep)) return;
-            CEP = cep;
-        }
+        public void AtualizarCEP(string cep) => CEP = cep;
     }
 }
