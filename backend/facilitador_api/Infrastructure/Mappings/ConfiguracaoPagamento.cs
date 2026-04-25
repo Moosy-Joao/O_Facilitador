@@ -1,8 +1,4 @@
-﻿using facilitador_api.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-namespace facilitador_api.Infrastructure.Mappings
+﻿namespace facilitador_api.Infrastructure.Mappings
 {
     public class ConfiguracaoPagamento : IEntityTypeConfiguration<Pagamento>
     {
@@ -42,7 +38,7 @@ namespace facilitador_api.Infrastructure.Mappings
 
             builder.Property(e => e.CriadoEm)
                 .HasColumnName("criado_em")
-                .IsRequired();
+               .IsRequired();
 
             builder.Property(e => e.ModificadoEm)
                 .HasColumnName("modificado_em")
