@@ -1,4 +1,8 @@
-﻿namespace facilitador_api.Infrastructure.Mappings
+﻿using facilitador_api.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace facilitador_api.Infrastructure.Mappings
 {
     public class ConfiguracaoPagamento : IEntityTypeConfiguration<Pagamento>
     {

@@ -1,4 +1,6 @@
-﻿namespace facilitador_api.Domain.Entities
+﻿using facilitador_api.Application.DTOs;
+
+namespace facilitador_api.Domain.Entities
 {
     public class Usuario : BaseModel
     {
@@ -24,15 +26,15 @@
             Imagem = imagem;
         }
 
-        //public Usuario(UsuarioCreateDTO dto, Guid empresaId)
-        //{
-        //    EmpresaId = empresaId;
-        //    Nome = dto.Nome;
-        //    Email = dto.Email;
-        //    Senha = dto.Senha;
-        //    Cargo = dto.Cargo;
-        //    Imagem = dto.Imagem;
-        //}
+        public Usuario(UsuarioCreateDTO dto, Guid empresaId)
+        {
+            EmpresaId = empresaId;
+            Nome = dto.Nome;
+            Email = dto.Email;
+            Senha = dto.Senha;
+            Cargo = dto.Cargo;
+            Imagem = dto.Imagem;
+        }
 
         public void AtualizarEmpresa(Guid empresaId) => EmpresaId = empresaId;
 

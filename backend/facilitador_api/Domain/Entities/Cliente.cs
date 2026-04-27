@@ -19,8 +19,9 @@ namespace facilitador_api.Domain.Entities
         public decimal Saldo { get; private set; }
         public decimal LimiteCredito { get; private set; }
         public float? Nota { get; private set; }
+        public bool Inadimplente { get; private set; }
 
-        public Cliente(Guid empresaId, string nome, string email, string documento, string telefone, Guid enderecoId, decimal saldo, decimal limiteCredito)
+        public Cliente(Guid empresaId, string nome, string email, string documento, string telefone, Guid enderecoId, decimal saldo, decimal limiteCredito, bool inadimplente)
         {
             EmpresaId = empresaId;
             Nome = nome;
@@ -30,6 +31,7 @@ namespace facilitador_api.Domain.Entities
             EnderecoId = enderecoId;
             Saldo = saldo;
             LimiteCredito = limiteCredito;
+            Inadimplente = inadimplente;
         }
 
         public Cliente(ClienteCreateDTO dto, Guid empresaId, Guid enderecoId)
@@ -60,5 +62,7 @@ namespace facilitador_api.Domain.Entities
         public void AtualizarEnderecoId(Guid enderecoId) => EnderecoId = enderecoId;
 
         public void AtualizarEmpresaId(Guid empresaId) => EmpresaId = empresaId;
+
+        public void AtualizarInadimplente(bool inadimplente) => Inadimplente = inadimplente;
     }
 }

@@ -57,13 +57,13 @@ namespace facilitador_api.Application.DTOs
         public string Nome { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Documento { get; set; } = string.Empty;
-        public string? Telefone { get; set; }
+        public string? Telefone { get; set; } = string.Empty;
         public decimal Saldo { get; set; }
         public decimal LimiteCredito { get; set; }
         public bool Ativo { get; set; }
-        public DateTime CriadoEm { get; set; }
-        public DateTime ModificadoEm { get; set; }
         public EnderecoResponseDTO? Endereco { get; set; }
         public EmpresaResponseDTO? Empresa { get; set; }
+        public DateTime CriadoEm { get; set; }
+        public DateTime ModificadoEm { get; set; }
     }
 }

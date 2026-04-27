@@ -18,11 +18,11 @@ namespace facilitador_api.Application.Mapping
                 Telefone = cliente.Telefone,
                 Saldo = cliente.Saldo,
                 LimiteCredito = cliente.LimiteCredito,
+                Endereco = cliente.Endereco?.ToResponseDTO(),
+                Empresa = cliente.Empresa?.ToResponseDTO(),
                 Ativo = cliente.Ativo,
                 CriadoEm = cliente.CriadoEm,
-                ModificadoEm = cliente.ModificadoEm,
-                Endereco = cliente.Endereco?.ToResponseDTO(),
-                Empresa = cliente.Empresa?.ToResponseDTO()
+                ModificadoEm = cliente.ModificadoEm
             };
         }
     }
