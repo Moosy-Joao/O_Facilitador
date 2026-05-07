@@ -1,45 +1,49 @@
-﻿namespace facilitador_api.Infrastructure.Repositories
+﻿using facilitador_api.Domain.Entities;
+using facilitador_api.Infrastructure.DB;
+using Microsoft.EntityFrameworkCore;
+
+namespace facilitador_api.Infrastructure.Repositories
 {
-    public class PagamentoRepository //: BaseRepository<Pagamento>, IPagamentoRepository
+    public class PagamentoRepository : BaseRepository<Pagamento>, IPagamentoRepository
     {
-        //public PagamentoRepository(ConnectionContext context) : base(context)
-        //{
-        //}
+        public PagamentoRepository(ConnectionContext context) : base(context)
+        {
+        }
 
-        //public async Task<Pagamento?> BuscarPorCliente(string Cliente)
-        //{
-        //    var pagamento = _context.Pagamentos.FirstOrDefault(e => e.Cliente == Cliente);
+        public async Task<List<Pagamento>?> BuscarPorCliente(Guid clienteId)
+        {
+            return await _context.Pagamentos
+                .AsNoTracking()
+                .Where(p => p.ClienteId == clienteId)
+                .ToListAsync();
+        }
 
-        //    if (pagamento == null)
-        //    {
-        //        throw new Exception("Pagamento não encontrado para o Cliente informado.");
-        //    }
+        public async Task<List<Pagamento>?> BuscarPorEmpresa(Guid empresaId)
+        {
+            return await _context.Pagamentos
+                .AsNoTracking()
+                .Where(p => p.EmpresaId == empresaId)
+                .ToListAsync();
+        }
 
-        //    return pagamento;
-        //}
+        public async Task<List<Pagamento>?> BuscarPorData(DateTime pagamentoData)
+        {
+            return await _context.Pagamentos
+                .AsNoTracking()
+                .Where(p => p.DataPagamento == pagamentoData)
+                .ToListAsync();
+        }
 
-        //public async Task<Pagamento?> BuscarPorEmpresa(String Empresa)
-        //{
-        //    var empresa = _context.Empresas.Find(Empresa);
-
-        //    if (empresa == null)
-        //    {
-        //        throw new Exception("Pagamento não encontrado na empresa escolhida.");
-        //    }
-
-        //    return empresa;
-        //}
-
-        //public async Task<Pagamento?> BuscarPorData(DateTime PagamentoData)
-        //{
-        //    var pagamento = _context.Pagamentos.Find(PagamentoData);
-
-        //    if (pagamento == null)
-        //    {
-        //        throw new Exception("Pagamento não encontrado na data escolhida.");
-        //    }
-
-        //    return pagamento;
-        //}
+        // Override para incluir Cliente e Empresa
+        public override async Task<List<Pagamento>> BuscarTodos()
+        {
+            return await _context.Pagamentos
+                .AsNoTracking()
+                .Include(p => p.Cliente)
+                .ThenInclude(c => c.Endereco)
+                .Include(p => p.Empresa)
+                .ThenInclude(e => e.Endereco)
+                .ToListAsync();
+        }
     }
 }
