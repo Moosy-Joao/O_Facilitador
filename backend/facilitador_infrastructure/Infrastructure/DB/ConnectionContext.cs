@@ -1,4 +1,4 @@
-﻿using facilitador_api.Domain.Entities;
+﻿using facilitador_api.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
