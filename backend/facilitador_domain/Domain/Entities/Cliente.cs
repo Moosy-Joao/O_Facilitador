@@ -1,4 +1,4 @@
-﻿using facilitador_api.Application.DTOs;
+﻿using facilitador_domain.Domain.DTOs;
 
 namespace facilitador_api.Domain.Entities
 {

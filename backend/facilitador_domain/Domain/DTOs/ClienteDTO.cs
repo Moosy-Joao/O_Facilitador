@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace facilitador_api.Application.DTOs
+namespace facilitador_domain.Domain.DTOs
 {
     public class ClienteDTO
     {
