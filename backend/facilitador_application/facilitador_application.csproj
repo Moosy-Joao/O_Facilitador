@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\facilitador_domain\facilitador_domain.csproj" />
+  </ItemGroup>
+
 </Project>

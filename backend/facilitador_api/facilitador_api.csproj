@@ -31,4 +31,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\facilitador_application\facilitador_application.csproj" />
+    <ProjectReference Include="..\facilitador_domain\facilitador_domain.csproj" />
+    <ProjectReference Include="..\facilitador_infrastructure\facilitador_infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

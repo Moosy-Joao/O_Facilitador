@@ -1,4 +1,6 @@
-﻿namespace facilitador_api.Domain.Entities
+﻿using facilitador_domain.Domain.DTOs;
+
+namespace facilitador_api.Domain.Entities
 {
     public class Compra : BaseModel
     {
