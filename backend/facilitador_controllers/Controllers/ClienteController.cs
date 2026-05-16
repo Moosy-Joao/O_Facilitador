@@ -1,71 +1,48 @@
-﻿using facilitador_domain.Domain.DTOs;
+﻿using facilitador_api.API.Controllers;
 using facilitador_api.Application.Interfaces;
-using Microsoft.AspNetCore.Mvc;
+using facilitador_api.Application.Services;
+using facilitador_api.Domain.Interfaces;
+using facilitador_api.Infrastructure.DB;
+using facilitador_api.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 
-namespace facilitador_api.API.Controllers
-{
-    [ApiController]
-    [Route("api/v1/cliente")]
-    public class ClienteController : ControllerBase
-    {
-        private readonly IClienteService _service;
+var builder = WebApplication.CreateBuilder(args);
 
-        public ClienteController(IClienteService service)
-        {
-            _service = service;
-        }
+// Conexão com o banco
+builder.Services.AddDbContext<ConnectionContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-        [HttpGet]
-        public async Task<IActionResult> ObterClientes()
-        {
-            var result = await _service.BuscarClientes();
-            return Ok(result);
-        }
+// Repositories
+builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
+builder.Services.AddScoped<IEnderecoRepository, EnderecoRepository>();
+builder.Services.AddScoped<IPagamentoRepository, PagamentoRepository>();
+builder.Services.AddScoped<ICompraRepository, CompraRepository>();
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
-        [HttpPost]
-        public async Task<IActionResult> CriarCliente(ClienteCreateDTO dto)
-        {
-            var resultado = await _service.Criar(dto);
+// Services
+builder.Services.AddScoped<IClienteService, ClienteService>();
+builder.Services.AddScoped<IEmpresaService, EmpresaService>();
+builder.Services.AddScoped<IEnderecoService, EnderecoService>();
+builder.Services.AddScoped<IPagamentoService, PagamentoService>();
+builder.Services.AddScoped<ICompraService, CompraService>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
-            if (resultado == false)
-            {
-                return BadRequest("Erro ao criar cliente." + true);
-            }
+// Controllers em outro projeto/assembly
+builder.Services
+    .AddControllers()
+    .AddApplicationPart(typeof(ClienteController).Assembly);
 
-            return Ok(resultado);
-        }
+// Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
-        [HttpPatch]
-        public async Task<IActionResult> AtualizarCliente(Guid id, ClienteUpdateDTO dto)
-        {
-            var resultado = await _service.Atualizar(id, dto);
-            if (resultado == false)
-            {
-                return BadRequest("Erro ao atualizar cliente." + true);
-            }
-            return Ok(resultado);
-        }
+var app = builder.Build();
 
-        [HttpPost("ativar")]
-        public async Task<IActionResult> AtivarCliente(Guid id)
-        {
-            var resultado = await _service.Ativar(id);
-            if (resultado == false)
-            {
-                return BadRequest("Erro ao ativar cliente.");
-            }
-            return Ok(resultado);
-        }
+app.UseSwagger();
+app.UseSwaggerUI();
 
-        [HttpDelete("desativar")]
-        public async Task<IActionResult> DesativarCliente(Guid id)
-        {
-            var resultado = await _service.Desativar(id);
-            if (resultado == false)
-            {
-                return BadRequest("Erro ao desativar cliente.");
-            }
-            return Ok(resultado);
-        }
-    }
-}
+app.MapControllers();
+
+app.Run();

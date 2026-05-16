@@ -1,4 +1,5 @@
 ﻿using facilitador_api.Domain.Entities;
+using facilitador_api.Domain.Interfaces;
 using facilitador_api.Infrastructure.DB;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,15 +11,15 @@ namespace facilitador_api.Infrastructure.Repositories
         {
         }
 
-        public async Task<List<Pagamento>?> BuscarPorCliente(Guid clienteId)
+        public async Task<List<Pagamento>> BuscarPorData(DateTime dataPagamento)
         {
             return await _context.Pagamentos
                 .AsNoTracking()
-                .Where(p => p.ClienteId == clienteId)
+                .Where(p => p.DataPagamento.Date == dataPagamento.Date)
                 .ToListAsync();
         }
 
-        public async Task<List<Pagamento>?> BuscarPorEmpresa(Guid empresaId)
+        public async Task<List<Pagamento>> BuscarPorEmpresa(Guid empresaId)
         {
             return await _context.Pagamentos
                 .AsNoTracking()
@@ -26,23 +27,11 @@ namespace facilitador_api.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<List<Pagamento>?> BuscarPorData(DateTime pagamentoData)
+        public async Task<List<Pagamento>> BuscarPorCliente(Guid clienteId)
         {
             return await _context.Pagamentos
                 .AsNoTracking()
-                .Where(p => p.DataPagamento == pagamentoData)
-                .ToListAsync();
-        }
-
-        // Override para incluir Cliente e Empresa
-        public override async Task<List<Pagamento>> BuscarTodos()
-        {
-            return await _context.Pagamentos
-                .AsNoTracking()
-                .Include(p => p.Cliente)
-                .ThenInclude(c => c.Endereco)
-                .Include(p => p.Empresa)
-                .ThenInclude(e => e.Endereco)
+                .Where(p => p.ClienteId == clienteId)
                 .ToListAsync();
         }
     }
