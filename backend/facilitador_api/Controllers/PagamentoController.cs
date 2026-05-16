@@ -3,8 +3,6 @@ using facilitador_domain.Domain.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace facilitador_api.API.Controllers
-
-namespace facilitador_api.API.Controllers
 {
     [ApiController]
     [Route("api/v1/pagamentos")]
