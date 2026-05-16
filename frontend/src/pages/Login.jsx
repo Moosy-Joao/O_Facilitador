@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Eye, EyeOff, Lock, User, ArrowRight, AlertCircle, CheckCircle, Leaf } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Waves from '../components/Waves/Waves';
+import { authLogin } from '../services/api';
 import './Login.css';
 
 const Login = () => {
@@ -32,7 +33,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await authApi(username, password);
+      const response = await authLogin(username, password);
 
       if (response.token) {
         localStorage.setItem('auth_token', response.token);
@@ -44,22 +45,6 @@ const Login = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const authApi = async (user, pass) => {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5238/api';
-    const res = await fetch(`${apiUrl}/Auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: user, password: pass })
-    });
-    
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Usuário ou senha incorretos');
-    }
-    
-    return await res.json();
   };
 
   return (

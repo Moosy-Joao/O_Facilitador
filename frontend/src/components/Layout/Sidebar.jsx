@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   Users,
@@ -32,18 +32,24 @@ const Topbar = () => {
 
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
+  // Exact match — /clientes should NOT match /clientes/novo
+  const isItemActive = (itemPath) => location.pathname === itemPath;
+
   // Sliding pill indicator
   useEffect(() => {
-    if (!navRef.current) return;
-    const activeLink = navRef.current.querySelector('.topbar-link.is-active');
-    if (activeLink) {
-      const navRect = navRef.current.getBoundingClientRect();
-      const linkRect = activeLink.getBoundingClientRect();
-      setIndicatorStyle({
-        left: linkRect.left - navRect.left,
-        width: linkRect.width,
-      });
-    }
+    const rafId = requestAnimationFrame(() => {
+      if (!navRef.current) return;
+      const activeLink = navRef.current.querySelector('.topbar-link.is-active');
+      if (activeLink) {
+        const navRect = navRef.current.getBoundingClientRect();
+        const linkRect = activeLink.getBoundingClientRect();
+        setIndicatorStyle({
+          left: linkRect.left - navRect.left,
+          width: linkRect.width,
+        });
+      }
+    });
+    return () => cancelAnimationFrame(rafId);
   }, [location.pathname]);
 
   const handleLogout = () => {
@@ -67,16 +73,14 @@ const Topbar = () => {
         <nav className="topbar-nav" ref={navRef}>
           <div className="topbar-indicator" style={indicatorStyle} />
           {navItems.map((item) => (
-            <NavLink
+            <Link
               key={item.to}
               to={item.to}
-              className={({ isActive }) =>
-                `topbar-link ${isActive ? 'is-active' : ''}`
-              }
+              className={`topbar-link ${isItemActive(item.to) ? 'is-active' : ''}`}
             >
               <item.icon size={16} strokeWidth={1.9} />
               <span className="topbar-link-label">{item.label}</span>
-            </NavLink>
+            </Link>
           ))}
         </nav>
 
@@ -107,17 +111,15 @@ const Topbar = () => {
         <div className="mobile-drawer-overlay" onClick={() => setMobileOpen(false)}>
           <nav className="mobile-drawer" onClick={(e) => e.stopPropagation()}>
             {navItems.map((item) => (
-              <NavLink
+              <Link
                 key={item.to}
                 to={item.to}
-                className={({ isActive }) =>
-                  `mobile-link ${isActive ? 'is-active' : ''}`
-                }
+                className={`mobile-link ${isItemActive(item.to) ? 'is-active' : ''}`}
                 onClick={() => setMobileOpen(false)}
               >
                 <item.icon size={18} strokeWidth={1.8} />
                 <span>{item.label}</span>
-              </NavLink>
+              </Link>
             ))}
             <button className="mobile-link mobile-logout" onClick={handleLogout}>
               <LogOut size={18} strokeWidth={1.8} />
@@ -131,3 +133,4 @@ const Topbar = () => {
 };
 
 export default Topbar;
+
