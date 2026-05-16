@@ -20,15 +20,15 @@ builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
 builder.Services.AddScoped<IEnderecoRepository, EnderecoRepository>();
 builder.Services.AddScoped<IPagamentoRepository, PagamentoRepository>();
-//builder.Services.AddScoped<ICompraRepository, CompraRepository>();
-//builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<ICompraRepository, CompraRepository>();
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
 builder.Services.AddScoped<IClienteService, ClienteService>();
 builder.Services.AddScoped<IEmpresaService, EmpresaService>();
 builder.Services.AddScoped<IEnderecoService, EnderecoService>();
-//builder.Services.AddScoped<IPagamentoService, PagamentoService>();
-//builder.Services.AddScoped<ICompraService, CompraService>();
-//builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IPagamentoService, PagamentoService>();
+builder.Services.AddScoped<ICompraService, CompraService>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
