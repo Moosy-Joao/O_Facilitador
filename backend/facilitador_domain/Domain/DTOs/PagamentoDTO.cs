@@ -2,23 +2,42 @@
 
 namespace facilitador_domain.Domain.DTOs
 {
-    public class PagamentoDTO
+    public class PagamentoCreateDTO
     {
-        [Range(0.01, double.MaxValue, ErrorMessage = "O valor deve ser maior que zero.")]
-        public decimal PagamentoValor { get; set; }
+        [Required(ErrorMessage = "O campo 'Cliente' é obrigatório.")]
+        public Guid ClienteId { get; set; }
 
-        [Required(ErrorMessage = "O campo 'Observação' é obrigatório.")]
-        public string Observacao { get; set; }
+        [Required(ErrorMessage = "O campo 'Empresa' é obrigatório.")]
+        public Guid EmpresaId { get; set; }
 
+        [Required(ErrorMessage = "O campo 'Valor do pagamento' é obrigatório.")]
+        public decimal ValorPagamento { get; set; }
 
+        public string Observacao { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "O campo 'Data do pagamento' é obrigatório.")]
+        public DateTime DataPagamento { get; set; } = DateTime.UtcNow;
+    }
+
+    public class PagamentoUpdateDTO
+    {
+        public Guid? ClienteId { get; set; }
+        public Guid? EmpresaId { get; set; }
+        public decimal? ValorPagamento { get; set; }
+        public string? Observacao { get; set; }
+        public DateTime? DataPagamento { get; set; }
     }
 
     public class PagamentoResponseDTO
     {
         public Guid Id { get; set; }
-        public decimal PagamentoValor { get; set; }
+        public Guid ClienteId { get; set; }
+        public Guid EmpresaId { get; set; }
+        public decimal ValorPagamento { get; set; }
         public string? Observacao { get; set; }
+        public DateTime DataPagamento { get; set; }
         public bool Ativo { get; set; }
         public DateTime CriadoEm { get; set; }
+        public DateTime ModificadoEm { get; set; }
     }
 }
