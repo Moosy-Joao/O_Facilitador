@@ -1,6 +1,8 @@
-﻿using facilitador_api.Application.Interfaces;
+using facilitador_api.Application.Interfaces;
 using facilitador_domain.Domain.DTOs;
 using Microsoft.AspNetCore.Mvc;
+
+namespace facilitador_api.API.Controllers
 
 namespace facilitador_api.API.Controllers
 {
