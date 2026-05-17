@@ -1,15 +1,17 @@
 import { useState } from 'react';
-import { Eye, EyeOff, Lock, User, ArrowRight, AlertCircle, CheckCircle, Leaf } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, ArrowRight, AlertCircle, CheckCircle, Leaf } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Waves from '../components/Waves/Waves';
+import { authLogin } from '../services/api';
 import './Login.css';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({ email: '', senha: '' });
   const [showForm, setShowForm] = useState(false);
 
   const navigate = useNavigate();
@@ -23,20 +25,39 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
+    setFieldErrors({ email: '', senha: '' });
 
-    if (!username || !password) {
-      setError('Por favor, preencha todos os campos.');
+    let hasErrors = false;
+    const newErrors = { email: '', senha: '' };
+
+    if (!email.trim()) {
+      newErrors.email = 'E-mail é obrigatório';
+      hasErrors = true;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = 'Formato de e-mail inválido';
+      hasErrors = true;
+    }
+
+    if (!senha.trim()) {
+      newErrors.senha = 'Senha é obrigatória';
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      setFieldErrors(newErrors);
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await authApi(username, password);
+      const response = await authLogin(email, senha);
 
-      if (response.token) {
-        localStorage.setItem('auth_token', response.token);
-        localStorage.setItem('user', JSON.stringify(response.user));
+      // O backend pode retornar { token, ... } ou { Token, ... }
+      const token = response.token || response.Token;
+      if (token) {
+        localStorage.setItem('auth_token', token);
+        localStorage.setItem('user', JSON.stringify(response.user || response.User || { email }));
         navigate('/dashboard');
       }
     } catch (err) {
@@ -44,22 +65,6 @@ const Login = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const authApi = async (user, pass) => {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5238/api';
-    const res = await fetch(`${apiUrl}/Auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: user, password: pass })
-    });
-    
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Usuário ou senha incorretos');
-    }
-    
-    return await res.json();
   };
 
   return (
@@ -120,30 +125,31 @@ const Login = () => {
 
           <form onSubmit={handleLogin} className="login-form" autoComplete="off">
             <div className="field">
-              <label htmlFor="username">Usuário</label>
-              <div className="field-input">
-                <User size={18} className="field-icon" />
+              <label htmlFor="email">Email</label>
+              <div className={`field-input ${fieldErrors.email ? 'has-error' : ''}`}>
+                <Mail size={18} className="field-icon" />
                 <input
-                  id="username"
-                  type="text"
-                  placeholder="Nome de usuário"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  autoComplete="username"
+                  id="email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
                 />
               </div>
+              {fieldErrors.email && <span className="field-error-text">{fieldErrors.email}</span>}
             </div>
 
             <div className="field">
-              <label htmlFor="password">Senha</label>
-              <div className="field-input">
+              <label htmlFor="senha">Senha</label>
+              <div className={`field-input ${fieldErrors.senha ? 'has-error' : ''}`}>
                 <Lock size={18} className="field-icon" />
                 <input
-                  id="password"
+                  id="senha"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Sua senha secreta"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
                   autoComplete="current-password"
                 />
                 <button
@@ -155,6 +161,7 @@ const Login = () => {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+              {fieldErrors.senha && <span className="field-error-text">{fieldErrors.senha}</span>}
             </div>
 
             <div className="form-meta">
