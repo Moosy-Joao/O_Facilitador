@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import { Eye, EyeOff, Lock, User, ArrowRight, AlertCircle, CheckCircle, Leaf } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, ArrowRight, AlertCircle, CheckCircle, Leaf } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Waves from '../components/Waves/Waves';
 import { authLogin } from '../services/api';
 import './Login.css';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -25,7 +25,7 @@ const Login = () => {
     e.preventDefault();
     setError('');
 
-    if (!username || !password) {
+    if (!email || !senha) {
       setError('Por favor, preencha todos os campos.');
       return;
     }
@@ -33,11 +33,13 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await authLogin(username, password);
+      const response = await authLogin(email, senha);
 
-      if (response.token) {
-        localStorage.setItem('auth_token', response.token);
-        localStorage.setItem('user', JSON.stringify(response.user));
+      // O backend pode retornar { token, ... } ou { Token, ... }
+      const token = response.token || response.Token;
+      if (token) {
+        localStorage.setItem('auth_token', token);
+        localStorage.setItem('user', JSON.stringify(response.user || response.User || { email }));
         navigate('/dashboard');
       }
     } catch (err) {
@@ -105,30 +107,30 @@ const Login = () => {
 
           <form onSubmit={handleLogin} className="login-form" autoComplete="off">
             <div className="field">
-              <label htmlFor="username">Usuário</label>
+              <label htmlFor="email">Email</label>
               <div className="field-input">
-                <User size={18} className="field-icon" />
+                <Mail size={18} className="field-icon" />
                 <input
-                  id="username"
-                  type="text"
-                  placeholder="Nome de usuário"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  autoComplete="username"
+                  id="email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
                 />
               </div>
             </div>
 
             <div className="field">
-              <label htmlFor="password">Senha</label>
+              <label htmlFor="senha">Senha</label>
               <div className="field-input">
                 <Lock size={18} className="field-icon" />
                 <input
-                  id="password"
+                  id="senha"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Sua senha secreta"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
                   autoComplete="current-password"
                 />
                 <button

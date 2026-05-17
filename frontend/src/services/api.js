@@ -2,6 +2,7 @@
  * O Facilitador — API Service Layer
  * 
  * Camada de integração com o backend real.
+ * Autenticação via JWT (api/v1/auth/login).
  */
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5238/api';
@@ -13,13 +14,45 @@ const headers = () => ({
   'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
 });
 
+/**
+ * Wrapper de fetch que intercepta 401 (token expirado/inválido)
+ * e redireciona automaticamente para a tela de login.
+ */
+const fetchWithAuth = async (url, options = {}) => {
+  const res = await fetch(url, { ...options, headers: { ...headers(), ...(options.headers || {}) } });
+  if (res.status === 401) {
+    logout();
+    throw new Error('Sessão expirada. Faça login novamente.');
+  }
+  return res;
+};
+
+/**
+ * Remove tokens e dados do usuário e redireciona para login.
+ */
+export const logout = () => {
+  localStorage.removeItem('auth_token');
+  localStorage.removeItem('user');
+  // Redireciona apenas se não estiver já na página de login
+  if (window.location.pathname !== '/') {
+    window.location.href = '/';
+  }
+};
+
+/**
+ * Verifica se o usuário está autenticado (tem token salvo).
+ */
+export const isAuthenticated = () => {
+  return !!localStorage.getItem('auth_token');
+};
+
 // Helper para pegar um ID default de Endereço/Empresa para não quebrar a FK
 const getDefaultIds = async () => {
   let empresaId = '00000000-0000-0000-0000-000000000000';
   let enderecoId = '00000000-0000-0000-0000-000000000000';
   
   try {
-    const resEmpresa = await fetch(`${API_URL}/v1/empresa`, { headers: headers() });
+    const resEmpresa = await fetchWithAuth(`${API_URL}/v1/empresa`);
     if (resEmpresa.ok) {
       const empresas = await resEmpresa.json();
       if (empresas && empresas.length > 0) empresaId = empresas[0].id;
@@ -27,7 +60,7 @@ const getDefaultIds = async () => {
   } catch(e) {}
   
   try {
-    const resEnd = await fetch(`${API_URL}/v1/endereco`, { headers: headers() });
+    const resEnd = await fetchWithAuth(`${API_URL}/v1/endereco`);
     if (resEnd.ok) {
       const ends = await resEnd.json();
       if (ends && ends.length > 0) enderecoId = ends[0].id;
@@ -39,15 +72,15 @@ const getDefaultIds = async () => {
 
 /* ─────────── Auth ─────────── */
 
-export const authLogin = async (username, password) => {
-  const res = await fetch(`${API_URL}/Auth/login`, {
+export const authLogin = async (email, senha) => {
+  const res = await fetch(`${API_URL}/v1/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password })
+    body: JSON.stringify({ email, senha })
   });
   if (!res.ok) {
-    const errData = await res.json().catch(() => ({}));
-    throw new Error(errData.message || 'Usuário ou senha incorretos');
+    const errText = await res.text().catch(() => '');
+    throw new Error(errText || 'Email ou senha inválidos');
   }
   return await res.json();
 };
@@ -55,7 +88,7 @@ export const authLogin = async (username, password) => {
 /* ─────────── Clientes ─────────── */
 
 export const getClientes = async (filtros = {}) => {
-  const res = await fetch(`${API_URL}/v1/cliente`, { headers: headers() });
+  const res = await fetchWithAuth(`${API_URL}/v1/cliente`);
   if (!res.ok) throw new Error('Erro ao buscar clientes');
   let result = await res.json();
 
@@ -94,9 +127,8 @@ export const criarCliente = async (data) => {
     empresaId: empresaId
   };
 
-  const res = await fetch(`${API_URL}/v1/cliente`, {
+  const res = await fetchWithAuth(`${API_URL}/v1/cliente`, {
     method: 'POST',
-    headers: headers(),
     body: JSON.stringify(dto)
   });
   if (!res.ok) {
@@ -108,9 +140,8 @@ export const criarCliente = async (data) => {
 
 export const atualizarCliente = async (id, data) => {
   const dto = { ...data };
-  const res = await fetch(`${API_URL}/v1/cliente?id=${id}`, {
+  const res = await fetchWithAuth(`${API_URL}/v1/cliente?id=${id}`, {
     method: 'PATCH',
-    headers: headers(),
     body: JSON.stringify(dto)
   });
   if (!res.ok) {
@@ -127,9 +158,8 @@ export const toggleClienteStatus = async (id) => {
   const endpoint = cliente.ativo ? 'desativar' : 'ativar';
   const method = cliente.ativo ? 'DELETE' : 'POST';
 
-  const res = await fetch(`${API_URL}/v1/cliente/${endpoint}?id=${id}`, {
-    method: method,
-    headers: headers()
+  const res = await fetchWithAuth(`${API_URL}/v1/cliente/${endpoint}?id=${id}`, {
+    method: method
   });
   if (!res.ok) throw new Error('Erro ao alterar status do cliente');
   
@@ -149,9 +179,8 @@ export const registrarVenda = async (clienteId, valor, descricao) => {
     empresaId 
   };
 
-  const res = await fetch(`${API_URL}/v1/compras`, {
+  const res = await fetchWithAuth(`${API_URL}/v1/compras`, {
     method: 'POST',
-    headers: headers(),
     body: JSON.stringify(dto)
   });
   
@@ -175,9 +204,8 @@ export const registrarPagamento = async (clienteId, valor, observacao) => {
     dataPagamento: new Date().toISOString() 
   };
 
-  const res = await fetch(`${API_URL}/v1/pagamentos`, {
+  const res = await fetchWithAuth(`${API_URL}/v1/pagamentos`, {
     method: 'POST',
-    headers: headers(),
     body: JSON.stringify(dto)
   });
 
@@ -195,7 +223,7 @@ export const getTransacoes = async (filtros = {}) => {
   let transacoes = [];
 
   try {
-    const resCompras = await fetch(`${API_URL}/v1/compras`, { headers: headers() });
+    const resCompras = await fetchWithAuth(`${API_URL}/v1/compras`);
     if (resCompras.ok) {
       const compras = await resCompras.json();
       const formatadas = compras.map(c => ({
@@ -211,7 +239,7 @@ export const getTransacoes = async (filtros = {}) => {
       transacoes = [...transacoes, ...formatadas];
     }
 
-    const resPagamentos = await fetch(`${API_URL}/v1/pagamentos`, { headers: headers() });
+    const resPagamentos = await fetchWithAuth(`${API_URL}/v1/pagamentos`);
     if (resPagamentos.ok) {
       const pagamentos = await resPagamentos.json();
       const formPagamentos = pagamentos.map(p => ({
@@ -261,12 +289,12 @@ export const getTransacoes = async (filtros = {}) => {
 
 export const estornarTransacao = async (id) => {
   try {
-    const resCompra = await fetch(`${API_URL}/v1/compras/${id}`, { method: 'DELETE', headers: headers() });
+    const resCompra = await fetchWithAuth(`${API_URL}/v1/compras/${id}`, { method: 'DELETE' });
     if (resCompra.ok) return { id, status: 'estornado' };
   } catch(e) {}
 
   try {
-    const resPag = await fetch(`${API_URL}/v1/pagamentos/${id}`, { method: 'DELETE', headers: headers() });
+    const resPag = await fetchWithAuth(`${API_URL}/v1/pagamentos/${id}`, { method: 'DELETE' });
     if (resPag.ok) return { id, status: 'estornado' };
   } catch(e) {}
 
@@ -277,7 +305,7 @@ export const estornarTransacao = async (id) => {
 
 export const getDashboardStats = async () => {
   try {
-    const res = await fetch(`${API_URL}/Dashboard/stats`, { headers: headers() });
+    const res = await fetchWithAuth(`${API_URL}/Dashboard/stats`);
     if (res.ok) return await res.json();
   } catch(e) {}
   return {
@@ -294,7 +322,7 @@ export const getDashboardStats = async () => {
 
 export const getDashboardTransactions = async () => {
   try {
-    const res = await fetch(`${API_URL}/Dashboard/transactions`, { headers: headers() });
+    const res = await fetchWithAuth(`${API_URL}/Dashboard/transactions`);
     if (res.ok) return await res.json();
   } catch(e) {}
   return [];
@@ -302,7 +330,7 @@ export const getDashboardTransactions = async () => {
 
 export const getDashboardChart = async () => {
   try {
-    const res = await fetch(`${API_URL}/Dashboard/chart`, { headers: headers() });
+    const res = await fetchWithAuth(`${API_URL}/Dashboard/chart`);
     if (res.ok) return await res.json();
   } catch(e) {}
   return [];

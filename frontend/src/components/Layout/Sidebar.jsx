@@ -12,6 +12,7 @@ import {
   Menu,
   X,
 } from 'lucide-react';
+import { logout } from '../../services/api';
 import './Sidebar.css';
 
 const navItems = [
@@ -53,9 +54,7 @@ const Topbar = () => {
   }, [location.pathname]);
 
   const handleLogout = () => {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user');
-    navigate('/');
+    logout();
   };
 
   return (
@@ -88,9 +87,9 @@ const Topbar = () => {
         <div className="topbar-right">
           <div className="topbar-user">
             <div className="topbar-avatar">
-              {(user.name || 'U').charAt(0).toUpperCase()}
+              {(user.nome || user.name || user.email || 'U').charAt(0).toUpperCase()}
             </div>
-            <span className="topbar-user-name">{user.name || 'Usuário'}</span>
+            <span className="topbar-user-name">{user.nome || user.name || user.email || 'Usuário'}</span>
           </div>
           <button className="topbar-logout" onClick={handleLogout} title="Sair">
             <LogOut size={16} strokeWidth={1.9} />

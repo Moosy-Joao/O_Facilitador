@@ -7,6 +7,15 @@ import Vendas from './pages/Vendas';
 import Pagamentos from './pages/Pagamentos';
 import Historico from './pages/Historico';
 import AppLayout from './components/Layout/AppLayout';
+import { isAuthenticated } from './services/api';
+
+/**
+ * Componente de rota protegida.
+ * Redireciona para login se o usuário não tiver token JWT.
+ */
+const PrivateRoute = ({ children }) => {
+  return isAuthenticated() ? children : <Navigate to="/" replace />;
+};
 
 function App() {
   return (
@@ -16,7 +25,7 @@ function App() {
         <Route path="/" element={<Login />} />
 
         {/* Authenticated routes (with sidebar layout) */}
-        <Route element={<AppLayout />}>
+        <Route element={<PrivateRoute><AppLayout /></PrivateRoute>}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/clientes" element={<Clientes />} />
           <Route path="/clientes/novo" element={<ClienteNovo />} />
@@ -33,3 +42,4 @@ function App() {
 }
 
 export default App;
+
