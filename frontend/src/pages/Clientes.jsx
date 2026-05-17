@@ -24,7 +24,6 @@ const Clientes = () => {
   const [filtroStatus, setFiltroStatus] = useState('todos');
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [actionMenuId, setActionMenuId] = useState(null);
-  const [detalheCliente, setDetalheCliente] = useState(null);
   const navigate = useNavigate();
 
   const fetchClientes = async () => {
@@ -217,7 +216,7 @@ const Clientes = () => {
                         <button
                           className="action-btn"
                           title="Ver detalhes"
-                          onClick={() => setDetalheCliente(cliente)}
+                          onClick={() => navigate(`/clientes/${cliente.id}`)}
                         >
                           <Eye size={16} />
                         </button>
@@ -252,84 +251,6 @@ const Clientes = () => {
         </div>
       )}
 
-      {/* Detail Modal */}
-      {detalheCliente && (
-        <div className="modal-overlay" onClick={() => setDetalheCliente(null)}>
-          <div className="modal-content detail-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setDetalheCliente(null)}>
-              <X size={18} />
-            </button>
-
-            <div className="detail-header">
-              <div className="detail-avatar-lg">
-                {detalheCliente.nome.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <h2 className="detail-name">{detalheCliente.nome}</h2>
-                <span className={`status-badge ${getStatusInfo(detalheCliente).className}`}>
-                  {getStatusInfo(detalheCliente).label}
-                </span>
-              </div>
-            </div>
-
-            <div className="detail-grid">
-              <div className="detail-item">
-                <span className="detail-label">Documento</span>
-                <span className="detail-value">{detalheCliente.documento}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Email</span>
-                <span className="detail-value">{detalheCliente.email}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Telefone</span>
-                <span className="detail-value">{detalheCliente.telefone}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Nota</span>
-                <span className="detail-value">⭐ {detalheCliente.nota?.toFixed(1)}</span>
-              </div>
-            </div>
-
-            <div className="detail-finance">
-              <div className="detail-finance-card">
-                <AlertTriangle size={18} className="finance-icon danger" />
-                <div>
-                  <span className="finance-label">Saldo Devedor</span>
-                  <span className="finance-val danger">{formatCurrency(detalheCliente.saldo)}</span>
-                </div>
-              </div>
-              <div className="detail-finance-card">
-                <Shield size={18} className="finance-icon safe" />
-                <div>
-                  <span className="finance-label">Limite de Crédito</span>
-                  <span className="finance-val safe">{formatCurrency(detalheCliente.limiteCredito)}</span>
-                </div>
-              </div>
-            </div>
-
-            {detalheCliente.endereco && (
-              <div className="detail-address">
-                <h4>Endereço</h4>
-                <p>
-                  {detalheCliente.endereco.rua}, {detalheCliente.endereco.numero} —{' '}
-                  {detalheCliente.endereco.bairro}, {detalheCliente.endereco.cidade}/{detalheCliente.endereco.estado}
-                  <br />
-                  CEP: {detalheCliente.endereco.cep}
-                </p>
-              </div>
-            )}
-
-            <div className="detail-actions">
-              <button className="btn-detail-action" onClick={() => { setDetalheCliente(null); navigate('/vendas'); }}>
-                Registrar Venda
-              </button>
-              <button className="btn-detail-action secondary" onClick={() => { setDetalheCliente(null); navigate('/pagamentos'); }}>
-                Registrar Pagamento
-              </button>
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );

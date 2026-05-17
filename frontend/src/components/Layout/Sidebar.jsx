@@ -11,6 +11,7 @@ import {
   Leaf,
   Menu,
   X,
+  ShieldAlert,
 } from 'lucide-react';
 import { logout } from '../../services/api';
 import './Sidebar.css';
@@ -18,6 +19,7 @@ import './Sidebar.css';
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Painel' },
   { to: '/clientes', icon: Users, label: 'Clientes' },
+  { to: '/inadimplentes', icon: ShieldAlert, label: 'Inadimplentes' },
   { to: '/clientes/novo', icon: UserPlus, label: 'Cadastrar' },
   { to: '/vendas', icon: ShoppingCart, label: 'Venda' },
   { to: '/pagamentos', icon: CreditCard, label: 'Pagamento' },

@@ -11,6 +11,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({ email: '', senha: '' });
   const [showForm, setShowForm] = useState(false);
 
   const navigate = useNavigate();
@@ -24,9 +25,26 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
+    setFieldErrors({ email: '', senha: '' });
 
-    if (!email || !senha) {
-      setError('Por favor, preencha todos os campos.');
+    let hasErrors = false;
+    const newErrors = { email: '', senha: '' };
+
+    if (!email.trim()) {
+      newErrors.email = 'E-mail é obrigatório';
+      hasErrors = true;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = 'Formato de e-mail inválido';
+      hasErrors = true;
+    }
+
+    if (!senha.trim()) {
+      newErrors.senha = 'Senha é obrigatória';
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      setFieldErrors(newErrors);
       return;
     }
 
@@ -108,7 +126,7 @@ const Login = () => {
           <form onSubmit={handleLogin} className="login-form" autoComplete="off">
             <div className="field">
               <label htmlFor="email">Email</label>
-              <div className="field-input">
+              <div className={`field-input ${fieldErrors.email ? 'has-error' : ''}`}>
                 <Mail size={18} className="field-icon" />
                 <input
                   id="email"
@@ -119,11 +137,12 @@ const Login = () => {
                   autoComplete="email"
                 />
               </div>
+              {fieldErrors.email && <span className="field-error-text">{fieldErrors.email}</span>}
             </div>
 
             <div className="field">
               <label htmlFor="senha">Senha</label>
-              <div className="field-input">
+              <div className={`field-input ${fieldErrors.senha ? 'has-error' : ''}`}>
                 <Lock size={18} className="field-icon" />
                 <input
                   id="senha"
@@ -142,6 +161,7 @@ const Login = () => {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+              {fieldErrors.senha && <span className="field-error-text">{fieldErrors.senha}</span>}
             </div>
 
             <div className="form-meta">

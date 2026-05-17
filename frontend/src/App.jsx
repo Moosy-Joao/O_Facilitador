@@ -6,6 +6,8 @@ import ClienteNovo from './pages/ClienteNovo';
 import Vendas from './pages/Vendas';
 import Pagamentos from './pages/Pagamentos';
 import Historico from './pages/Historico';
+import ClienteDetalhes from './pages/ClienteDetalhes';
+import Inadimplentes from './pages/Inadimplentes';
 import AppLayout from './components/Layout/AppLayout';
 import { isAuthenticated } from './services/api';
 
@@ -29,6 +31,8 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/clientes" element={<Clientes />} />
           <Route path="/clientes/novo" element={<ClienteNovo />} />
+          <Route path="/clientes/:id" element={<ClienteDetalhes />} />
+          <Route path="/inadimplentes" element={<Inadimplentes />} />
           <Route path="/vendas" element={<Vendas />} />
           <Route path="/pagamentos" element={<Pagamentos />} />
           <Route path="/historico" element={<Historico />} />
