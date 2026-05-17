@@ -10,6 +10,7 @@ import {
   Clock,
   TrendingUp,
 } from 'lucide-react';
+import { getDashboardStats, getDashboardTransactions, getDashboardChart } from '../services/api';
 import './Dashboard.css';
 
 /* ─────────── MINI CHART (SVG) ─────────── */
@@ -82,17 +83,24 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5238/api';
-        
-        const [statsRes, movRes, chartRes] = await Promise.all([
-          fetch(`${apiUrl}/Dashboard/stats`).catch(() => null),
-          fetch(`${apiUrl}/Dashboard/transactions`).catch(() => null),
-          fetch(`${apiUrl}/Dashboard/chart`).catch(() => null)
+        const [statsData, movData, chartDataRes] = await Promise.all([
+          getDashboardStats().catch(() => ({
+            totalReceber: 0,
+            totalReceberVar: 0,
+            inadimplentes: 0,
+            inadimplentesValor: 0,
+            totalClientes: 0,
+            novosClientesSemana: 0,
+            vendasHoje: 0,
+            pagamentosHoje: 0,
+          })),
+          getDashboardTransactions().catch(() => []),
+          getDashboardChart().catch(() => [])
         ]);
 
-        if (statsRes && statsRes.ok) setStats(await statsRes.json());
-        if (movRes && movRes.ok) setMovimentacoes(await movRes.json());
-        if (chartRes && chartRes.ok) setChartData(await chartRes.json());
+        setStats(statsData);
+        setMovimentacoes(movData);
+        setChartData(chartDataRes);
       } catch (error) {
         console.error("Erro ao buscar dados do dashboard:", error);
       } finally {

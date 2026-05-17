@@ -250,8 +250,6 @@ const Clientes = () => {
           </table>
         </div>
       )}
-
-      )}
     </div>
   );
 };

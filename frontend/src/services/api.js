@@ -135,7 +135,7 @@ export const criarCliente = async (data) => {
      const txt = await res.text();
      throw new Error(txt || 'Erro ao criar cliente');
   }
-  return { ...data, id: crypto.randomUUID(), ativo: true }; 
+  return await res.json(); 
 };
 
 export const atualizarCliente = async (id, data) => {
@@ -189,7 +189,7 @@ export const registrarVenda = async (clienteId, valor, descricao) => {
     throw new Error(txt || 'Erro ao registrar venda');
   }
   
-  return { id: crypto.randomUUID(), tipo: 'venda', clienteId, valor, descricao };
+  return await res.json();
 };
 
 /* ─────────── Pagamentos ─────────── */
@@ -214,7 +214,7 @@ export const registrarPagamento = async (clienteId, valor, observacao) => {
     throw new Error(txt || 'Erro ao registrar pagamento');
   }
 
-  return { id: crypto.randomUUID(), tipo: 'pagamento', clienteId, valor, descricao: observacao };
+  return await res.json();
 };
 
 /* ─────────── Histórico / Transações ─────────── */
@@ -304,36 +304,21 @@ export const estornarTransacao = async (id) => {
 /* ─────────── Dashboard ─────────── */
 
 export const getDashboardStats = async () => {
-  try {
-    const res = await fetchWithAuth(`${API_URL}/Dashboard/stats`);
-    if (res.ok) return await res.json();
-  } catch(e) {}
-  return {
-    totalReceber: 0,
-    totalReceberVar: 0,
-    inadimplentes: 0,
-    inadimplentesValor: 0,
-    totalClientes: 0,
-    novosClientesSemana: 0,
-    vendasHoje: 0,
-    pagamentosHoje: 0,
-  };
+  const res = await fetchWithAuth(`${API_URL}/Dashboard/stats`);
+  if (!res.ok) throw new Error('Erro ao buscar stats do dashboard');
+  return await res.json();
 };
 
 export const getDashboardTransactions = async () => {
-  try {
-    const res = await fetchWithAuth(`${API_URL}/Dashboard/transactions`);
-    if (res.ok) return await res.json();
-  } catch(e) {}
-  return [];
+  const res = await fetchWithAuth(`${API_URL}/Dashboard/transactions`);
+  if (!res.ok) throw new Error('Erro ao buscar transacoes do dashboard');
+  return await res.json();
 };
 
 export const getDashboardChart = async () => {
-  try {
-    const res = await fetchWithAuth(`${API_URL}/Dashboard/chart`);
-    if (res.ok) return await res.json();
-  } catch(e) {}
-  return [];
+  const res = await fetchWithAuth(`${API_URL}/Dashboard/chart`);
+  if (!res.ok) throw new Error('Erro ao buscar grafico do dashboard');
+  return await res.json();
 };
 
 /* ─────────── Utilitários ─────────── */
