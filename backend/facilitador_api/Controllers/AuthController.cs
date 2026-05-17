@@ -1,31 +1,31 @@
+﻿using facilitador_api.Application.Interfaces;
+using facilitador_domain.Domain.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
-namespace facilitador_api.Controllers
+namespace facilitador_api.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v1/auth")]
     public class AuthController : ControllerBase
     {
-        [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginRequest request)
+        private readonly IAuthService _service;
+
+        public AuthController(IAuthService service)
         {
-            // Simple mock authentication for now, until full auth logic is required
-            if (request.Username == "admin" && request.Password == "123456")
+            _service = service;
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDTO dto)
+        {
+            var resultado = await _service.Login(dto);
+
+            if (resultado == null)
             {
-                return Ok(new
-                {
-                    Token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mockToken_backend_real",
-                    User = new { Id = 1, Name = "Admin System", Role = "admin" }
-                });
+                return Unauthorized("Email ou senha inválidos.");
             }
 
-            return Unauthorized(new { Message = "Usuário ou senha incorretos" });
+            return Ok(resultado);
         }
-    }
-
-    public class LoginRequest
-    {
-        public string Username { get; set; }
-        public string Password { get; set; }
     }
 }
