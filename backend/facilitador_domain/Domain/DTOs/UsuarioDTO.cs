@@ -21,7 +21,6 @@ namespace facilitador_domain.Domain.DTOs
         [Required(ErrorMessage = "O campo 'Cargo' é obrigatório.")]
         public string Cargo { get; set; } = string.Empty;
 
-        public string Imagem { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "O campo 'Empresa' é obrigatório.")]
         public Guid EmpresaId { get; set; } = Guid.Empty;
@@ -35,7 +34,6 @@ namespace facilitador_domain.Domain.DTOs
         public string? Email { get; set; }
         public string? Senha { get; set; }
         public string? Cargo { get; set; }
-        public string? Imagem { get; set; }
     }
 
     public class UsuarioResponseDTO
@@ -45,7 +43,6 @@ namespace facilitador_domain.Domain.DTOs
         public string Email { get; set; } = string.Empty;
         public string Senha { get; set; } = string.Empty;
         public string Cargo { get; set; } = string.Empty;
-        public string Imagem { get; set; } = string.Empty;
         public Guid EmpresaId { get; set; }
         public EmpresaResponseDTO? Empresa { get; set; }
         public bool Ativo { get; set; }

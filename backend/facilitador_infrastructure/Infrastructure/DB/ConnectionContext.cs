@@ -23,11 +23,39 @@ namespace facilitador_api.Infrastructure.DB
         public DbSet<Compra> Compras { get; set; }
         public DbSet<Pagamento> Pagamentos { get; set; }
 
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Usuario>(builder =>
+            {
+                builder.ToTable("usuario");
+
+                builder.HasKey(e => e.Id);
+
+                builder.Property(e => e.Id)
+                    .HasColumnName("id");
+
+                builder.Property(e => e.Nome)
+                    .HasColumnName("nome");
+
+                builder.Property(e => e.Email)
+                    .HasColumnName("email");
+
+                builder.Property(e => e.Senha)
+                    .HasColumnName("senha");
+
+                builder.Property(e => e.Cargo)
+                    .HasColumnName("cargo");
+
+
+                builder.Property(e => e.EmpresaId)
+                    .HasColumnName("empresa_id");
+            });
+
             modelBuilder.ApplyConfigurationsFromAssembly(
                 Assembly.GetExecutingAssembly()
             );
+
             base.OnModelCreating(modelBuilder);
         }
     }

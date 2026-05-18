@@ -40,9 +40,6 @@ namespace facilitador_api.Infrastructure.Mappings
                 .HasColumnName("cargo")
                 .IsRequired();
 
-            builder.Property(u => u.Imagem)
-                .HasColumnName("image");
-
             builder.Property(u => u.Ativo)
                 .HasColumnName("ativo")
                 .IsRequired()

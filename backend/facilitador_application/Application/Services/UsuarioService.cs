@@ -61,11 +61,6 @@ namespace facilitador_api.Application.Services
                 usuario.AtualizarCargo(dto.Cargo);
             }
 
-            if (!string.IsNullOrEmpty(dto.Imagem))
-            {
-                usuario.AtualizarImagem(dto.Imagem);
-            }
-
             // 5. Atualizar timestamp de modificação
             //usuario.AtualizarModificadoEm(DateTime.UtcNow);
             await _usuarioRepository.Salvar();
