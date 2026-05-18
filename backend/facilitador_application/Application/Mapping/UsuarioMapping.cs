@@ -15,7 +15,6 @@ namespace facilitador_api.Application.Mapping
                 Nome = usuario.Nome,
                 Email = usuario.Email,
                 Cargo = usuario.Cargo,
-                Imagem = usuario.Imagem,
                 EmpresaId = usuario.EmpresaId,
                 Ativo = usuario.Ativo,
                 CriadoEm = usuario.CriadoEm,
