@@ -38,16 +38,18 @@ namespace facilitador_api.Controllers
         }
 
         [HttpPost(Name = "CriarUsuario")]
-        [ProducesResponseType(typeof(UsuarioResponseDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(LoginResponseDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CriarUsuario(UsuarioCreateDTO dto)
         {
             var resultado = await _service.Criar(dto);
-            if (resultado == false)
+
+            if (resultado == null)
             {
-                return BadRequest("Erro ao criar usuário." + true);
+                return BadRequest("Erro ao criar usuário.");
             }
-            return Ok(resultado);
+
+            return Created("", resultado);
         }
 
         [HttpPatch("{id:guid}", Name = "AtualizarUsuario")]
