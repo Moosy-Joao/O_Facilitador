@@ -23,7 +23,6 @@ namespace facilitador_api.Domain.Entities
             Email = email;
             Senha = senha;
             Cargo = cargo;
-
         }
 
         public Usuario(UsuarioCreateDTO dto, Guid empresaId)
