@@ -18,93 +18,105 @@ namespace facilitador_api.Controllers
         [HttpGet("stats")]
         public async Task<IActionResult> GetStats()
         {
-            // For now, since the DB might be empty, we can return some aggregated data
-            // Let's mix real logic with fallbacks
             try 
             {
-                var totalClients = await _context.Clients.CountAsync();
-                var totalReceber = await _context.Purchases.SumAsync(p => p.Value) - await _context.Payments.SumAsync(p => p.PaymentValue);
-                
-                // If the DB is completely empty (brand new install), return some default mock data so the screen isn't empty
-                if (totalClients == 0 && totalReceber == 0)
-                {
-                    return Ok(new
-                    {
-                        totalReceber = 12450.75m,
-                        totalReceberVar = 8.3m,
-                        inadimplentes = 7,
-                        inadimplentesValor = 2140.00m,
-                        totalClientes = 48,
-                        novosClientesSemana = 3,
-                        vendasHoje = 645.50m,
-                        pagamentosHoje = 630.00m
-                    });
-                }
+                var totalClients = await _context.Clientes.CountAsync(c => c.Ativo);
+                var comprasQuery = _context.Compras.Where(c => c.Ativo);
+                var pagamentosQuery = _context.Pagamentos.Where(p => p.Ativo);
 
-                // If DB has data, return it
+                var totalReceber = await comprasQuery.SumAsync(c => c.Valor) - await pagamentosQuery.SumAsync(p => p.ValorPagamento);
+
+                var today = DateTime.UtcNow.Date;
+                var vendasHoje = await comprasQuery.Where(c => c.CriadoEm >= today).SumAsync(c => c.Valor);
+                var pagamentosHoje = await pagamentosQuery.Where(p => p.DataPagamento >= today).SumAsync(p => p.ValorPagamento);
+
+                var clientsList = await _context.Clientes.Where(c => c.Ativo).ToListAsync();
+                var inadimplentes = clientsList.Count(c => c.Saldo > c.LimiteCredito);
+                var inadimplentesValor = clientsList.Where(c => c.Saldo > c.LimiteCredito).Sum(c => c.Saldo - c.LimiteCredito);
+
+                var startOfWeek = today.AddDays(-(int)DateTime.UtcNow.DayOfWeek);
+                var novosClientesSemana = await _context.Clientes.CountAsync(c => c.CriadoEm >= startOfWeek);
+                
                 return Ok(new
                 {
                     totalReceber = totalReceber,
-                    totalReceberVar = 0, // Mock trend for now
-                    inadimplentes = 0, // Requires complex logic
-                    inadimplentesValor = 0,
+                    totalReceberVar = 0, 
+                    inadimplentes = inadimplentes, 
+                    inadimplentesValor = inadimplentesValor,
                     totalClientes = totalClients,
-                    novosClientesSemana = 0,
-                    vendasHoje = 0,
-                    pagamentosHoje = 0
+                    novosClientesSemana = novosClientesSemana,
+                    vendasHoje = vendasHoje,
+                    pagamentosHoje = pagamentosHoje
                 });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Fallback if DB connection fails
-                return Ok(new
-                {
-                    totalReceber = 12450.75m,
-                    totalReceberVar = 8.3m,
-                    inadimplentes = 7,
-                    inadimplentesValor = 2140.00m,
-                    totalClientes = 48,
-                    novosClientesSemana = 3,
-                    vendasHoje = 645.50m,
-                    pagamentosHoje = 630.00m
-                });
+                return BadRequest("Erro ao carregar dados do dashboard: " + ex.Message);
             }
         }
 
         [HttpGet("transactions")]
-        public IActionResult GetTransactions()
+        public async Task<IActionResult> GetTransactions()
         {
-            // Static mock transactions until we wire up real DTOs
-            return Ok(new[]
+            try 
             {
-                new { id = 1, type = "venda", cliente = "Maria Silva", valor = 150.0m, hora = "09:15", status = "concluido" },
-                new { id = 2, type = "pagamento", cliente = "João Pereira", valor = 80.0m, hora = "10:30", status = "concluido" },
-                new { id = 3, type = "venda", cliente = "Ana Costa", valor = 220.5m, hora = "11:45", status = "concluido" },
-                new { id = 4, type = "pagamento", cliente = "Pedro Souza", valor = 350.0m, hora = "13:00", status = "concluido" },
-                new { id = 5, type = "venda", cliente = "Carla Lima", valor = 95.0m, hora = "14:20", status = "concluido" }
-            });
+                var compras = await _context.Compras
+                    .Include(c => c.Cliente)
+                    .OrderByDescending(c => c.CriadoEm)
+                    .Take(5)
+                    .Select(c => new { id = c.Id, type = "venda", cliente = c.Cliente.Nome, valor = c.Valor, hora = c.CriadoEm.ToString("HH:mm"), data = c.CriadoEm, status = c.Ativo ? "concluido" : "estornado" })
+                    .ToListAsync();
+
+                var pagamentos = await _context.Pagamentos
+                    .Include(p => p.Cliente)
+                    .OrderByDescending(p => p.DataPagamento)
+                    .Take(5)
+                    .Select(p => new { id = p.Id, type = "pagamento", cliente = p.Cliente.Nome, valor = p.ValorPagamento, hora = p.DataPagamento.ToString("HH:mm"), data = p.DataPagamento, status = p.Ativo ? "concluido" : "estornado" })
+                    .ToListAsync();
+
+                var transactions = compras.Cast<dynamic>()
+                    .Concat(pagamentos.Cast<dynamic>())
+                    .OrderByDescending(t => t.data)
+                    .Take(5)
+                    .ToList();
+
+                return Ok(transactions);
+            } 
+            catch (Exception)
+            {
+                return Ok(new object[] { });
+            }
         }
         
         [HttpGet("chart")]
-        public IActionResult GetChartData()
+        public async Task<IActionResult> GetChartData()
         {
-            var data = new List<object>();
-            var today = DateTime.Now;
-            double value = 4200;
-            
-            for (int i = 29; i >= 0; i--)
+            try 
             {
-                var date = today.AddDays(-i);
-                value += (new Random().NextDouble() - 0.45) * 400;
-                value = Math.Max(800, value);
-                data.Add(new
+                var thirtyDaysAgo = DateTime.UtcNow.Date.AddDays(-30);
+                var compras = await _context.Compras
+                    .Where(c => c.Ativo && c.CriadoEm >= thirtyDaysAgo)
+                    .GroupBy(c => c.CriadoEm.Date)
+                    .Select(g => new { Data = g.Key, Valor = g.Sum(c => c.Valor) })
+                    .ToListAsync();
+
+                var result = new List<object>();
+                for (int i = 29; i >= 0; i--)
                 {
-                    date = date.ToString("dd/MM"),
-                    value = Math.Round(value * 100) / 100
-                });
+                    var date = DateTime.UtcNow.Date.AddDays(-i);
+                    var match = compras.FirstOrDefault(c => c.Data == date);
+                    result.Add(new {
+                        date = date.ToString("dd/MM"),
+                        value = match != null ? match.Valor : 0
+                    });
+                }
+
+                return Ok(result);
             }
-            
-            return Ok(data);
+            catch (Exception)
+            {
+                return Ok(new object[] { });
+            }
         }
     }
 }

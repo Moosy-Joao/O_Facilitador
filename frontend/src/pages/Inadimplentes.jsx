@@ -87,12 +87,7 @@ const Inadimplentes = () => {
         </div>
       </div>
 
-      {loading ? (
-        <div className="page-loading" style={{ minHeight: '40vh' }}>
-          <div className="loading-spinner danger" />
-          <p>Buscando inadimplentes...</p>
-        </div>
-      ) : clientes.length === 0 ? (
+      {clientes.length === 0 && !loading ? (
         <div className="empty-state success-state">
           <div className="empty-icon-wrap">
             <ShieldAlert size={48} />
@@ -101,7 +96,7 @@ const Inadimplentes = () => {
           <p>Ótima notícia! Nenhum cliente estourou o limite de crédito.</p>
         </div>
       ) : (
-        <div className="inadimplentes-grid">
+        <div className="inadimplentes-grid" style={{ opacity: loading ? 0.6 : 1, transition: 'opacity 0.2s' }}>
           {clientes.map((cliente, i) => {
             const excedido = cliente.saldo - cliente.limiteCredito;
             

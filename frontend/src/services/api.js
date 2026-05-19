@@ -73,7 +73,7 @@ const getDefaultIds = async () => {
 /* ─────────── Auth ─────────── */
 
 export const authLogin = async (email, senha) => {
-  const res = await fetch(`${API_URL}/v1/auth/login`, {
+  const res = await fetch(`${API_URL}/v1/autenticacao`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, senha })

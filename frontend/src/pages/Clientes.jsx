@@ -138,19 +138,14 @@ const Clientes = () => {
       </div>
 
       {/* Table */}
-      {loading ? (
-        <div className="page-loading" style={{ minHeight: '40vh' }}>
-          <div className="loading-spinner" />
-          <p>Buscando clientes...</p>
-        </div>
-      ) : clientes.length === 0 ? (
+      {clientes.length === 0 && !loading ? (
         <div className="empty-state">
           <Search size={48} strokeWidth={1} />
           <h3>Nenhum cliente encontrado</h3>
           <p>Tente ajustar os filtros ou cadastre um novo cliente.</p>
         </div>
       ) : (
-        <div className="clientes-table-wrap">
+        <div className="clientes-table-wrap" style={{ opacity: loading ? 0.6 : 1, transition: 'opacity 0.2s' }}>
           <table className="clientes-table" id="clientes-table">
             <thead>
               <tr>

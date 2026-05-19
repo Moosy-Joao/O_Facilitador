@@ -55,11 +55,18 @@ const Login = () => {
     try {
       const response = await authLogin(email, senha);
 
-      // O backend pode retornar { token, ... } ou { Token, ... }
       const token = response.token || response.Token;
       if (token) {
         localStorage.setItem('auth_token', token);
-        localStorage.setItem('user', JSON.stringify(response.user || response.User || { email }));
+        
+        const userEmail = response.email || response.Email || email;
+        const userData = {
+          id: response.usuarioId || response.UsuarioId,
+          email: userEmail,
+          name: userEmail.split('@')[0]
+        };
+        
+        localStorage.setItem('user', JSON.stringify(userData));
         navigate('/dashboard');
       }
     } catch (err) {

@@ -271,7 +271,7 @@ const ClienteNovo = () => {
                   name="limiteCredito"
                   type="number"
                   placeholder="1000.00"
-                  step="0.01"
+                  step="any"
                   min="0"
                   value={form.limiteCredito}
                   onChange={handleChange}

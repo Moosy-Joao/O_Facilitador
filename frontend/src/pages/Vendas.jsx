@@ -187,7 +187,7 @@ const Vendas = () => {
                 id="valor-venda"
                 type="number"
                 placeholder="0.00"
-                step="0.01"
+                step="any"
                 min="0.01"
                 value={valor}
                 onChange={(e) => setValor(e.target.value)}

@@ -116,14 +116,7 @@ const Dashboard = () => {
   const formatCurrency = (val) =>
     val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2 });
 
-  if (loading) {
-    return (
-      <div className="dashboard-loading">
-        <div className="loading-spinner" />
-        <p>Sincronizando dados...</p>
-      </div>
-    );
-  }
+
 
   const [, decimalPart] = formatCurrency(stats.totalReceber).split(',');
   const integerPart = formatCurrency(stats.totalReceber).split(',')[0];
@@ -136,9 +129,9 @@ const Dashboard = () => {
           <h1 className="greeting">Olá, {user.name || user.Name || 'Gestor'}</h1>
           <p className="greeting-sub">Aqui está o resumo do seu negócio hoje.</p>
         </div>
-        <button className="btn-refresh" onClick={() => window.location.reload()}>
-          <RefreshCw size={16} />
-          Atualizar
+        <button className="btn-refresh" onClick={() => window.location.reload()} disabled={loading}>
+          <RefreshCw size={16} className={loading ? 'spin-anim' : ''} />
+          {loading ? 'Sincronizando...' : 'Atualizar'}
         </button>
       </div>
 

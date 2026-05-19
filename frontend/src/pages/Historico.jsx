@@ -168,19 +168,14 @@ const Historico = () => {
       )}
 
       {/* Transaction List */}
-      {loading ? (
-        <div className="page-loading" style={{ minHeight: '40vh' }}>
-          <div className="loading-spinner" />
-          <p>Buscando histórico...</p>
-        </div>
-      ) : transacoes.length === 0 ? (
+      {transacoes.length === 0 && !loading ? (
         <div className="empty-state">
           <History size={48} strokeWidth={1} />
           <h3>Nenhuma transação encontrada</h3>
           <p>Ajuste os filtros ou registre novas vendas/pagamentos.</p>
         </div>
       ) : (
-        <div className="historico-list">
+        <div className="historico-list" style={{ opacity: loading ? 0.6 : 1, transition: 'opacity 0.2s' }}>
           {transacoes.map((t, i) => (
             <div
               key={t.id}
