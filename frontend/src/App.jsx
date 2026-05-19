@@ -1,7 +1,23 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import Clientes from './pages/Clientes';
+import ClienteNovo from './pages/ClienteNovo';
+import Vendas from './pages/Vendas';
+import Pagamentos from './pages/Pagamentos';
+import Historico from './pages/Historico';
+import ClienteDetalhes from './pages/ClienteDetalhes';
+import Inadimplentes from './pages/Inadimplentes';
 import AppLayout from './components/Layout/AppLayout';
+import { isAuthenticated } from './services/api';
+
+/**
+ * Componente de rota protegida.
+ * Redireciona para login se o usuário não tiver token JWT.
+ */
+const PrivateRoute = ({ children }) => {
+  return isAuthenticated() ? children : <Navigate to="/" replace />;
+};
 
 function App() {
   return (
@@ -11,14 +27,15 @@ function App() {
         <Route path="/" element={<Login />} />
 
         {/* Authenticated routes (with sidebar layout) */}
-        <Route element={<AppLayout />}>
+        <Route element={<PrivateRoute><AppLayout /></PrivateRoute>}>
           <Route path="/dashboard" element={<Dashboard />} />
-          {/* Futuras rotas aqui */}
-          <Route path="/clientes" element={<PlaceholderPage title="Gerenciamento de Clientes" />} />
-          <Route path="/clientes/novo" element={<PlaceholderPage title="Novo Cliente" />} />
-          <Route path="/vendas" element={<PlaceholderPage title="Registrar Venda" />} />
-          <Route path="/pagamentos" element={<PlaceholderPage title="Registrar Pagamento" />} />
-          <Route path="/historico" element={<PlaceholderPage title="Histórico de Transações" />} />
+          <Route path="/clientes" element={<Clientes />} />
+          <Route path="/clientes/novo" element={<ClienteNovo />} />
+          <Route path="/clientes/:id" element={<ClienteDetalhes />} />
+          <Route path="/inadimplentes" element={<Inadimplentes />} />
+          <Route path="/vendas" element={<Vendas />} />
+          <Route path="/pagamentos" element={<Pagamentos />} />
+          <Route path="/historico" element={<Historico />} />
         </Route>
 
         {/* Catch all */}
@@ -28,30 +45,5 @@ function App() {
   );
 }
 
-/* Temporary placeholder for not-yet-implemented pages */
-function PlaceholderPage({ title }) {
-  return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '60vh',
-      gap: '1rem',
-      color: '#586856',
-    }}>
-      <h1 style={{
-        fontFamily: "'Outfit', sans-serif",
-        fontSize: '1.5rem',
-        fontWeight: 700,
-        color: '#f0f5ee',
-        letterSpacing: '-0.5px',
-      }}>
-        {title}
-      </h1>
-      <p style={{ fontSize: '0.9rem' }}>Em desenvolvimento — disponível em breve.</p>
-    </div>
-  );
-}
-
 export default App;
+

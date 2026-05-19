@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   ArrowUpRight,
   ArrowDownRight,
@@ -10,6 +11,7 @@ import {
   Clock,
   TrendingUp,
 } from 'lucide-react';
+import { getDashboardStats, getDashboardTransactions, getDashboardChart } from '../services/api';
 import './Dashboard.css';
 
 /* ─────────── MINI CHART (SVG) ─────────── */
@@ -63,6 +65,7 @@ const BentoChart = ({ data }) => {
 /* ─────────── DASHBOARD PAGE ─────────── */
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalReceber: 0,
@@ -82,17 +85,24 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5238/api';
-        
-        const [statsRes, movRes, chartRes] = await Promise.all([
-          fetch(`${apiUrl}/Dashboard/stats`).catch(() => null),
-          fetch(`${apiUrl}/Dashboard/transactions`).catch(() => null),
-          fetch(`${apiUrl}/Dashboard/chart`).catch(() => null)
+        const [statsData, movData, chartDataRes] = await Promise.all([
+          getDashboardStats().catch(() => ({
+            totalReceber: 0,
+            totalReceberVar: 0,
+            inadimplentes: 0,
+            inadimplentesValor: 0,
+            totalClientes: 0,
+            novosClientesSemana: 0,
+            vendasHoje: 0,
+            pagamentosHoje: 0,
+          })),
+          getDashboardTransactions().catch(() => []),
+          getDashboardChart().catch(() => [])
         ]);
 
-        if (statsRes && statsRes.ok) setStats(await statsRes.json());
-        if (movRes && movRes.ok) setMovimentacoes(await movRes.json());
-        if (chartRes && chartRes.ok) setChartData(await chartRes.json());
+        setStats(statsData);
+        setMovimentacoes(movData);
+        setChartData(chartDataRes);
       } catch (error) {
         console.error("Erro ao buscar dados do dashboard:", error);
       } finally {
@@ -106,14 +116,7 @@ const Dashboard = () => {
   const formatCurrency = (val) =>
     val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2 });
 
-  if (loading) {
-    return (
-      <div className="dashboard-loading">
-        <div className="loading-spinner" />
-        <p>Sincronizando dados...</p>
-      </div>
-    );
-  }
+
 
   const [, decimalPart] = formatCurrency(stats.totalReceber).split(',');
   const integerPart = formatCurrency(stats.totalReceber).split(',')[0];
@@ -126,9 +129,9 @@ const Dashboard = () => {
           <h1 className="greeting">Olá, {user.name || user.Name || 'Gestor'}</h1>
           <p className="greeting-sub">Aqui está o resumo do seu negócio hoje.</p>
         </div>
-        <button className="btn-refresh" onClick={() => window.location.reload()}>
-          <RefreshCw size={16} />
-          Atualizar
+        <button className="btn-refresh" onClick={() => window.location.reload()} disabled={loading}>
+          <RefreshCw size={16} className={loading ? 'spin-anim' : ''} />
+          {loading ? 'Sincronizando...' : 'Atualizar'}
         </button>
       </div>
 
@@ -226,7 +229,7 @@ const Dashboard = () => {
         <div className="bento-box list-box">
           <div className="bento-box-header list-header">
             <span className="bento-label">Últimas Movimentações</span>
-            <button className="btn-text">Ver todas</button>
+            <button className="btn-text" onClick={() => navigate('/historico')}>Ver todas</button>
           </div>
           <div className="bento-list">
             {movimentacoes.map((m) => (

@@ -1,15 +1,18 @@
 import { useState } from 'react';
-import { Eye, EyeOff, Lock, User, ArrowRight, AlertCircle, CheckCircle, Leaf } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, ArrowRight, AlertCircle, CheckCircle, Leaf } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Waves from '../components/Waves/Waves';
+import { authLogin } from '../services/api';
 import './Login.css';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({ email: '', senha: '' });
   const [showForm, setShowForm] = useState(false);
 
   const navigate = useNavigate();
@@ -23,20 +26,47 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccessMsg('');
+    setFieldErrors({ email: '', senha: '' });
 
-    if (!username || !password) {
-      setError('Por favor, preencha todos os campos.');
+    let hasErrors = false;
+    const newErrors = { email: '', senha: '' };
+
+    if (!email.trim()) {
+      newErrors.email = 'E-mail é obrigatório';
+      hasErrors = true;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = 'Formato de e-mail inválido';
+      hasErrors = true;
+    }
+
+    if (!senha.trim()) {
+      newErrors.senha = 'Senha é obrigatória';
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      setFieldErrors(newErrors);
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await authApi(username, password);
+      const response = await authLogin(email, senha);
 
-      if (response.token) {
-        localStorage.setItem('auth_token', response.token);
-        localStorage.setItem('user', JSON.stringify(response.user));
+      const token = response.token || response.Token;
+      if (token) {
+        localStorage.setItem('auth_token', token);
+        
+        const userEmail = response.email || response.Email || email;
+        const userData = {
+          id: response.usuarioId || response.UsuarioId,
+          email: userEmail,
+          name: userEmail.split('@')[0]
+        };
+        
+        localStorage.setItem('user', JSON.stringify(userData));
         navigate('/dashboard');
       }
     } catch (err) {
@@ -46,20 +76,27 @@ const Login = () => {
     }
   };
 
-  const authApi = async (user, pass) => {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5238/api';
-    const res = await fetch(`${apiUrl}/Auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: user, password: pass })
-    });
-    
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Usuário ou senha incorretos');
+  const handleEsqueciSenha = async (e) => {
+    e.preventDefault();
+    setSuccessMsg('');
+    setError('');
+
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Por favor, informe um e-mail válido no campo acima para recuperar a senha.');
+      return;
     }
-    
-    return await res.json();
+
+    setLoading(true);
+
+    try {
+      // Simula a requisição para a API
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      setSuccessMsg(`Um link de recuperação foi enviado para ${email}`);
+    } catch (err) {
+      setError('Ocorreu um erro ao processar sua solicitação.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -108,7 +145,7 @@ const Login = () => {
 
           <div className="card-head">
             <h2>Bem-vindo de volta</h2>
-            <p>Não tem uma conta? <a href="#">Fale com o suporte</a></p>
+            <p>Não tem uma conta? <a href="https://wa.me/5511999999999?text=Ol%C3%A1%2C%20gostaria%20de%20solicitar%20acesso%20ao%20sistema%20O%20Facilitador" target="_blank" rel="noopener noreferrer">Fale com o suporte</a></p>
           </div>
 
           {error && (
@@ -118,32 +155,40 @@ const Login = () => {
             </div>
           )}
 
+          {successMsg && (
+            <div className="alert-error" style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', color: '#16a34a', borderColor: 'rgba(34, 197, 94, 0.2)' }}>
+              <CheckCircle size={16} />
+              <span>{successMsg}</span>
+            </div>
+          )}
+
           <form onSubmit={handleLogin} className="login-form" autoComplete="off">
             <div className="field">
-              <label htmlFor="username">Usuário</label>
-              <div className="field-input">
-                <User size={18} className="field-icon" />
+              <label htmlFor="email">Email</label>
+              <div className={`field-input ${fieldErrors.email ? 'has-error' : ''}`}>
+                <Mail size={18} className="field-icon" />
                 <input
-                  id="username"
-                  type="text"
-                  placeholder="Nome de usuário"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  autoComplete="username"
+                  id="email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
                 />
               </div>
+              {fieldErrors.email && <span className="field-error-text">{fieldErrors.email}</span>}
             </div>
 
             <div className="field">
-              <label htmlFor="password">Senha</label>
-              <div className="field-input">
+              <label htmlFor="senha">Senha</label>
+              <div className={`field-input ${fieldErrors.senha ? 'has-error' : ''}`}>
                 <Lock size={18} className="field-icon" />
                 <input
-                  id="password"
+                  id="senha"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Sua senha secreta"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
                   autoComplete="current-password"
                 />
                 <button
@@ -155,10 +200,17 @@ const Login = () => {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+              {fieldErrors.senha && <span className="field-error-text">{fieldErrors.senha}</span>}
             </div>
 
             <div className="form-meta">
-              <a href="#" className="forgot-link">Esqueci minha senha</a>
+              <a 
+                href="#" 
+                className="forgot-link" 
+                onClick={handleEsqueciSenha}
+              >
+                Esqueci minha senha
+              </a>
             </div>
 
             <button

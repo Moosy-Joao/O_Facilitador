@@ -315,6 +315,22 @@ input, button, textarea, select { font-family: inherit; }
   box-shadow: 0 0 0 3px var(--accent-subtle);
 }
 
+.field-input.has-error {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+}
+
+.field-input.has-error:focus-within {
+  box-shadow: 0 0 0 3px rgba(251, 113, 133, 0.15);
+}
+
+.field-error-text {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--danger);
+  margin-top: 0.1rem;
+}
+
 .field-icon {
   position: absolute;
   left: 1rem;

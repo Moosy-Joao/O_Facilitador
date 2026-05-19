@@ -10,6 +10,15 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        b => b.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader());
+});
+
 // Banco de dados
 builder.Services.AddDbContext<ConnectionContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -95,6 +104,9 @@ var app = builder.Build();
 // Swagger
 app.UseSwagger();
 app.UseSwaggerUI();
+
+// CORS
+app.UseCors("AllowAll");
 
 // Autenticação/autorização
 app.UseAuthentication();
