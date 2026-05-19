@@ -1,5 +1,5 @@
-﻿using facilitador_domain.Domain.DTOs;
-using facilitador_api.Domain.Entities;
+﻿using facilitador_api.Domain.Entities;
+using facilitador_domain.Domain.DTOs;
 
 namespace facilitador_api.Application.Mapping
 {
@@ -18,6 +18,7 @@ namespace facilitador_api.Application.Mapping
                 Telefone = cliente.Telefone,
                 Saldo = cliente.Saldo,
                 LimiteCredito = cliente.LimiteCredito,
+                Inadimplente = cliente.Inadimplente,
                 Endereco = cliente.Endereco?.ToResponseDTO(),
                 Empresa = cliente.Empresa?.ToResponseDTO(),
                 Ativo = cliente.Ativo,

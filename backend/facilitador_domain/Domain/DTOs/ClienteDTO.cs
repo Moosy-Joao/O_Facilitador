@@ -49,6 +49,7 @@ namespace facilitador_domain.Domain.DTOs
         public string? Telefone { get; set; }
         public Guid? EnderecoId { get; set; }
         public Guid? EmpresaId { get; set; }
+        public bool? Inadimplente { get; set; }
     }
 
     public class ClienteResponseDTO
@@ -60,6 +61,7 @@ namespace facilitador_domain.Domain.DTOs
         public string? Telefone { get; set; } = string.Empty;
         public decimal Saldo { get; set; }
         public decimal LimiteCredito { get; set; }
+        public bool Inadimplente { get; set; }
         public bool Ativo { get; set; }
         public EnderecoResponseDTO? Endereco { get; set; }
         public EmpresaResponseDTO? Empresa { get; set; }

@@ -1,8 +1,8 @@
-﻿using facilitador_domain.Domain.DTOs;
-using facilitador_api.Application.Interfaces;
+﻿using facilitador_api.Application.Interfaces;
 using facilitador_api.Application.Mapping;
 using facilitador_api.Domain.Entities;
 using facilitador_api.Domain.Interfaces;
+using facilitador_domain.Domain.DTOs;
 
 namespace facilitador_api.Application.Services
 {
@@ -56,10 +56,10 @@ namespace facilitador_api.Application.Services
                 usuario.AtualizarSenha(dto.Senha);
             }
 
-            if (!string.IsNullOrEmpty(dto.Cargo))
-            {
-                usuario.AtualizarCargo(dto.Cargo);
-            }
+            //if (!string.IsNullOrEmpty(dto.Cargo))
+            //{
+            //    usuario.AtualizarCargo(dto.Cargo);
+            //}
 
             // 5. Atualizar timestamp de modificação
             //usuario.AtualizarModificadoEm(DateTime.UtcNow);

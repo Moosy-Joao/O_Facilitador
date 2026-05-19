@@ -38,6 +38,7 @@ namespace facilitador_api.Infrastructure.Mappings
 
             builder.Property(u => u.Cargo)
                 .HasColumnName("cargo")
+                .HasConversion<int>()
                 .IsRequired();
 
             builder.Property(u => u.Ativo)

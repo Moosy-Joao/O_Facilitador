@@ -80,7 +80,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 // Swagger simples
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.OpenApiInfo
+    {
+        Title = "Facilitador API",
+        Version = "v1",
+        Description = "API para gerenciamento e controle de fiados."
+    });
+});
 
 var app = builder.Build();
 
