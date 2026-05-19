@@ -4,9 +4,9 @@ using FluentValidation;
 
 namespace facilitador_application.Application.Validators.Cliente
 {
-    internal class ClienteUpdateDTOValidator : AbstractValidator<ClienteUpdateDTO>
+    public class ClienteUpdateDTOValidator : AbstractValidator<ClienteUpdateDTO>
     {
-        ClienteUpdateDTOValidator()
+        public ClienteUpdateDTOValidator()
         {
             RuleFor(x => x.Nome)
                 .MinimumLength(3).WithMessage("O nome deve ter no mínimo 3 caracteres.")

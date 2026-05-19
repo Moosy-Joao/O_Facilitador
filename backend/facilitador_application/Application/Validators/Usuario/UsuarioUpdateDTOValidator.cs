@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace facilitador_application.Application.Validators.Usuario
 {
-    internal class UsuarioUpdateDTOValidator : AbstractValidator<UsuarioUpdateDTO>
+    public class UsuarioUpdateDTOValidator : AbstractValidator<UsuarioUpdateDTO>
     {
         public UsuarioUpdateDTOValidator()
         {
@@ -16,7 +16,7 @@ namespace facilitador_application.Application.Validators.Usuario
             RuleFor(x => x.Senha)
                 .NotEmpty().WithMessage("A senha é obrigatória.")
                 .MinimumLength(6).WithMessage("A senha deve ter no mínimo 6 caracteres.")
-                .MaximumLength(100).WithMessage("A senha deve ter no máximo 100 caracteres.");
+                .MaximumLength(254).WithMessage("A senha deve ter no máximo 254 caracteres.");
             RuleFor(x => x.Cargo)
                 .IsInEnum().WithMessage("O cargo é inválido.");
         }
