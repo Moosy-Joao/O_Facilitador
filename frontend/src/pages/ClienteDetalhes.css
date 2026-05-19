@@ -1,4 +1,21 @@
 .cliente-detalhes-page {
+  --surface: rgba(255, 255, 255, 0.75);
+  --surface-light: rgba(255, 255, 255, 0.5);
+  --surface-hover: rgba(255, 255, 255, 0.9);
+  --border: rgba(0, 0, 0, 0.08);
+  --border-hover: rgba(0, 0, 0, 0.15);
+  --text-primary: #1a2318;
+  --text-secondary: #647462;
+  --text-tertiary: #94a392;
+  --primary: #22c55e;
+  --primary-hover: #16a34a;
+  --danger: #ef4444;
+  --success: #10b981;
+  --info: #3b82f6;
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.cliente-detalhes-page {
   padding: 1rem;
   animation: fadeIn 0.3s ease-in-out;
 }

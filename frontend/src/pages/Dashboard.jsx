@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   ArrowUpRight,
   ArrowDownRight,
@@ -64,6 +65,7 @@ const BentoChart = ({ data }) => {
 /* ─────────── DASHBOARD PAGE ─────────── */
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalReceber: 0,
@@ -234,7 +236,7 @@ const Dashboard = () => {
         <div className="bento-box list-box">
           <div className="bento-box-header list-header">
             <span className="bento-label">Últimas Movimentações</span>
-            <button className="btn-text">Ver todas</button>
+            <button className="btn-text" onClick={() => navigate('/historico')}>Ver todas</button>
           </div>
           <div className="bento-list">
             {movimentacoes.map((m) => (

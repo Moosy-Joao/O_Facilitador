@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -13,6 +13,14 @@ import {
 } from 'lucide-react';
 import { criarCliente, formatCPF, formatPhone, formatCEP } from '../services/api';
 import './ClienteNovo.css';
+
+const validarCPF = (cpfStr) => {
+  const cpf = cpfStr.replace(/[^\d]+/g, '');
+  if (cpf.length !== 11 || !!cpf.match(/(\d)\1{10}/)) return false;
+  const cpfArray = cpf.split('').map(el => +el);
+  const rest = (count) => (cpfArray.slice(0, count - 12).reduce((soma, el, index) => (soma + el * (count - index)), 0) * 10) % 11 % 10;
+  return rest(10) === cpfArray[9] && rest(11) === cpfArray[10];
+};
 
 const ClienteNovo = () => {
   const navigate = useNavigate();
@@ -39,6 +47,33 @@ const ClienteNovo = () => {
 
   const [errors, setErrors] = useState({});
 
+  useEffect(() => {
+    const fetchCep = async () => {
+      const cepLimpo = form.cep.replace(/\D/g, '');
+      if (cepLimpo.length === 8) {
+        try {
+          const res = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+          const data = await res.json();
+          if (!data.erro) {
+            setForm(prev => ({
+              ...prev,
+              rua: data.logradouro || '',
+              bairro: data.bairro || '',
+              cidade: data.localidade || '',
+              estado: data.uf || ''
+            }));
+            setErrors(prev => ({ ...prev, cep: '', rua: '', bairro: '', cidade: '', estado: '' }));
+          } else {
+            setErrors(prev => ({ ...prev, cep: 'CEP não encontrado' }));
+          }
+        } catch (err) {
+          setErrors(prev => ({ ...prev, cep: 'Erro ao buscar CEP' }));
+        }
+      }
+    };
+    fetchCep();
+  }, [form.cep]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     let formatted = value;
@@ -60,7 +95,7 @@ const ClienteNovo = () => {
     if (!form.email.trim()) newErrors.email = 'Email é obrigatório';
     else if (!/\S+@\S+\.\S+/.test(form.email)) newErrors.email = 'Email inválido';
     if (!form.documento.trim()) newErrors.documento = 'CPF é obrigatório';
-    else if (form.documento.replace(/\D/g, '').length < 11) newErrors.documento = 'CPF incompleto';
+    else if (!validarCPF(form.documento)) newErrors.documento = 'CPF inválido';
     if (!form.telefone.trim()) newErrors.telefone = 'Telefone é obrigatório';
     if (!form.limiteCredito) newErrors.limiteCredito = 'Limite de crédito é obrigatório';
     else if (Number(form.limiteCredito) <= 0) newErrors.limiteCredito = 'Deve ser maior que zero';
