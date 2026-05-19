@@ -59,6 +59,11 @@ namespace facilitador_api.Infrastructure.Mappings
             builder.Property(c => c.Nota)
                 .HasColumnName("nota");
 
+            builder.Property(c => c.Inadimplente)
+                .HasColumnName("inadimplente")
+                .IsRequired()
+                .HasDefaultValue(false);
+
             builder.Property(c => c.Ativo)
                 .HasColumnName("ativo")
                 .IsRequired()

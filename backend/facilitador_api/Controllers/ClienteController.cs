@@ -1,5 +1,5 @@
-﻿using facilitador_domain.Domain.DTOs;
-using facilitador_api.Application.Interfaces;
+﻿using facilitador_api.Application.Interfaces;
+using facilitador_domain.Domain.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace facilitador_api.API.Controllers
@@ -15,14 +15,18 @@ namespace facilitador_api.API.Controllers
             _service = service;
         }
 
-        [HttpGet]
+        [HttpGet(Name = "ObterClientes")]
+        [ProducesResponseType(typeof(ClienteResponseDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ObterClientes()
         {
             var result = await _service.BuscarClientes();
             return Ok(result);
         }
 
-        [HttpPost]
+        [HttpPost(Name = "CriarCliente")]
+        [ProducesResponseType(typeof(ClienteResponseDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CriarCliente(ClienteCreateDTO dto)
         {
             var resultado = await _service.Criar(dto);
@@ -35,7 +39,9 @@ namespace facilitador_api.API.Controllers
             return Ok(resultado);
         }
 
-        [HttpPatch]
+        [HttpPatch("{id:guid}", Name = "AtualizarCliente")]
+        [ProducesResponseType(typeof(ClienteResponseDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AtualizarCliente(Guid id, ClienteUpdateDTO dto)
         {
             var resultado = await _service.Atualizar(id, dto);
@@ -46,7 +52,9 @@ namespace facilitador_api.API.Controllers
             return Ok(resultado);
         }
 
-        [HttpPost("ativar")]
+        [HttpPost("{id:guid}", Name = "AtivarCliente")]
+        [ProducesResponseType(typeof(ClienteResponseDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AtivarCliente(Guid id)
         {
             var resultado = await _service.Ativar(id);
@@ -57,7 +65,9 @@ namespace facilitador_api.API.Controllers
             return Ok(resultado);
         }
 
-        [HttpDelete("desativar")]
+        [HttpDelete("{id:guid}", Name = "DesativarCliente")]
+        [ProducesResponseType(typeof(ClienteResponseDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DesativarCliente(Guid id)
         {
             var resultado = await _service.Desativar(id);

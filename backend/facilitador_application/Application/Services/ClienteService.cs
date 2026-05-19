@@ -1,8 +1,8 @@
-﻿using facilitador_domain.Domain.DTOs;
-using facilitador_api.Application.Interfaces;
+﻿using facilitador_api.Application.Interfaces;
 using facilitador_api.Application.Mapping;
 using facilitador_api.Domain.Entities;
 using facilitador_api.Domain.Interfaces;
+using facilitador_domain.Domain.DTOs;
 
 namespace facilitador_api.Application.Services
 {
@@ -45,6 +45,9 @@ namespace facilitador_api.Application.Services
 
             if (dto.LimiteCredito.HasValue)
             { cliente.AtualizarLimiteCredito(dto.LimiteCredito.Value); }
+
+            if (dto.Inadimplente.HasValue)
+            { cliente.AtualizarInadimplente(dto.Inadimplente.Value); }
 
             // 3. Atualizar chave estrangeira EnderecoId
             if (dto.EnderecoId.HasValue)

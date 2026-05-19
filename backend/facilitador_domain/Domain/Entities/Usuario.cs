@@ -1,4 +1,5 @@
 ﻿using facilitador_domain.Domain.DTOs;
+using facilitador_domain.Domain.Enums;
 
 namespace facilitador_api.Domain.Entities
 {
@@ -7,8 +8,7 @@ namespace facilitador_api.Domain.Entities
         public string Nome { get; private set; }
         public string Email { get; private set; }
         public string Senha { get; private set; }
-        public string Cargo { get; private set; }
-        public string Imagem { get; private set; }
+        public CargoUsuario Cargo { get; private set; }
 
         // relacionamento com Empresa
         public Guid EmpresaId { get; private set; }
@@ -16,24 +16,14 @@ namespace facilitador_api.Domain.Entities
 
         public Usuario() { }
 
-        public Usuario(Guid empresaId, string nome, string email, string senha, string cargo, string imagem)
+        public Usuario(Guid empresaId, string nome, string email, string senha, CargoUsuario cargo)
         {
             EmpresaId = empresaId;
             Nome = nome;
             Email = email;
             Senha = senha;
             Cargo = cargo;
-            Imagem = imagem;
-        }
 
-        public Usuario(UsuarioCreateDTO dto, Guid empresaId)
-        {
-            EmpresaId = empresaId;
-            Nome = dto.Nome;
-            Email = dto.Email;
-            Senha = dto.Senha;
-            Cargo = dto.Cargo;
-            Imagem = dto.Imagem;
         }
 
         public void AtualizarEmpresa(Guid empresaId) => EmpresaId = empresaId;
@@ -44,8 +34,7 @@ namespace facilitador_api.Domain.Entities
 
         public void AtualizarSenha(string senha) => Senha = senha;
 
-        public void AtualizarCargo(string cargo) => Cargo = cargo;
+        public void AtualizarCargo(CargoUsuario cargo) => Cargo = cargo;
 
-        public void AtualizarImagem(string imagem) => Imagem = imagem;
     }
 }

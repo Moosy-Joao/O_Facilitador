@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace facilitador_api.API.Controllers
 {
     [ApiController]
-    [Route("api/v1/auth")]
+    [Route("api/v1/autenticacao")]
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _service;
@@ -15,7 +15,9 @@ namespace facilitador_api.API.Controllers
             _service = service;
         }
 
-        [HttpPost("login")]
+        [HttpPost(Name = "Login")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LoginResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Login([FromBody] LoginDTO dto)
         {
             var resultado = await _service.Login(dto);
