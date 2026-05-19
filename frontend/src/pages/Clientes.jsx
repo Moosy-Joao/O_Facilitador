@@ -75,14 +75,7 @@ const Clientes = () => {
     inadimplente: 'Inadimplentes',
   };
 
-  if (loading) {
-    return (
-      <div className="page-loading">
-        <div className="loading-spinner" />
-        <p>Carregando clientes...</p>
-      </div>
-    );
-  }
+
 
   return (
     <div className="clientes-page">
@@ -145,7 +138,12 @@ const Clientes = () => {
       </div>
 
       {/* Table */}
-      {clientes.length === 0 ? (
+      {loading ? (
+        <div className="page-loading" style={{ minHeight: '40vh' }}>
+          <div className="loading-spinner" />
+          <p>Buscando clientes...</p>
+        </div>
+      ) : clientes.length === 0 ? (
         <div className="empty-state">
           <Search size={48} strokeWidth={1} />
           <h3>Nenhum cliente encontrado</h3>

@@ -48,14 +48,7 @@ const Inadimplentes = () => {
     return `https://wa.me/55${num}?text=${msg}`;
   };
 
-  if (loading) {
-    return (
-      <div className="page-loading">
-        <div className="loading-spinner danger" />
-        <p>Buscando inadimplentes...</p>
-      </div>
-    );
-  }
+
 
   return (
     <div className="inadimplentes-page">
@@ -94,7 +87,12 @@ const Inadimplentes = () => {
         </div>
       </div>
 
-      {clientes.length === 0 ? (
+      {loading ? (
+        <div className="page-loading" style={{ minHeight: '40vh' }}>
+          <div className="loading-spinner danger" />
+          <p>Buscando inadimplentes...</p>
+        </div>
+      ) : clientes.length === 0 ? (
         <div className="empty-state success-state">
           <div className="empty-icon-wrap">
             <ShieldAlert size={48} />

@@ -71,14 +71,7 @@ const Historico = () => {
 
   const totalEstornos = transacoes.filter(t => t.status === 'estornado').length;
 
-  if (loading) {
-    return (
-      <div className="page-loading">
-        <div className="loading-spinner" />
-        <p>Carregando histórico...</p>
-      </div>
-    );
-  }
+
 
   return (
     <div className="historico-page">
@@ -175,7 +168,12 @@ const Historico = () => {
       )}
 
       {/* Transaction List */}
-      {transacoes.length === 0 ? (
+      {loading ? (
+        <div className="page-loading" style={{ minHeight: '40vh' }}>
+          <div className="loading-spinner" />
+          <p>Buscando histórico...</p>
+        </div>
+      ) : transacoes.length === 0 ? (
         <div className="empty-state">
           <History size={48} strokeWidth={1} />
           <h3>Nenhuma transação encontrada</h3>
