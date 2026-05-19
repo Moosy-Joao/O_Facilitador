@@ -25,15 +25,6 @@ namespace facilitador_api.Domain.Entities
             Cargo = cargo;
         }
 
-        public Usuario(UsuarioCreateDTO dto, Guid empresaId)
-        {
-            EmpresaId = empresaId;
-            Nome = dto.Nome;
-            Email = dto.Email;
-            Senha = dto.Senha;
-            Cargo = dto.Cargo;
-        }
-
         public void AtualizarEmpresa(Guid empresaId) => EmpresaId = empresaId;
 
         public void AtualizarNome(string nome) => Nome = nome;
