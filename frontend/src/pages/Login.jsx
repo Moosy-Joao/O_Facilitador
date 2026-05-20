@@ -134,13 +134,13 @@ const Login = () => {
       // 1. Criar a Empresa
       await registrarEmpresa({
         nomeEmpresa,
-        cnpj,
+        cnpj: cnpj.replace(/\D/g, ''),
         emailEmpresa: emailUsuario,
-        telefoneEmpresa
+        telefoneEmpresa: telefoneEmpresa.replace(/\D/g, '')
       });
 
       // 2. Buscar o ID da Empresa criada pelo CNPJ
-      const empresa = await getEmpresaByCNPJ(cnpj);
+      const empresa = await getEmpresaByCNPJ(cnpj.replace(/\D/g, ''));
       if (!empresa) {
         throw new Error('Empresa cadastrada, mas não encontrada no banco.');
       }

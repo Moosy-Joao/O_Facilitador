@@ -22,6 +22,48 @@ const validarCPF = (cpfStr) => {
   return rest(10) === cpfArray[9] && rest(11) === cpfArray[10];
 };
 
+const validarCNPJ = (clean) => {
+  if (clean.length !== 14) return false;
+  if (/^(\d)\1{13}$/.test(clean)) return false;
+
+  const charToValue = (c) => {
+    if (/\d/.test(c)) return c.charCodeAt(0) - 48;
+    return c.charCodeAt(0) - 65 + 10;
+  };
+  const valueToChar = (v) => {
+    if (v >= 0 && v <= 9) return String.fromCharCode(48 + v);
+    return String.fromCharCode(65 + v - 10);
+  };
+  
+  const pesos1 = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2, 7, 6];
+  const pesos2 = [6, 5, 4, 3, 2, 7, 6, 5, 4, 3, 2, 7, 6];
+
+  let soma = 0;
+  for (let i = 0; i < 12; i++) {
+    soma += charToValue(clean[i]) * pesos1[i];
+  }
+  let resto = soma % 11;
+  let digito1 = resto < 2 ? 0 : 11 - resto;
+  if (digito1 !== charToValue(clean[12])) return false;
+
+  const baseComPrimeiro = clean.slice(0, 12) + valueToChar(digito1);
+  soma = 0;
+  for (let i = 0; i < 13; i++) {
+    soma += charToValue(baseComPrimeiro[i]) * pesos2[i];
+  }
+  resto = soma % 11;
+  let digito2 = resto < 2 ? 0 : 11 - resto;
+  return digito2 === charToValue(clean[13]);
+};
+
+const validarDocumento = (docStr) => {
+  if (!docStr) return false;
+  const clean = docStr.replace(/[^\d\w]+/g, '').toUpperCase();
+  if (clean.length === 11) return validarCPF(clean);
+  if (clean.length === 14) return validarCNPJ(clean);
+  return false;
+};
+
 const ClienteNovo = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -135,8 +177,8 @@ const ClienteNovo = () => {
     if (!form.nome.trim()) newErrors.nome = 'Nome é obrigatório';
     if (!form.email.trim()) newErrors.email = 'Email é obrigatório';
     else if (!/\S+@\S+\.\S+/.test(form.email)) newErrors.email = 'Email inválido';
-    if (!form.documento.trim()) newErrors.documento = 'CPF é obrigatório';
-    else if (!validarCPF(form.documento)) newErrors.documento = 'CPF inválido';
+    if (!form.documento.trim()) newErrors.documento = 'CPF ou CNPJ é obrigatório';
+    else if (!validarDocumento(form.documento)) newErrors.documento = 'Documento inválido (CPF ou CNPJ)';
     if (!form.telefone.trim()) newErrors.telefone = 'Telefone é obrigatório';
     if (!form.limiteCredito) newErrors.limiteCredito = 'Limite de crédito é obrigatório';
     else if (Number(form.limiteCredito) <= 0) newErrors.limiteCredito = 'Deve ser maior que zero';
@@ -188,12 +230,13 @@ const ClienteNovo = () => {
           nome: form.nome,
           email: form.email,
           documento: form.documento,
-          telefone: form.telefone,
+          telefone: form.telefone.replace(/\D/g, ''),
           limiteCredito: Number(form.limiteCredito),
         });
       } else {
         await criarCliente({
           ...form,
+          telefone: form.telefone.replace(/\D/g, ''),
           limiteCredito: Number(form.limiteCredito),
           saldo: 0,
         });
@@ -313,13 +356,13 @@ const ClienteNovo = () => {
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="documento">
-                  <FileText size={16} /> CPF
+                  <FileText size={16} /> CPF / CNPJ
                 </label>
                 <input
                   id="documento"
                   name="documento"
                   type="text"
-                  placeholder="000.000.000-00"
+                  placeholder="CPF ou CNPJ"
                   value={form.documento}
                   onChange={handleChange}
                   disabled={isEditMode}

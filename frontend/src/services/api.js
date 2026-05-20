@@ -363,11 +363,22 @@ export const formatDateTime = (dateStr) => {
 
 export const formatCPF = (val) => {
   if (!val) return '';
-  const clean = val.replace(/\D/g, '').slice(0, 11);
-  return clean
-    .replace(/(\d{3})(\d)/, '$1.$2')
-    .replace(/(\d{3})(\d)/, '$1.$2')
-    .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  const clean = val.replace(/[^\d\w]+/g, '').toUpperCase();
+  
+  if (clean.length <= 11) {
+    return clean
+      .slice(0, 11)
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  } else {
+    return clean
+      .slice(0, 14)
+      .replace(/^([A-Z0-9]{2})([A-Z0-9])/, '$1.$2')
+      .replace(/^([A-Z0-9]{2})\.([A-Z0-9]{3})([A-Z0-9])/, '$1.$2.$3')
+      .replace(/\.([A-Z0-9]{3})([A-Z0-9])/, '.$1/$2')
+      .replace(/\/([A-Z0-9]{4})([A-Z0-9])/, '/$1-$2');
+  }
 };
 
 export const formatPhone = (val) => {
