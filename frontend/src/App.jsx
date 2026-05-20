@@ -31,6 +31,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/clientes" element={<Clientes />} />
           <Route path="/clientes/novo" element={<ClienteNovo />} />
+          <Route path="/clientes/editar/:id" element={<ClienteNovo />} />
           <Route path="/clientes/:id" element={<ClienteDetalhes />} />
           <Route path="/inadimplentes" element={<Inadimplentes />} />
           <Route path="/vendas" element={<Vendas />} />

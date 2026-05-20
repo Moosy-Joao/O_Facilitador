@@ -221,8 +221,8 @@ const Clientes = () => {
                           <MoreHorizontal size={16} />
                         </button>
                         {actionMenuId === cliente.id && (
-                          <div className="action-menu">
-                            <button onClick={() => { navigate(`/clientes/novo?edit=${cliente.id}`); }}>
+                          <div className={`action-menu ${i === clientes.length - 1 ? 'open-up' : ''}`}>
+                            <button onClick={() => { navigate(`/clientes/editar/${cliente.id}`); }}>
                               <Edit3 size={14} /> Editar
                             </button>
                             <button onClick={() => handleToggleStatus(cliente.id)}>

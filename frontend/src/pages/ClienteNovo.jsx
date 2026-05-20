@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
   User,
@@ -11,7 +11,7 @@ import {
   CheckCircle,
   AlertCircle,
 } from 'lucide-react';
-import { criarCliente, formatCPF, formatPhone, formatCEP } from '../services/api';
+import { criarCliente, getClienteById, atualizarCliente, atualizarEndereco, formatCPF, formatPhone, formatCEP } from '../services/api';
 import './ClienteNovo.css';
 
 const validarCPF = (cpfStr) => {
@@ -24,6 +24,10 @@ const validarCPF = (cpfStr) => {
 
 const ClienteNovo = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const isEditMode = !!id;
+
+  const [enderecoId, setEnderecoId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
@@ -46,6 +50,43 @@ const ClienteNovo = () => {
   });
 
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    if (isEditMode) {
+      const loadCliente = async () => {
+        setLoading(true);
+        try {
+          const cliente = await getClienteById(id);
+          if (cliente) {
+            setForm({
+              nome: cliente.nome || '',
+              email: cliente.email || '',
+              documento: cliente.documento || '',
+              telefone: cliente.telefone || '',
+              limiteCredito: cliente.limiteCredito || '',
+              cep: cliente.endereco?.cep || cliente.endereco?.cep || '',
+              rua: cliente.endereco?.rua || '',
+              numero: cliente.endereco?.numero || '',
+              bairro: cliente.endereco?.bairro || '',
+              cidade: cliente.endereco?.cidade || '',
+              estado: cliente.endereco?.estado || '',
+              pais: cliente.endereco?.pais || 'Brasil',
+            });
+            if (cliente.endereco) {
+              setEnderecoId(cliente.endereco.id);
+            }
+          } else {
+            setError('Cliente não encontrado');
+          }
+        } catch (err) {
+          setError('Erro ao carregar dados do cliente');
+        } finally {
+          setLoading(false);
+        }
+      };
+      loadCliente();
+    }
+  }, [id, isEditMode]);
 
   useEffect(() => {
     const fetchCep = async () => {
@@ -129,15 +170,38 @@ const ClienteNovo = () => {
     setError('');
 
     try {
-      await criarCliente({
-        ...form,
-        limiteCredito: Number(form.limiteCredito),
-        saldo: 0,
-      });
+      if (isEditMode) {
+        // 1. Atualizar o Endereço
+        if (enderecoId) {
+          await atualizarEndereco(enderecoId, {
+            pais: form.pais,
+            estado: form.estado,
+            cidade: form.cidade,
+            bairro: form.bairro,
+            rua: form.rua,
+            numero: form.numero,
+            cep: form.cep
+          });
+        }
+        // 2. Atualizar o Cliente
+        await atualizarCliente(id, {
+          nome: form.nome,
+          email: form.email,
+          documento: form.documento,
+          telefone: form.telefone,
+          limiteCredito: Number(form.limiteCredito),
+        });
+      } else {
+        await criarCliente({
+          ...form,
+          limiteCredito: Number(form.limiteCredito),
+          saldo: 0,
+        });
+      }
       setSuccess(true);
       setTimeout(() => navigate('/clientes'), 2000);
     } catch (err) {
-      setError(err.message || 'Erro ao cadastrar cliente');
+      setError(err.message || (isEditMode ? 'Erro ao atualizar cliente e endereço' : 'Erro ao cadastrar cliente'));
     } finally {
       setLoading(false);
     }
@@ -149,7 +213,7 @@ const ClienteNovo = () => {
         <div className="success-icon-wrap">
           <CheckCircle size={56} strokeWidth={1.5} />
         </div>
-        <h2>Cliente cadastrado!</h2>
+        <h2>{isEditMode ? 'Cliente atualizado!' : 'Cliente cadastrado!'}</h2>
         <p>Redirecionando para a lista de clientes...</p>
       </div>
     );
@@ -164,7 +228,7 @@ const ClienteNovo = () => {
             <ArrowLeft size={18} />
           </button>
           <div>
-            <h1 className="page-title">Novo Cliente</h1>
+            <h1 className="page-title">{isEditMode ? 'Editar Cliente' : 'Novo Cliente'}</h1>
             <p className="page-subtitle">
               {step === 1 ? 'Informações pessoais e financeiras' : 'Endereço do cliente'}
             </p>
@@ -258,7 +322,8 @@ const ClienteNovo = () => {
                   placeholder="000.000.000-00"
                   value={form.documento}
                   onChange={handleChange}
-                  className={errors.documento ? 'has-error' : ''}
+                  disabled={isEditMode}
+                  className={`${errors.documento ? 'has-error' : ''} ${isEditMode ? 'disabled-input' : ''}`}
                 />
                 {errors.documento && <span className="field-error">{errors.documento}</span>}
               </div>
@@ -400,7 +465,7 @@ const ClienteNovo = () => {
                 ) : (
                   <>
                     <CheckCircle size={16} />
-                    Cadastrar Cliente
+                    {isEditMode ? 'Salvar Alterações' : 'Cadastrar Cliente'}
                   </>
                 )}
               </button>

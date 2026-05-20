@@ -359,3 +359,11 @@
     margin-bottom: 1.6rem;
   }
 }
+
+/* ── Disabled Form Fields ── */
+.form-group input.disabled-input:disabled {
+  background: rgba(0, 0, 0, 0.03) !important;
+  color: #94a392 !important;
+  cursor: not-allowed;
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}

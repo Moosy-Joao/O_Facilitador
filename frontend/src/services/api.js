@@ -140,7 +140,7 @@ export const criarCliente = async (data) => {
 
 export const atualizarCliente = async (id, data) => {
   const dto = { ...data };
-  const res = await fetchWithAuth(`${API_URL}/v1/cliente?id=${id}`, {
+  const res = await fetchWithAuth(`${API_URL}/v1/cliente/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(dto)
   });
@@ -151,14 +151,34 @@ export const atualizarCliente = async (id, data) => {
   return { id, ...data };
 };
 
+export const atualizarEndereco = async (id, data) => {
+  const dto = {
+    pais: data.pais || 'Brasil',
+    estado: data.estado || '',
+    cidade: data.cidade || '',
+    bairro: data.bairro || '',
+    rua: data.rua || '',
+    numero: data.numero || '',
+    cep: data.cep || ''
+  };
+  const res = await fetchWithAuth(`${API_URL}/v1/endereco?id=${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(dto)
+  });
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(txt || 'Erro ao atualizar endereço');
+  }
+  return { id, ...data };
+};
+
 export const toggleClienteStatus = async (id) => {
   const cliente = await getClienteById(id);
   if (!cliente) throw new Error('Cliente não encontrado');
 
-  const endpoint = cliente.ativo ? 'desativar' : 'ativar';
   const method = cliente.ativo ? 'DELETE' : 'POST';
 
-  const res = await fetchWithAuth(`${API_URL}/v1/cliente/${endpoint}?id=${id}`, {
+  const res = await fetchWithAuth(`${API_URL}/v1/cliente/${id}`, {
     method: method
   });
   if (!res.ok) throw new Error('Erro ao alterar status do cliente');
@@ -367,4 +387,91 @@ export const formatCEP = (val) => {
   if (!val) return '';
   const clean = val.replace(/\D/g, '').slice(0, 8);
   return clean.replace(/(\d{5})(\d{1,3})$/, '$1-$2');
+};
+
+export const validateCNPJ = (cnpj) => {
+  if (!cnpj) return false;
+  const clean = cnpj.replace(/\D/g, '');
+  if (clean.length !== 14) return false;
+  if (/^(\d)\1{13}$/.test(clean)) return false;
+
+  let size = clean.length - 2;
+  let numbers = clean.substring(0, size);
+  const digits = clean.substring(size);
+  let sum = 0;
+  let pos = size - 7;
+
+  for (let i = size; i >= 1; i--) {
+    sum += parseInt(numbers.charAt(size - i)) * pos--;
+    if (pos < 2) pos = 9;
+  }
+
+  let result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
+  if (result !== parseInt(digits.charAt(0))) return false;
+
+  size = size + 1;
+  numbers = clean.substring(0, size);
+  sum = 0;
+  pos = size - 7;
+
+  for (let i = size; i >= 1; i--) {
+    sum += parseInt(numbers.charAt(size - i)) * pos--;
+    if (pos < 2) pos = 9;
+  }
+
+  result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
+  if (result !== parseInt(digits.charAt(1))) return false;
+
+  return true;
+};
+
+/* ─────────── Sign Up / Cadastro ─────────── */
+
+export const registrarEmpresa = async (data) => {
+  const { enderecoId } = await getDefaultIds();
+  const dto = {
+    nome: data.nomeEmpresa,
+    cnpj: data.cnpj,
+    email: data.emailEmpresa || data.emailUsuario,
+    telefone: data.telefoneEmpresa || '',
+    enderecoId: enderecoId
+  };
+  const res = await fetch(`${API_URL}/v1/empresa`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dto)
+  });
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(txt || 'Erro ao criar empresa');
+  }
+  return true;
+};
+
+export const getEmpresaByCNPJ = async (cnpj) => {
+  const res = await fetch(`${API_URL}/v1/empresa`);
+  if (!res.ok) throw new Error('Erro ao buscar empresas');
+  const empresas = await res.json();
+  const cleanCNPJ = cnpj.replace(/\D/g, '');
+  return empresas.find(e => e.cnpj && e.cnpj.replace(/\D/g, '') === cleanCNPJ) || null;
+};
+
+export const registrarUsuario = async (data) => {
+  const dto = {
+    nome: data.nomeUsuario,
+    email: data.emailUsuario,
+    senha: data.senhaUsuario,
+    cargo: 0, // Administrador
+    empresaId: data.empresaId
+  };
+  const res = await fetch(`${API_URL}/v1/usuario`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dto)
+  });
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(txt || 'Erro ao criar usuário');
+  }
+  return await res.json(); // Retorna o token de login para entrar direto!
 };
