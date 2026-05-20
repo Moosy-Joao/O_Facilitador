@@ -1,5 +1,4 @@
-﻿using facilitador_domain.Domain.DTOs;
-using facilitador_domain.Domain.Enums;
+﻿using facilitador_domain.Domain.Enums;
 
 namespace facilitador_api.Domain.Entities
 {
@@ -23,7 +22,6 @@ namespace facilitador_api.Domain.Entities
             Email = email;
             Senha = senha;
             Cargo = cargo;
-
         }
 
         public void AtualizarEmpresa(Guid empresaId) => EmpresaId = empresaId;

@@ -1,4 +1,5 @@
 ﻿using facilitador_api.Application.Interfaces;
+using facilitador_application.Application.Validators.Usuario;
 using facilitador_domain.Domain.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,6 +43,14 @@ namespace facilitador_api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CriarUsuario(UsuarioCreateDTO dto)
         {
+            var validador = new UsuarioCreateDTOValidator();
+            var resultadoValidacao = validador.Validate(dto);
+
+            if (!resultadoValidacao.IsValid)
+            {
+                return BadRequest(resultadoValidacao.Errors);
+            }
+
             var resultado = await _service.Criar(dto);
 
             if (resultado == null)
@@ -49,7 +58,7 @@ namespace facilitador_api.Controllers
                 return BadRequest("Erro ao criar usuário.");
             }
 
-            return Created("", resultado);
+            return Created("Usuário criado com sucesso.", resultado);
         }
 
         [HttpPatch("{id:guid}", Name = "AtualizarUsuario")]
@@ -57,6 +66,14 @@ namespace facilitador_api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AtualizarUsuario(Guid id, UsuarioUpdateDTO dto)
         {
+            var validador = new UsuarioUpdateDTOValidator();
+            var resultadoValidacao = validador.Validate(dto);
+
+            if (!resultadoValidacao.IsValid)
+            {
+                return BadRequest(resultadoValidacao.Errors);
+            }
+
             var resultado = await _service.Atualizar(id, dto);
             if (resultado == false)
             {
