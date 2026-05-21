@@ -1,24 +1,24 @@
+﻿using facilitador_application.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using facilitador_api.Infrastructure.DB;
 using Microsoft.EntityFrameworkCore;
 
 namespace facilitador_api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class DashboardController : ControllerBase
+    [Route("api/v1/paineldados")]
+    public class PainelDeDadosController : ControllerBase
     {
-        private readonly ConnectionContext _context;
+        private readonly IPainelDeDadosService _service;
 
-        public DashboardController(ConnectionContext context)
+        public PainelDeDadosController(IPainelDeDadosService service)
         {
-            _context = context;
+            _service = service;
         }
 
         [HttpGet("stats")]
         public async Task<IActionResult> GetStats()
         {
-            try 
+            try
             {
                 var totalClients = await _context.Clientes.CountAsync(c => c.Ativo);
                 var comprasQuery = _context.Compras.Where(c => c.Ativo);
@@ -36,12 +36,12 @@ namespace facilitador_api.Controllers
 
                 var startOfWeek = today.AddDays(-(int)DateTime.UtcNow.DayOfWeek);
                 var novosClientesSemana = await _context.Clientes.CountAsync(c => c.CriadoEm >= startOfWeek);
-                
+
                 return Ok(new
                 {
                     totalReceber = totalReceber,
-                    totalReceberVar = 0, 
-                    inadimplentes = inadimplentes, 
+                    totalReceberVar = 0,
+                    inadimplentes = inadimplentes,
                     inadimplentesValor = inadimplentesValor,
                     totalClientes = totalClients,
                     novosClientesSemana = novosClientesSemana,
@@ -58,7 +58,7 @@ namespace facilitador_api.Controllers
         [HttpGet("transactions")]
         public async Task<IActionResult> GetTransactions()
         {
-            try 
+            try
             {
                 var compras = await _context.Compras
                     .Include(c => c.Cliente)
@@ -81,17 +81,17 @@ namespace facilitador_api.Controllers
                     .ToList();
 
                 return Ok(transactions);
-            } 
+            }
             catch (Exception)
             {
                 return Ok(new object[] { });
             }
         }
-        
+
         [HttpGet("chart")]
         public async Task<IActionResult> GetChartData()
         {
-            try 
+            try
             {
                 var thirtyDaysAgo = DateTime.UtcNow.Date.AddDays(-30);
                 var compras = await _context.Compras
@@ -105,7 +105,8 @@ namespace facilitador_api.Controllers
                 {
                     var date = DateTime.UtcNow.Date.AddDays(-i);
                     var match = compras.FirstOrDefault(c => c.Data == date);
-                    result.Add(new {
+                    result.Add(new
+                    {
                         date = date.ToString("dd/MM"),
                         value = match != null ? match.Valor : 0
                     });

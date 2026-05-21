@@ -10,14 +10,17 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// CORS
+// Adicionar serviço de CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",
-        b => b.AllowAnyOrigin()
+    options.AddPolicy("Permissao", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173", "http://192.168.1.100:8080") // <- "http://[IP]:[PORTA]" para permitir acesso de um IP específico
               .AllowAnyMethod()
-              .AllowAnyHeader());
-});
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+}); ;
 
 // Banco de dados
 builder.Services.AddDbContext<ConnectionContext>(options =>
@@ -106,7 +109,7 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 // CORS
-app.UseCors("AllowAll");
+app.UseCors("Permissao");
 
 // Autenticação/autorização
 app.UseAuthentication();

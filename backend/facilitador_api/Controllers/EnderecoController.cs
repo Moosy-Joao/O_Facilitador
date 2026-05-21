@@ -1,5 +1,5 @@
-﻿using facilitador_domain.Domain.DTOs;
-using facilitador_api.Application.Interfaces;
+﻿using facilitador_api.Application.Interfaces;
+using facilitador_domain.Domain.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace facilitador_api.Controllers
@@ -15,7 +15,9 @@ namespace facilitador_api.Controllers
             _service = service;
         }
 
-        [HttpGet]
+        [HttpGet("buscar", Name = "ObterEnderecos")]
+        [ProducesResponseType(typeof(List<EnderecoResponseDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ObterEnderecos()
         {
             var resultado = await _service.BuscarEnderecos();
@@ -26,7 +28,9 @@ namespace facilitador_api.Controllers
             return Ok(resultado);
         }
 
-        [HttpPost]
+        [HttpPost("criar", Name = "CriarEndereco")]
+        [ProducesResponseType(typeof(EnderecoResponseDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CriarEndereco(EnderecoCreateDTO dto)
         {
             var resultado = await _service.Criar(dto);
@@ -37,7 +41,9 @@ namespace facilitador_api.Controllers
             return Ok("Endereço criado com sucesso: " + resultado);
         }
 
-        [HttpPatch]
+        [HttpPatch("atualizar/{id:guid}", Name = "AtualizarEndereco")]
+        [ProducesResponseType(typeof(EnderecoResponseDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AtualizarEndereco(Guid id, EnderecoUpdateDTO dto)
         {
             var resultado = await _service.Atualizar(id, dto);
@@ -48,7 +54,9 @@ namespace facilitador_api.Controllers
             return Ok("Endereço atualizado com sucesso: " + resultado);
         }
 
-        [HttpDelete]
+        [HttpDelete("deletar/{id:guid}", Name = "DeletarEndereco")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeletarEndereco(Guid id)
         {
             var resultado = await _service.Desativar(id);

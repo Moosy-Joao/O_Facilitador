@@ -9,6 +9,7 @@ namespace facilitador_api.Application.Interfaces
         Task<List<EnderecoResponseDTO>?> BuscarEnderecos();
         Task<bool> Criar(EnderecoCreateDTO dto);
         Task<bool> Atualizar(Guid id, EnderecoUpdateDTO dto);
+        Task<bool> Ativar(Guid id);
         Task<bool> Desativar(Guid id);
     }
 }
