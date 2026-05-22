@@ -6,11 +6,9 @@ import {
   ChevronDown,
   ShoppingCart,
   CreditCard,
-  RotateCcw,
   X,
-  AlertCircle,
 } from 'lucide-react';
-import { getTransacoes, estornarTransacao, formatCurrency, formatDateTime } from '../services/api';
+import { getTransacoes, formatCurrency, formatDateTime } from '../services/api';
 import './Historico.css';
 
 const Historico = () => {
@@ -19,9 +17,6 @@ const Historico = () => {
   const [busca, setBusca] = useState('');
   const [filtroTipo, setFiltroTipo] = useState('todos');
   const [showFilterMenu, setShowFilterMenu] = useState(false);
-  const [estornando, setEstornando] = useState(null);
-  const [confirmEstorno, setConfirmEstorno] = useState(null);
-  const [error, setError] = useState('');
 
   const fetchTransacoes = async () => {
     try {
@@ -40,20 +35,6 @@ const Historico = () => {
     return () => clearTimeout(timer);
   }, [busca, filtroTipo]);
 
-  const handleEstornar = async (id) => {
-    setEstornando(id);
-    setError('');
-    try {
-      await estornarTransacao(id);
-      await fetchTransacoes();
-      setConfirmEstorno(null);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setEstornando(null);
-    }
-  };
-
   const filterLabels = {
     todos: 'Todas',
     venda: 'Vendas',
@@ -68,10 +49,6 @@ const Historico = () => {
   const totalPagamentos = transacoes
     .filter(t => t.tipo === 'pagamento' && t.status === 'concluido')
     .reduce((sum, t) => sum + t.valor, 0);
-
-  const totalEstornos = transacoes.filter(t => t.status === 'estornado').length;
-
-
 
   return (
     <div className="historico-page">
@@ -103,15 +80,6 @@ const Historico = () => {
           <div className="summary-data">
             <span className="summary-label">Total Recebido</span>
             <span className="summary-value safe">{formatCurrency(totalPagamentos)}</span>
-          </div>
-        </div>
-        <div className="summary-card">
-          <div className="summary-icon estorno-icon">
-            <RotateCcw size={18} />
-          </div>
-          <div className="summary-data">
-            <span className="summary-label">Estornos</span>
-            <span className="summary-value muted">{totalEstornos}</span>
           </div>
         </div>
       </div>
@@ -160,13 +128,6 @@ const Historico = () => {
         </div>
       </div>
 
-      {error && (
-        <div className="form-error-banner" style={{ marginBottom: '1rem' }}>
-          <AlertCircle size={16} />
-          <span>{error}</span>
-        </div>
-      )}
-
       {/* Transaction List */}
       {transacoes.length === 0 && !loading ? (
         <div className="empty-state">
@@ -179,7 +140,7 @@ const Historico = () => {
           {transacoes.map((t, i) => (
             <div
               key={t.id}
-              className={`historico-item ${t.status === 'estornado' ? 'estornado' : ''}`}
+              className="historico-item"
               style={{ animationDelay: `${i * 0.04}s` }}
             >
               <div className={`historico-icon ${t.tipo === 'venda' ? 'tipo-venda' : 'tipo-pag'}`}>
@@ -192,91 +153,18 @@ const Historico = () => {
                   <span className={`historico-tipo-badge ${t.tipo}`}>
                     {t.tipo === 'venda' ? 'Venda' : 'Pagamento'}
                   </span>
-                  {t.status === 'estornado' && (
-                    <span className="historico-tipo-badge estorno-badge">Estornado</span>
-                  )}
                 </div>
                 <span className="historico-desc">{t.descricao}</span>
               </div>
 
               <div className="historico-right">
-                <span className={`historico-valor ${t.tipo === 'venda' ? 'val-out' : 'val-in'} ${t.status === 'estornado' ? 'estornado-val' : ''}`}>
+                <span className={`historico-valor ${t.tipo === 'venda' ? 'val-out' : 'val-in'}`}>
                   {t.tipo === 'pagamento' ? '+' : ''}{formatCurrency(t.valor)}
                 </span>
                 <span className="historico-data">{formatDateTime(t.data)}</span>
               </div>
-
-              <div className="historico-actions">
-                {t.status !== 'estornado' && (
-                  <button
-                    className="btn-estornar"
-                    title="Estornar transação"
-                    onClick={() => setConfirmEstorno(t)}
-                  >
-                    <RotateCcw size={14} />
-                  </button>
-                )}
-              </div>
             </div>
           ))}
-        </div>
-      )}
-
-      {/* Estorno Confirmation Modal */}
-      {confirmEstorno && (
-        <div className="modal-overlay" onClick={() => setConfirmEstorno(null)}>
-          <div className="modal-content estorno-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setConfirmEstorno(null)}>
-              <X size={18} />
-            </button>
-
-            <div className="estorno-header">
-              <div className="estorno-icon-wrap">
-                <RotateCcw size={28} />
-              </div>
-              <h2>Confirmar Estorno</h2>
-              <p>Esta ação não pode ser desfeita. A transação será marcada como estornada e o saldo do cliente será revertido.</p>
-            </div>
-
-            <div className="estorno-details">
-              <div className="estorno-detail-row">
-                <span>Cliente</span>
-                <strong>{confirmEstorno.clienteNome}</strong>
-              </div>
-              <div className="estorno-detail-row">
-                <span>Tipo</span>
-                <strong>{confirmEstorno.tipo === 'venda' ? 'Venda' : 'Pagamento'}</strong>
-              </div>
-              <div className="estorno-detail-row">
-                <span>Valor</span>
-                <strong>{formatCurrency(confirmEstorno.valor)}</strong>
-              </div>
-              <div className="estorno-detail-row">
-                <span>Descrição</span>
-                <strong>{confirmEstorno.descricao}</strong>
-              </div>
-            </div>
-
-            <div className="estorno-actions">
-              <button className="btn-form-secondary" onClick={() => setConfirmEstorno(null)}>
-                Cancelar
-              </button>
-              <button
-                className={`btn-estorno-confirm ${estornando ? 'is-loading' : ''}`}
-                onClick={() => handleEstornar(confirmEstorno.id)}
-                disabled={estornando}
-              >
-                {estornando ? (
-                  <span className="btn-spinner" />
-                ) : (
-                  <>
-                    <RotateCcw size={16} />
-                    Confirmar Estorno
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
         </div>
       )}
     </div>

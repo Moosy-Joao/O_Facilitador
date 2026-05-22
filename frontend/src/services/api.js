@@ -52,7 +52,7 @@ const getDefaultIds = async () => {
   let enderecoId = '00000000-0000-0000-0000-000000000000';
   
   try {
-    const resEmpresa = await fetchWithAuth(`${API_URL}/v1/empresa`);
+    const resEmpresa = await fetchWithAuth(`${API_URL}/v1/empresa/buscar`);
     if (resEmpresa.ok) {
       const empresas = await resEmpresa.json();
       if (empresas && empresas.length > 0) empresaId = empresas[0].id;
@@ -60,7 +60,7 @@ const getDefaultIds = async () => {
   } catch(e) {}
   
   try {
-    const resEnd = await fetchWithAuth(`${API_URL}/v1/endereco`);
+    const resEnd = await fetchWithAuth(`${API_URL}/v1/endereco/buscar`);
     if (resEnd.ok) {
       const ends = await resEnd.json();
       if (ends && ends.length > 0) enderecoId = ends[0].id;
@@ -88,7 +88,7 @@ export const authLogin = async (email, senha) => {
 /* ─────────── Clientes ─────────── */
 
 export const getClientes = async (filtros = {}) => {
-  const res = await fetchWithAuth(`${API_URL}/v1/cliente`);
+  const res = await fetchWithAuth(`${API_URL}/v1/cliente/obter`);
   if (!res.ok) throw new Error('Erro ao buscar clientes');
   let result = await res.json();
 
@@ -127,7 +127,7 @@ export const criarCliente = async (data) => {
     empresaId: empresaId
   };
 
-  const res = await fetchWithAuth(`${API_URL}/v1/cliente`, {
+  const res = await fetchWithAuth(`${API_URL}/v1/cliente/criar`, {
     method: 'POST',
     body: JSON.stringify(dto)
   });
@@ -140,7 +140,7 @@ export const criarCliente = async (data) => {
 
 export const atualizarCliente = async (id, data) => {
   const dto = { ...data };
-  const res = await fetchWithAuth(`${API_URL}/v1/cliente/${id}`, {
+  const res = await fetchWithAuth(`${API_URL}/v1/cliente/atualizar/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(dto)
   });
@@ -161,7 +161,7 @@ export const atualizarEndereco = async (id, data) => {
     numero: data.numero || '',
     cep: data.cep || ''
   };
-  const res = await fetchWithAuth(`${API_URL}/v1/endereco?id=${id}`, {
+  const res = await fetchWithAuth(`${API_URL}/v1/endereco/atualizar/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(dto)
   });
@@ -177,8 +177,11 @@ export const toggleClienteStatus = async (id) => {
   if (!cliente) throw new Error('Cliente não encontrado');
 
   const method = cliente.ativo ? 'DELETE' : 'POST';
+  const url = cliente.ativo 
+    ? `${API_URL}/v1/cliente/desativar/${id}`
+    : `${API_URL}/v1/cliente/ativar/${id}`;
 
-  const res = await fetchWithAuth(`${API_URL}/v1/cliente/${id}`, {
+  const res = await fetchWithAuth(url, {
     method: method
   });
   if (!res.ok) throw new Error('Erro ao alterar status do cliente');
@@ -199,7 +202,7 @@ export const registrarVenda = async (clienteId, valor, descricao) => {
     empresaId 
   };
 
-  const res = await fetchWithAuth(`${API_URL}/v1/compras`, {
+  const res = await fetchWithAuth(`${API_URL}/v1/compras/criar`, {
     method: 'POST',
     body: JSON.stringify(dto)
   });
@@ -224,7 +227,7 @@ export const registrarPagamento = async (clienteId, valor, observacao) => {
     dataPagamento: new Date().toISOString() 
   };
 
-  const res = await fetchWithAuth(`${API_URL}/v1/pagamentos`, {
+  const res = await fetchWithAuth(`${API_URL}/v1/pagamentos/criar`, {
     method: 'POST',
     body: JSON.stringify(dto)
   });
@@ -243,10 +246,10 @@ export const getTransacoes = async (filtros = {}) => {
   let transacoes = [];
 
   try {
-    const resCompras = await fetchWithAuth(`${API_URL}/v1/compras`);
+    const resCompras = await fetchWithAuth(`${API_URL}/v1/compras/obter`);
     if (resCompras.ok) {
       const compras = await resCompras.json();
-      const formatadas = compras.map(c => ({
+      const formatadas = compras.filter(c => c.ativo).map(c => ({
         id: c.id,
         tipo: 'venda',
         clienteId: c.clienteId,
@@ -254,15 +257,15 @@ export const getTransacoes = async (filtros = {}) => {
         valor: c.valor,
         descricao: c.descricao,
         data: c.criadoEm || new Date().toISOString(),
-        status: c.ativo ? 'concluido' : 'estornado'
+        status: 'concluido'
       }));
       transacoes = [...transacoes, ...formatadas];
     }
 
-    const resPagamentos = await fetchWithAuth(`${API_URL}/v1/pagamentos`);
+    const resPagamentos = await fetchWithAuth(`${API_URL}/v1/pagamentos/obter`);
     if (resPagamentos.ok) {
       const pagamentos = await resPagamentos.json();
-      const formPagamentos = pagamentos.map(p => ({
+      const formPagamentos = pagamentos.filter(p => p.ativo).map(p => ({
         id: p.id,
         tipo: 'pagamento',
         clienteId: p.clienteId,
@@ -270,7 +273,7 @@ export const getTransacoes = async (filtros = {}) => {
         valor: p.valorPagamento,
         descricao: p.observacao || 'Pagamento',
         data: p.dataPagamento || p.criadoEm || new Date().toISOString(),
-        status: p.ativo ? 'concluido' : 'estornado'
+        status: 'concluido'
       }));
       transacoes = [...transacoes, ...formPagamentos];
     }
@@ -307,36 +310,22 @@ export const getTransacoes = async (filtros = {}) => {
   return transacoes;
 };
 
-export const estornarTransacao = async (id) => {
-  try {
-    const resCompra = await fetchWithAuth(`${API_URL}/v1/compras/${id}`, { method: 'DELETE' });
-    if (resCompra.ok) return { id, status: 'estornado' };
-  } catch(e) {}
-
-  try {
-    const resPag = await fetchWithAuth(`${API_URL}/v1/pagamentos/${id}`, { method: 'DELETE' });
-    if (resPag.ok) return { id, status: 'estornado' };
-  } catch(e) {}
-
-  throw new Error('Não foi possível estornar a transação');
-};
-
 /* ─────────── Dashboard ─────────── */
 
 export const getDashboardStats = async () => {
-  const res = await fetchWithAuth(`${API_URL}/Dashboard/stats`);
+  const res = await fetchWithAuth(`${API_URL}/v1/paineldados/stats`);
   if (!res.ok) throw new Error('Erro ao buscar stats do dashboard');
   return await res.json();
 };
 
 export const getDashboardTransactions = async () => {
-  const res = await fetchWithAuth(`${API_URL}/Dashboard/transactions`);
+  const res = await fetchWithAuth(`${API_URL}/v1/paineldados/transactions`);
   if (!res.ok) throw new Error('Erro ao buscar transacoes do dashboard');
   return await res.json();
 };
 
 export const getDashboardChart = async () => {
-  const res = await fetchWithAuth(`${API_URL}/Dashboard/chart`);
+  const res = await fetchWithAuth(`${API_URL}/v1/paineldados/chart`);
   if (!res.ok) throw new Error('Erro ao buscar grafico do dashboard');
   return await res.json();
 };
@@ -447,7 +436,7 @@ export const registrarEmpresa = async (data) => {
     telefone: data.telefoneEmpresa || '',
     enderecoId: enderecoId
   };
-  const res = await fetch(`${API_URL}/v1/empresa`, {
+  const res = await fetch(`${API_URL}/v1/empresa/criar`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(dto)
@@ -460,7 +449,7 @@ export const registrarEmpresa = async (data) => {
 };
 
 export const getEmpresaByCNPJ = async (cnpj) => {
-  const res = await fetch(`${API_URL}/v1/empresa`);
+  const res = await fetch(`${API_URL}/v1/empresa/buscar`);
   if (!res.ok) throw new Error('Erro ao buscar empresas');
   const empresas = await res.json();
   const cleanCNPJ = cnpj.replace(/\D/g, '');
@@ -475,7 +464,7 @@ export const registrarUsuario = async (data) => {
     cargo: 0, // Administrador
     empresaId: data.empresaId
   };
-  const res = await fetch(`${API_URL}/v1/usuario`, {
+  const res = await fetch(`${API_URL}/v1/usuario/criar`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(dto)
