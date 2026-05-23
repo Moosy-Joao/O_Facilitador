@@ -52,6 +52,8 @@ namespace facilitador_api.Application.Services
                 endereco.AtualizarCEP(dto.CEP);
             }
 
+            endereco.AtualizarModificadoEm(DateTime.UtcNow);
+
             await _enderecoRepository.Salvar();
 
             return true;

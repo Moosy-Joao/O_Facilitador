@@ -72,7 +72,7 @@ namespace facilitador_api.Application.Services
             }
 
             // 5. Atualizar timestamp de modificação
-            //cliente.AtualizarModificadoEm(DateTime.UtcNow);
+            cliente.AtualizarModificadoEm(DateTime.UtcNow);
 
             await _clienteRepository.Salvar();
 

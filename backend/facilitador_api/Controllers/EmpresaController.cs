@@ -15,7 +15,7 @@ namespace facilitador_api.API.Controllers
             _service = service;
         }
 
-        [HttpGet("buscar", Name = "ObterEmpresas")]
+        [HttpGet("obter", Name = "ObterEmpresas")]
         [ProducesResponseType(typeof(EmpresaResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ObterEmpresas()
@@ -27,6 +27,19 @@ namespace facilitador_api.API.Controllers
                 return NotFound("Nenhuma empresa encontrada: " + resultado);
             }
 
+            return Ok(resultado);
+        }
+
+        [HttpGet("obterporid/{id:guid}", Name = "ObterEmpresaPorId")]
+        [ProducesResponseType(typeof(EmpresaResponseDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ObterEmpresaPorId(Guid id)
+        {
+            var resultado = await _service.BuscarPorId(id);
+            if (resultado == null)
+            {
+                return NotFound("Empresa não encontrada: " + resultado);
+            }
             return Ok(resultado);
         }
 

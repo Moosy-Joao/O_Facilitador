@@ -3,7 +3,6 @@ using facilitador_api.Application.Mapping;
 using facilitador_api.Domain.Entities;
 using facilitador_api.Domain.Interfaces;
 using facilitador_domain.Domain.DTOs;
-using facilitador_domain.Domain.Enums;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -67,13 +66,13 @@ namespace facilitador_api.Application.Services
             }
 
             // Necessário validar se o cargo é diferente de null antes de atualizar
-            if (!Enum.Equals(dto.Cargo, default(CargoUsuario)))
+            if (dto.Cargo.HasValue)
             {
-                usuario.AtualizarCargo((CargoUsuario)dto.Cargo);
+                usuario.AtualizarCargo(dto.Cargo.Value);
             }
 
             // 5. Atualizar timestamp e salvar modificações
-            //usuario.AtualizarModificadoEm(DateTime.UtcNow);
+            usuario.AtualizarModificadoEm(DateTime.UtcNow);
             await _usuarioRepository.Salvar();
 
             return true;

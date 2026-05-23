@@ -48,14 +48,16 @@ namespace facilitador_api.Infrastructure.Mappings
                 .HasColumnName("modificado_em")
                 .IsRequired();
 
-            // Configurações de relacionamento
+            // Fk Cliente e Empresa
             builder.HasOne(e => e.Cliente)
                 .WithMany()
-                .HasForeignKey(e => e.ClienteId);
+                .HasForeignKey(e => e.ClienteId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(e => e.Empresa)
                 .WithMany()
-                .HasForeignKey(e => e.EmpresaId);
+                .HasForeignKey(e => e.EmpresaId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

@@ -14,7 +14,6 @@ namespace facilitador_application.Application.Validators.Usuario
                 .EmailAddress()
                 .WithMessage("O campo 'Email' deve ser um endereço de email válido.");
             RuleFor(x => x.Senha)
-                .NotEmpty().WithMessage("A senha é obrigatória.")
                 .MinimumLength(6).WithMessage("A senha deve ter no mínimo 6 caracteres.")
                 .MaximumLength(254).WithMessage("A senha deve ter no máximo 254 caracteres.");
             RuleFor(x => x.Cargo)

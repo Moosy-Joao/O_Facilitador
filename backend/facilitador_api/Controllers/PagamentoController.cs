@@ -30,7 +30,7 @@ namespace facilitador_api.API.Controllers
             return Ok(resultado);
         }
 
-        [HttpGet("{id:guid}", Name = "ObterPagamentoPorId")]
+        [HttpGet("obterporid/{id:guid}", Name = "ObterPagamentoPorId")]
         [ProducesResponseType(typeof(PagamentoResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ObterPagamentoPorId(Guid id)

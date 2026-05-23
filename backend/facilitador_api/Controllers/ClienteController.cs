@@ -30,6 +30,19 @@ namespace facilitador_api.API.Controllers
             return Ok(resultado);
         }
 
+        [HttpGet("obterporid/{id:guid}", Name = "ObterClientePorId")]
+        [ProducesResponseType(typeof(ClienteResponseDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ObterClientePorId(Guid id)
+        {
+            var resultado = await _service.BuscarPorId(id);
+            if (resultado == null)
+            {
+                return NotFound("Cliente não encontrado: " + resultado);
+            }
+            return Ok(resultado);
+        }
+
         [HttpPost("criar", Name = "CriarCliente")]
         [ProducesResponseType(typeof(ClienteResponseDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
