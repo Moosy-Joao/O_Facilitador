@@ -2,6 +2,7 @@
 using facilitador_api.Domain.Interfaces;
 using facilitador_api.Infrastructure.DB;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace facilitador_api.Infrastructure.Repositories
 {
@@ -78,6 +79,11 @@ namespace facilitador_api.Infrastructure.Repositories
         public Task Salvar()
         {
             return _context.SaveChangesAsync();
+        }
+
+        public Task<IDbContextTransaction> IniciarTransacao()
+        {
+            return _context.Database.BeginTransactionAsync();
         }
     }
 }

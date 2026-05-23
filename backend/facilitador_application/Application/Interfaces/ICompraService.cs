@@ -13,5 +13,6 @@ namespace facilitador_api.Application.Interfaces
         Task<bool> Atualizar(Guid id, CompraUpdateDTO dto);
         Task<bool> Desativar(Guid id);
         Task<bool> Ativar(Guid id);
+        Task<bool> EInadimplente(Guid clienteId, int diasAtraso = 30);
     }
 }

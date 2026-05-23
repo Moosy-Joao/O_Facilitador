@@ -3,6 +3,8 @@ using facilitador_api.Application.Services;
 using facilitador_api.Domain.Interfaces;
 using facilitador_api.Infrastructure.DB;
 using facilitador_api.Infrastructure.Repositories;
+using facilitador_application.Application.Interfaces;
+using facilitador_application.Application.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -15,7 +17,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Permissao", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://192.168.1.100:8080") // <- "http://[IP]:[PORTA]" para permitir acesso de um IP específico
+        policy.WithOrigins("http://localhost:5173", "http://192.168.1.100:8080", "http://localhost:5238") // <- "http://[IP]:[PORTA]" para permitir acesso de um IP específico
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();
@@ -42,6 +44,7 @@ builder.Services.AddScoped<IPagamentoService, PagamentoService>();
 builder.Services.AddScoped<ICompraService, CompraService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IPainelDeDadosService, PainelDeDadosService>();
 
 // JWT
 var jwtKey = builder.Configuration["Jwt:Key"];

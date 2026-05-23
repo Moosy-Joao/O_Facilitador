@@ -169,5 +169,11 @@ namespace facilitador_api.Application.Services
 
             return true;
         }
+
+        public async Task<List<ClienteInadimplenteResponseDTO>> ObterInadimplentes(Guid empresaId, int diasAtraso)
+        {
+            if (diasAtraso <= 0) diasAtraso = 30;
+            return await _clienteRepository.BuscarInadimplentesPorEmpresa(empresaId, diasAtraso);
+        }
     }
 }

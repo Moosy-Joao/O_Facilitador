@@ -50,7 +50,7 @@ namespace facilitador_api.Controllers
 
         [Authorize(Policy = "Gerente")]
         [HttpPost("criar", Name = "CriarUsuario")]
-        [ProducesResponseType(typeof(LoginResponseDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(UsuarioResponseDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CriarUsuario(UsuarioCreateDTO dto)
         {

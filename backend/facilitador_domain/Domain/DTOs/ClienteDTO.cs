@@ -68,4 +68,13 @@ namespace facilitador_domain.Domain.DTOs
         public DateTime CriadoEm { get; set; }
         public DateTime ModificadoEm { get; set; }
     }
+
+    public class ClienteInadimplenteResponseDTO
+    {
+        public Guid Id { get; set; }
+        public string Nome { get; set; } = string.Empty;
+        public string Documento { get; set; } = string.Empty;
+        public decimal TotalDevedor { get; set; }
+        public int DiasAtraso { get; set; }
+    }
 }

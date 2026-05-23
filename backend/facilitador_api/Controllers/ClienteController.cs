@@ -1,4 +1,5 @@
 ﻿using facilitador_api.Application.Interfaces;
+using facilitador_api.Helpers;
 using facilitador_domain.Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -43,6 +44,29 @@ namespace facilitador_api.API.Controllers
             {
                 return NotFound("Cliente não encontrado: " + resultado);
             }
+            return Ok(resultado);
+        }
+
+        [Authorize(Policy = "Funcionario/Gerente")]
+        [HttpGet("inadimplentes", Name = "ObterInadimplentes")]
+        [ProducesResponseType(typeof(List<ClienteInadimplenteResponseDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> ObterInadimplentes([FromQuery] Guid empresaId, [FromQuery] int diasAtraso = 30)
+        {
+            // Validação simples
+            if (empresaId == Guid.Empty)
+                return BadRequest("O parâmetro 'empresaId' é obrigatório.");
+
+            if (diasAtraso < 1)
+                return BadRequest("O parâmetro 'diasAtraso' deve ser maior que zero.");
+
+            // Verifica se o usuário autenticado pertence à empresa solicitada
+            var empresaDoToken = User.ObterEmpresaId();
+            if (empresaDoToken != empresaId)
+                return Forbid("Você não tem permissão para acessar dados de outra empresa.");
+
+            var resultado = await _service.ObterInadimplentes(empresaId, diasAtraso);
             return Ok(resultado);
         }
 

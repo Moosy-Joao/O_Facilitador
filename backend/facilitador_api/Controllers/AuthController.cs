@@ -15,8 +15,8 @@ namespace facilitador_api.API.Controllers
             _service = service;
         }
 
-        [HttpPost(Name = "Login")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LoginResponseDTO))]
+        [HttpPost("login", Name = "Login")]
+        [ProducesResponseType(typeof(LoginResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Login([FromBody] LoginDTO dto)
         {

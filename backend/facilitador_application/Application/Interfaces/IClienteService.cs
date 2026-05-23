@@ -14,5 +14,6 @@ namespace facilitador_api.Application.Interfaces
         Task<bool> Atualizar(Guid id, ClienteUpdateDTO dto);
         Task<bool> Ativar(Guid id);
         Task<bool> Desativar(Guid id);
+        Task<List<ClienteInadimplenteResponseDTO>> ObterInadimplentes(Guid empresaId, int diasAtraso);
     }
 }

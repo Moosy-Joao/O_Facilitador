@@ -1,4 +1,6 @@
-﻿namespace facilitador_api.Domain.Interfaces
+﻿using Microsoft.EntityFrameworkCore.Storage;
+
+namespace facilitador_api.Domain.Interfaces
 {
     public interface IBaseRepository<T> where T : class
     {
@@ -10,5 +12,6 @@
         Task Ativar(Guid id);
         Task Desativar(Guid id);
         Task Salvar();
+        Task<IDbContextTransaction> IniciarTransacao();
     }
 }
