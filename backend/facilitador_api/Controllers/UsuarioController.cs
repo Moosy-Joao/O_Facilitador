@@ -69,7 +69,7 @@ namespace facilitador_api.Controllers
                 return BadRequest("Erro ao criar usuário: " + resultado);
             }
 
-            return Created("Usuário criado com sucesso.", resultado);
+            return Ok(resultado);
         }
 
         [Authorize(Policy = "Gerente")]
