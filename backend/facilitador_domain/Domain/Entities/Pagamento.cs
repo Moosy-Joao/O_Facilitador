@@ -27,14 +27,14 @@ namespace facilitador_api.Domain.Entities
             DataPagamento = dataPagamento;
         }
 
-        //public Pagamento(PagamentoCreateDTO dto, Guid clienteId, Guid empresaId)
-        //{
-        //    ClienteId = clienteId;
-        //    EmpresaId = empresaId;
-        //    ValorPagamento = dto.ValorPagamento;
-        //    Observacao = dto.Observacao;
-        //    DataPagamento = dto.DataPagamento;
-        //}
+        public Pagamento(PagamentoCreateDTO dto, Guid clienteId, Guid empresaId)
+        {
+            ClienteId = clienteId;
+            EmpresaId = empresaId;
+            ValorPagamento = dto.ValorPagamento;
+            Observacao = dto.Observacao;
+            DataPagamento = dto.DataPagamento;
+        }
 
         public void AtualizarValorPagamento(decimal novoValor) => ValorPagamento = novoValor;
 

@@ -10,6 +10,7 @@ namespace facilitador_api.Application.Interfaces
         Task<List<EmpresaResponseDTO>?> BuscarEmpresas();
         Task<bool> Criar(EmpresaCreateDTO dto);
         Task<bool> Atualizar(Guid id, EmpresaUpdateDTO dto);
+        Task<bool> Ativar(Guid id);
         Task<bool> Desativar(Guid id);
     }
 }

@@ -9,10 +9,9 @@ namespace facilitador_api.Application.Interfaces
         Task<List<PagamentoResponseDTO>> BuscarPorCliente(Guid clienteId);
         Task<List<PagamentoResponseDTO>> BuscarPorEmpresa(Guid empresaId);
         Task<List<PagamentoResponseDTO>> BuscarPorData(DateTime dataPagamento);
-
         Task<bool> Criar(PagamentoCreateDTO dto);
         Task<bool> Atualizar(Guid id, PagamentoUpdateDTO dto);
-        Task<bool> Desativar(Guid id);
         Task<bool> Ativar(Guid id);
+        Task<bool> Desativar(Guid id);
     }
 }

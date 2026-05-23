@@ -1,5 +1,5 @@
-﻿using facilitador_domain.Domain.DTOs;
-using facilitador_api.Application.Interfaces;
+﻿using facilitador_api.Application.Interfaces;
+using facilitador_domain.Domain.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace facilitador_api.API.Controllers
@@ -15,18 +15,37 @@ namespace facilitador_api.API.Controllers
             _service = service;
         }
 
-        [HttpGet]
+        [HttpGet("obter", Name = "ObterEmpresas")]
+        [ProducesResponseType(typeof(EmpresaResponseDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ObterEmpresas()
         {
             var resultado = await _service.BuscarEmpresas();
+
             if (resultado == null || !resultado.Any())
             {
-                return NotFound("Nenhuma empresa encontrada.");
+                return NotFound("Nenhuma empresa encontrada: " + resultado);
+            }
+
+            return Ok(resultado);
+        }
+
+        [HttpGet("obterporid/{id:guid}", Name = "ObterEmpresaPorId")]
+        [ProducesResponseType(typeof(EmpresaResponseDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ObterEmpresaPorId(Guid id)
+        {
+            var resultado = await _service.BuscarPorId(id);
+            if (resultado == null)
+            {
+                return NotFound("Empresa não encontrada: " + resultado);
             }
             return Ok(resultado);
         }
 
-        [HttpPost]
+        [HttpPost("criar", Name = "CriarEmpresa")]
+        [ProducesResponseType(typeof(EmpresaResponseDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CriarEmpresa(EmpresaCreateDTO dto)
         {
             var resultado = await _service.Criar(dto);
@@ -39,7 +58,9 @@ namespace facilitador_api.API.Controllers
             return Ok("Empresa criada com sucesso: " + resultado);
         }
 
-        [HttpPut]
+        [HttpPut("atualizar/{id:guid}", Name = "AtualizarEmpresa")]
+        [ProducesResponseType(typeof(EmpresaResponseDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AtualizarEmpresa(Guid id, EmpresaUpdateDTO dto)
         {
             var resultado = await _service.Atualizar(id, dto);
@@ -50,15 +71,32 @@ namespace facilitador_api.API.Controllers
             return Ok("Empresa atualizada com sucesso: " + resultado);
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> DeletarEmpresa(Guid id)
+        [HttpPut("ativar/{id:guid}", Name = "AtivarEmpresa")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> AtivarEmpresa(Guid id)
         {
-            var resultado = await _service.Desativar(id);
+            var resultado = await _service.Ativar(id);
             if (!resultado)
             {
-                return BadRequest("Erro ao deletar a empresa: " + resultado);
+                return BadRequest("Erro ao ativar a empresa: " + resultado);
             }
-            return Ok("Empresa deletada com sucesso: " + resultado);
+            return Ok("Empresa ativada com sucesso: " + resultado);
+        }
+
+        [HttpDelete("desativar/{id:guid}", Name = "DesativarEmpresa")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DesativarEmpresa(Guid id)
+        {
+            var resultado = await _service.Desativar(id);
+
+            if (!resultado)
+            {
+                return BadRequest("Erro ao desativar a empresa: " + resultado);
+            }
+
+            return Ok("Empresa desativada com sucesso: " + resultado);
         }
     }
 }

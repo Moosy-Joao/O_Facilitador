@@ -1,8 +1,8 @@
-﻿using facilitador_domain.Domain.DTOs;
-using facilitador_api.Application.Interfaces;
+﻿using facilitador_api.Application.Interfaces;
 using facilitador_api.Application.Mapping;
 using facilitador_api.Domain.Entities;
 using facilitador_api.Domain.Interfaces;
+using facilitador_domain.Domain.DTOs;
 
 namespace facilitador_api.Application.Services
 {
@@ -51,6 +51,7 @@ namespace facilitador_api.Application.Services
                 empresa.AtualizarEndereco(dto.EnderecoId.Value);
             }
 
+            empresa.AtualizarModificadoEm(DateTime.UtcNow);
 
             await _empresaRepository.Salvar();
 
@@ -99,6 +100,18 @@ namespace facilitador_api.Application.Services
             await _empresaRepository.Cadastrar(empresa);
             await _empresaRepository.Salvar();
 
+            return true;
+        }
+
+        public async Task<bool> Ativar(Guid id)
+        {
+            var empresa = await _empresaRepository.Existe(id);
+            if (!empresa)
+            {
+                return false;
+            }
+            await _empresaRepository.Ativar(id);
+            await _empresaRepository.Salvar();
             return true;
         }
 

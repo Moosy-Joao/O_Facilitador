@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using facilitador_domain.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace facilitador_domain.Domain.DTOs
 {
@@ -19,8 +20,7 @@ namespace facilitador_domain.Domain.DTOs
     public class UsuarioCreateDTO : UsuarioDTO
     {
         [Required(ErrorMessage = "O campo 'Cargo' é obrigatório.")]
-        public string Cargo { get; set; } = string.Empty;
-
+        public CargoUsuario Cargo { get; set; } = CargoUsuario.Funcionario;
 
         [Required(ErrorMessage = "O campo 'Empresa' é obrigatório.")]
         public Guid EmpresaId { get; set; } = Guid.Empty;
@@ -33,7 +33,7 @@ namespace facilitador_domain.Domain.DTOs
         [EmailAddress]
         public string? Email { get; set; }
         public string? Senha { get; set; }
-        public string? Cargo { get; set; }
+        public CargoUsuario? Cargo { get; set; }
     }
 
     public class UsuarioResponseDTO
@@ -42,7 +42,7 @@ namespace facilitador_domain.Domain.DTOs
         public string Nome { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Senha { get; set; } = string.Empty;
-        public string Cargo { get; set; } = string.Empty;
+        public CargoUsuario Cargo { get; set; }
         public Guid EmpresaId { get; set; }
         public EmpresaResponseDTO? Empresa { get; set; }
         public bool Ativo { get; set; }

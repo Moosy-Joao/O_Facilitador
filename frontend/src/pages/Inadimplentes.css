@@ -1,0 +1,242 @@
+.inadimplentes-page {
+  padding: 1rem;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.danger-text {
+  color: var(--danger);
+}
+
+.inline-icon {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.mr-1 {
+  margin-right: 0.25rem;
+}
+
+.mr-2 {
+  margin-right: 0.5rem;
+}
+
+.fw-bold {
+  font-weight: 700;
+}
+
+/* Stats */
+.inadimplentes-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stat-card.danger {
+  border-left: 4px solid var(--danger);
+  background: linear-gradient(to right, rgba(239, 68, 68, 0.05), var(--surface));
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.stat-val {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Grid Layout */
+.inadimplentes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.inadimplente-card {
+  background: var(--surface);
+  border: 1px solid var(--danger-light, rgba(239, 68, 68, 0.3));
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: slideUp 0.4s ease-out backwards;
+}
+
+.inadimplente-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(239, 68, 68, 0.08);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.25rem;
+}
+
+.cliente-id-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avatar-danger {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.cli-nome {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.1rem;
+}
+
+.cli-tel {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.btn-icon-only {
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 0.4rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.btn-icon-only:hover {
+  background: var(--surface-hover);
+  color: var(--primary);
+}
+
+/* Finances */
+.card-finances {
+  background: var(--surface-light);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.fin-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.fin-label {
+  color: var(--text-secondary);
+}
+
+.fin-val {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.alert-row {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--border);
+  justify-content: flex-start;
+}
+
+.alert-row .fin-val {
+  margin-left: auto;
+}
+
+/* Actions */
+.card-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: auto;
+}
+
+.btn-act-wpp, .btn-act-pay {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.btn-act-wpp {
+  background: #25D366;
+  color: white;
+  border: none;
+}
+
+.btn-act-wpp:hover:not(.disabled) {
+  background: #128C7E;
+}
+
+.btn-act-wpp.disabled {
+  background: var(--surface-hover);
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+}
+
+.btn-act-pay {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+.btn-act-pay:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-hover);
+}
+
+.success-state .empty-icon-wrap {
+  color: var(--success);
+  margin-bottom: 1rem;
+  opacity: 0.8;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

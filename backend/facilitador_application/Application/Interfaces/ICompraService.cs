@@ -9,9 +9,10 @@ namespace facilitador_api.Application.Interfaces
         Task<List<CompraResponseDTO>> BuscarPorCliente(Guid clienteId);
         Task<List<CompraResponseDTO>> BuscarPorEmpresa(Guid empresaId);
 
-        Task<bool> Criar(CompraCreateDTO dto);
+        Task<bool> Criar(CompraCreateDTO dto, Guid empresaId);
         Task<bool> Atualizar(Guid id, CompraUpdateDTO dto);
         Task<bool> Desativar(Guid id);
         Task<bool> Ativar(Guid id);
+        Task<bool> EInadimplente(Guid clienteId, int diasAtraso = 30);
     }
 }

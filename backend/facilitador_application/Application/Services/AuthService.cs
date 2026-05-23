@@ -31,8 +31,7 @@ namespace facilitador_api.Application.Services
                 return null;
             }
 
-            // Temporário. Depois vamos trocar por BCrypt.
-            if (usuario.Senha != dto.Senha)
+            if (!BCrypt.Net.BCrypt.Verify(dto.Senha, usuario.Senha))
             {
                 return null;
             }
@@ -43,7 +42,13 @@ namespace facilitador_api.Application.Services
 
             var expiraEm = DateTime.UtcNow.AddMinutes(expirationMinutes);
 
-            var token = GerarToken(usuario.Id, usuario.Email, expiraEm);
+            var token = GerarToken(
+                usuario.Id,
+                usuario.EmpresaId,
+                usuario.Email,
+                usuario.Cargo.ToString(),
+                expiraEm
+            );
 
             return new LoginResponseDTO
             {
@@ -54,7 +59,12 @@ namespace facilitador_api.Application.Services
             };
         }
 
-        private string GerarToken(Guid usuarioId, string email, DateTime expiraEm)
+        private string GerarToken(
+            Guid usuarioId,
+            Guid empresaId,
+            string email,
+            string cargo,
+            DateTime expiraEm)
         {
             var jwtKey = _configuration["Jwt:Key"];
             var jwtIssuer = _configuration["Jwt:Issuer"];
@@ -69,7 +79,12 @@ namespace facilitador_api.Application.Services
             {
                 new Claim(JwtRegisteredClaimNames.Sub, usuarioId.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, email),
-                new Claim("usuarioId", usuarioId.ToString())
+
+                new Claim("usuarioId", usuarioId.ToString()),
+                new Claim("empresaId", empresaId.ToString()),
+                new Claim("cargo", cargo),
+
+                new Claim(ClaimTypes.Role, cargo)
             };
 
             var chave = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));

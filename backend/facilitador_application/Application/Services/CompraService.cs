@@ -2,6 +2,7 @@
 using facilitador_api.Application.Mapping;
 using facilitador_api.Domain.Entities;
 using facilitador_api.Domain.Interfaces;
+using facilitador_api.Infrastructure.DB;
 using facilitador_domain.Domain.DTOs;
 
 namespace facilitador_api.Application.Services
@@ -11,15 +12,18 @@ namespace facilitador_api.Application.Services
         private readonly ICompraRepository _compraRepository;
         private readonly IClienteRepository _clienteRepository;
         private readonly IEmpresaRepository _empresaRepository;
+        private readonly ConnectionContext _context;
 
         public CompraService(
             ICompraRepository compraRepository,
             IClienteRepository clienteRepository,
-            IEmpresaRepository empresaRepository)
+            IEmpresaRepository empresaRepository,
+            ConnectionContext context)
         {
             _compraRepository = compraRepository;
             _clienteRepository = clienteRepository;
             _empresaRepository = empresaRepository;
+            _context = context;
         }
 
         public async Task<List<CompraResponseDTO>> BuscarCompras()
@@ -46,15 +50,23 @@ namespace facilitador_api.Application.Services
             return compras.Select(c => c.ToResponseDTO()).ToList();
         }
 
-        public async Task<bool> Criar(CompraCreateDTO dto)
+        public async Task<bool> Criar(CompraCreateDTO dto, Guid empresaId)
         {
+            var cliente = await _clienteRepository.BuscarPorId(dto.ClienteId);
+            if (cliente == null) throw new Exception("Cliente não encontrado.");
+
+            // Bloqueio por inadimplência
+            var isInadimplente = await _clienteRepository.EInadimplente(cliente.Id);
+            if (isInadimplente)
+                throw new Exception("Cliente inadimplente. Não é possível realizar novas vendas.");
+
             var clienteExiste = await _clienteRepository.Existe(dto.ClienteId);
             if (!clienteExiste)
             {
                 return false;
             }
 
-            var empresaExiste = await _empresaRepository.Existe(dto.EmpresaId);
+            var empresaExiste = await _empresaRepository.Existe(empresaId);
             if (!empresaExiste)
             {
                 return false;
@@ -70,7 +82,7 @@ namespace facilitador_api.Application.Services
                 dto.Descricao,
                 dto.NumeroNota,
                 dto.ClienteId,
-                dto.EmpresaId
+                empresaId
             );
 
             await _compraRepository.Cadastrar(compra);
@@ -163,6 +175,12 @@ namespace facilitador_api.Application.Services
             await _compraRepository.Salvar();
 
             return true;
+        }
+
+        public async Task<bool> EInadimplente(Guid clienteId, int diasAtraso = 30)
+        {
+            var isInadimplente = await _clienteRepository.EInadimplente(clienteId, diasAtraso);
+            return isInadimplente;
         }
     }
 }

@@ -49,6 +49,7 @@ namespace facilitador_domain.Domain.DTOs
         public string? Telefone { get; set; }
         public Guid? EnderecoId { get; set; }
         public Guid? EmpresaId { get; set; }
+        public bool? Inadimplente { get; set; }
     }
 
     public class ClienteResponseDTO
@@ -60,10 +61,20 @@ namespace facilitador_domain.Domain.DTOs
         public string? Telefone { get; set; } = string.Empty;
         public decimal Saldo { get; set; }
         public decimal LimiteCredito { get; set; }
+        public bool Inadimplente { get; set; }
         public bool Ativo { get; set; }
         public EnderecoResponseDTO? Endereco { get; set; }
         public EmpresaResponseDTO? Empresa { get; set; }
         public DateTime CriadoEm { get; set; }
         public DateTime ModificadoEm { get; set; }
+    }
+
+    public class ClienteInadimplenteResponseDTO
+    {
+        public Guid Id { get; set; }
+        public string Nome { get; set; } = string.Empty;
+        public string Documento { get; set; } = string.Empty;
+        public decimal TotalDevedor { get; set; }
+        public int DiasAtraso { get; set; }
     }
 }

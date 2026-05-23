@@ -1,8 +1,8 @@
-﻿using facilitador_domain.Domain.DTOs;
-using facilitador_api.Application.Interfaces;
+﻿using facilitador_api.Application.Interfaces;
 using facilitador_api.Application.Mapping;
 using facilitador_api.Domain.Entities;
 using facilitador_api.Domain.Interfaces;
+using facilitador_domain.Domain.DTOs;
 
 namespace facilitador_api.Application.Services
 {
@@ -52,6 +52,8 @@ namespace facilitador_api.Application.Services
                 endereco.AtualizarCEP(dto.CEP);
             }
 
+            endereco.AtualizarModificadoEm(DateTime.UtcNow);
+
             await _enderecoRepository.Salvar();
 
             return true;
@@ -82,6 +84,18 @@ namespace facilitador_api.Application.Services
             await _enderecoRepository.Cadastrar(enderecoNovo);
             await _enderecoRepository.Salvar();
 
+            return true;
+        }
+
+        public async Task<bool> Ativar(Guid id)
+        {
+            var endereco = await _enderecoRepository.BuscarPorId(id);
+            if (endereco == null)
+            {
+                return false;
+            }
+            endereco.Ativar();
+            await _enderecoRepository.Salvar();
             return true;
         }
 
