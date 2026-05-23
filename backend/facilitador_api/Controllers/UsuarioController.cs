@@ -33,7 +33,6 @@ namespace facilitador_api.Controllers
             return Ok(resultado);
         }
 
-        [Authorize(Policy = "Funcionario/Gerente")]
         [HttpGet("obterporid/{id:guid}", Name = "ObterUsuarioPorId")]
         [ProducesResponseType(typeof(UsuarioResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

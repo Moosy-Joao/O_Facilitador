@@ -2,6 +2,7 @@
 using facilitador_domain.Domain.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using facilitador_api.Helpers;
 
 
 namespace facilitador_api.API.Controllers
@@ -24,27 +25,35 @@ namespace facilitador_api.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ObterCompras()
         {
-            var resultado = await _service.BuscarCompras();
+            var empresaId = User.ObterEmpresaId();
 
-            if (resultado == null)
+            var resultado = await _service.BuscarPorEmpresa(empresaId);
+
+            if (resultado == null || !resultado.Any())
             {
-                return NotFound("Nenhuma compra encontrada: " + resultado);
+                return NotFound("Nenhuma compra encontrada.");
             }
 
             return Ok(resultado);
         }
-
         [Authorize(Policy = "Funcionario/Gerente")]
         [HttpGet("obterporid/{id:guid}", Name = "ObterCompraPorId")]
         [ProducesResponseType(typeof(CompraResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ObterCompraPorId(Guid id)
         {
+            var empresaId = User.ObterEmpresaId();
+
             var resultado = await _service.BuscarPorId(id);
 
             if (resultado == null)
             {
-                return NotFound("Compra não encontrada: " + resultado);
+                return NotFound("Compra não encontrada.");
+            }
+
+            if (resultado.EmpresaId != empresaId)
+            {
+                return Forbid("Você não tem permissão para acessar esta compra.");
             }
 
             return Ok(resultado);
@@ -56,38 +65,51 @@ namespace facilitador_api.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ObterComprasPorCliente(Guid clienteId)
         {
+            var empresaId = User.ObterEmpresaId();
+
             var resultado = await _service.BuscarPorCliente(clienteId);
 
-            if (resultado == null)
+            if (resultado == null || !resultado.Any())
             {
-                return NotFound("Nenhuma compra encontrada para o cliente: " + clienteId);
+                return NotFound("Nenhuma compra encontrada para o cliente.");
             }
 
-            return Ok(resultado);
-        }
+            var existeCompraDeOutraEmpresa = resultado.Any(c => c.EmpresaId != empresaId);
 
-        [HttpGet("obterporempresa/{empresaId:guid}", Name = "ObterComprasPorEmpresa")]
-        [ProducesResponseType(typeof(CompraResponseDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ObterComprasPorEmpresa(Guid empresaId)
-        {
-            var resultado = await _service.BuscarPorEmpresa(empresaId);
-
-            if (resultado == null)
+            if (existeCompraDeOutraEmpresa)
             {
-                return NotFound("Nenhuma compra encontrada para a empresa: " + resultado);
+                return Forbid("Você não tem permissão para acessar compras de outra empresa.");
             }
 
             return Ok(resultado);
         }
 
         [Authorize(Policy = "Funcionario/Gerente")]
+        [HttpGet("obterporempresa", Name = "ObterComprasPorEmpresa")]
+        [ProducesResponseType(typeof(CompraResponseDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ObterComprasPorEmpresa()
+        {
+            var empresaId = User.ObterEmpresaId();
+
+            var resultado = await _service.BuscarPorEmpresa(empresaId);
+
+            if (resultado == null || !resultado.Any())
+            {
+                return NotFound("Nenhuma compra encontrada para sua empresa.");
+            }
+
+            return Ok(resultado);
+        }
+        [Authorize(Policy = "Funcionario/Gerente")]
         [HttpPost("criar", Name = "CriarCompra")]
         [ProducesResponseType(typeof(CompraResponseDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CriarCompra([FromBody] CompraCreateDTO dto)
         {
-            var resultado = await _service.Criar(dto);
+            var empresaId = User.ObterEmpresaId();
+
+            var resultado = await _service.Criar(dto, empresaId);
 
             if (!resultado)
             {
@@ -103,43 +125,85 @@ namespace facilitador_api.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AtualizarCompra(Guid id, [FromBody] CompraUpdateDTO dto)
         {
+            var empresaId = User.ObterEmpresaId();
+
+            var compra = await _service.BuscarPorId(id);
+
+            if (compra == null)
+            {
+                return NotFound("Compra não encontrada.");
+            }
+
+            if (compra.EmpresaId != empresaId)
+            {
+                return Forbid("Você não tem permissão para atualizar esta compra.");
+            }
+
             var resultado = await _service.Atualizar(id, dto);
 
             if (!resultado)
             {
-                return BadRequest("Erro ao atualizar compra: " + resultado);
+                return BadRequest("Erro ao atualizar compra.");
             }
 
             return Ok("Compra atualizada com sucesso.");
         }
 
-        [Authorize(Policy = "Funcionario/Gerente")]
+        [Authorize(Policy = "Gerente")]
         [HttpPatch("ativar/{id:guid}", Name = "AtivarCompra")]
         [ProducesResponseType(typeof(CompraResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AtivarCompra(Guid id)
         {
+            var empresaId = User.ObterEmpresaId();
+
+            var compra = await _service.BuscarPorId(id);
+
+            if (compra == null)
+            {
+                return NotFound("Compra não encontrada.");
+            }
+
+            if (compra.EmpresaId != empresaId)
+            {
+                return Forbid("Você não tem permissão para ativar esta compra.");
+            }
+
             var resultado = await _service.Ativar(id);
 
             if (!resultado)
             {
-                return BadRequest("Erro ao ativar compra: " + resultado);
+                return BadRequest("Erro ao ativar compra.");
             }
 
             return Ok("Compra ativada com sucesso.");
         }
 
-        [Authorize(Policy = "Funcionario/Gerente")]
+        [Authorize(Policy = "Gerente")]
         [HttpDelete("desativar/{id:guid}", Name = "DesativarCompra")]
         [ProducesResponseType(typeof(CompraResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DesativarCompra(Guid id)
         {
+            var empresaId = User.ObterEmpresaId();
+
+            var compra = await _service.BuscarPorId(id);
+
+            if (compra == null)
+            {
+                return NotFound("Compra não encontrada.");
+            }
+
+            if (compra.EmpresaId != empresaId)
+            {
+                return Forbid("Você não tem permissão para desativar esta compra.");
+            }
+
             var resultado = await _service.Desativar(id);
 
             if (!resultado)
             {
-                return BadRequest("Erro ao desativar compra: " + resultado);
+                return BadRequest("Erro ao desativar compra.");
             }
 
             return Ok("Compra desativada com sucesso.");

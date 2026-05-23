@@ -15,7 +15,10 @@ namespace facilitador_api.Domain.Entities
         public Guid EmpresaId { get; private set; }
         public Empresa Empresa { get; private set; }
 
-        public Compra() { }
+        public Compra(Guid empresaId)
+        {
+            EmpresaId = empresaId;
+        }
 
         public Compra(decimal valor, string descricao, string numeroNota, Guid clienteId, Guid empresaId)
         {

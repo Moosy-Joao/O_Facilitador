@@ -2,6 +2,7 @@ using facilitador_api.Application.Interfaces;
 using facilitador_domain.Domain.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using facilitador_api.Helpers;
 
 namespace facilitador_api.API.Controllers
 { 
@@ -22,11 +23,13 @@ namespace facilitador_api.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ObterPagamentos()
         {
-            var resultado = await _service.BuscarPagamentos();
+            var empresaId = User.ObterEmpresaId();
 
-            if (resultado == null)
+            var resultado = await _service.BuscarPorEmpresa(empresaId);
+
+            if (resultado == null || !resultado.Any())
             {
-                return NotFound("Nenhum pagamento encontrado: " + resultado);
+                return NotFound("Nenhum pagamento encontrado.");
             }
 
             return Ok(resultado);
@@ -122,7 +125,7 @@ namespace facilitador_api.API.Controllers
 
             return Ok("Pagamento atualizado com sucesso: " + resultado);
         }
-        [Authorize(Policy = "Funcionario/Gerente")]
+        [Authorize(Policy = "Gerente")]
         [HttpPatch("ativar/{id:guid}", Name = "AtivarPagamento")]
         [ProducesResponseType(typeof(PagamentoResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -137,7 +140,7 @@ namespace facilitador_api.API.Controllers
 
             return Ok("Pagamento ativado com sucesso: " + resultado);
         }
-        [Authorize(Policy = "Funcionario/Gerente")]
+        [Authorize(Policy = "Gerente")]
         [HttpDelete("desativar/{id:guid}", Name = "DesativarPagamento")]
         [ProducesResponseType(typeof(PagamentoResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

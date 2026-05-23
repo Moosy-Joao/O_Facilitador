@@ -46,7 +46,7 @@ namespace facilitador_api.Application.Services
             return compras.Select(c => c.ToResponseDTO()).ToList();
         }
 
-        public async Task<bool> Criar(CompraCreateDTO dto)
+        public async Task<bool> Criar(CompraCreateDTO dto, Guid empresaId)
         {
             var clienteExiste = await _clienteRepository.Existe(dto.ClienteId);
             if (!clienteExiste)
@@ -54,7 +54,7 @@ namespace facilitador_api.Application.Services
                 return false;
             }
 
-            var empresaExiste = await _empresaRepository.Existe(dto.EmpresaId);
+            var empresaExiste = await _empresaRepository.Existe(empresaId);
             if (!empresaExiste)
             {
                 return false;
@@ -70,7 +70,7 @@ namespace facilitador_api.Application.Services
                 dto.Descricao,
                 dto.NumeroNota,
                 dto.ClienteId,
-                dto.EmpresaId
+                empresaId
             );
 
             await _compraRepository.Cadastrar(compra);

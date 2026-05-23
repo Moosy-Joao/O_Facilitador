@@ -85,7 +85,14 @@ builder.Services
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Gerente", policy =>
+        policy.RequireRole("Administrador", "Gerente"));
+
+    options.AddPolicy("Funcionario/Gerente", policy =>
+        policy.RequireRole("Administrador", "Gerente", "Funcionario"));
+});
 
 // Controllers
 builder.Services.AddControllers();
