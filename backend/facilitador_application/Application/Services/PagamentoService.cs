@@ -43,6 +43,7 @@ namespace facilitador_api.Application.Services
         public async Task<List<PagamentoResponseDTO>> BuscarPorEmpresa(Guid empresaId)
         {
             var pagamentos = await _pagamentoRepository.BuscarPorEmpresa(empresaId);
+
             return pagamentos.Select(p => p.ToResponseDTO()).ToList();
         }
 
