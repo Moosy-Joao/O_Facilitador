@@ -32,6 +32,13 @@ public class ClienteRepository : BaseRepository<Cliente>, IClienteRepository
             .Where(c => c.Nome.ToLower().Contains(nome.ToLower()))
             .ToListAsync();
     }
+    public async Task<List<Cliente>> BuscarPorEmpresa(Guid empresaId)
+    {
+        return await _context.Clientes
+            .AsNoTracking()
+            .Where(c => c.EmpresaId == empresaId)
+            .ToListAsync();
+    }
 
     // Override para incluir Endereco e Empresa
     public override async Task<List<Cliente>> BuscarTodos()

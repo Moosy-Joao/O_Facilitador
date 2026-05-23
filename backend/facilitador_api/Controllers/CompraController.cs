@@ -1,9 +1,12 @@
 ﻿using facilitador_api.Application.Interfaces;
 using facilitador_domain.Domain.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace facilitador_api.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/v1/compras")]
     public class CompraController : ControllerBase
@@ -15,6 +18,7 @@ namespace facilitador_api.API.Controllers
             _service = service;
         }
 
+        [Authorize(Policy = "Funcionario/Gerente")]
         [HttpGet("obter", Name = "ObterCompras")]
         [ProducesResponseType(typeof(CompraResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -30,6 +34,7 @@ namespace facilitador_api.API.Controllers
             return Ok(resultado);
         }
 
+        [Authorize(Policy = "Funcionario/Gerente")]
         [HttpGet("obterporid/{id:guid}", Name = "ObterCompraPorId")]
         [ProducesResponseType(typeof(CompraResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -45,6 +50,7 @@ namespace facilitador_api.API.Controllers
             return Ok(resultado);
         }
 
+        [Authorize(Policy = "Funcionario/Gerente")]
         [HttpGet("obterporcliente/{clienteId:guid}", Name = "ObterComprasPorCliente")]
         [ProducesResponseType(typeof(CompraResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -75,6 +81,7 @@ namespace facilitador_api.API.Controllers
             return Ok(resultado);
         }
 
+        [Authorize(Policy = "Funcionario/Gerente")]
         [HttpPost("criar", Name = "CriarCompra")]
         [ProducesResponseType(typeof(CompraResponseDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -90,6 +97,7 @@ namespace facilitador_api.API.Controllers
             return Ok("Compra criada com sucesso.");
         }
 
+        [Authorize(Policy = "Funcionario/Gerente")]
         [HttpPatch("atualizar/{id:guid}", Name = "AtualizarCompra")]
         [ProducesResponseType(typeof(CompraResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -105,6 +113,7 @@ namespace facilitador_api.API.Controllers
             return Ok("Compra atualizada com sucesso.");
         }
 
+        [Authorize(Policy = "Funcionario/Gerente")]
         [HttpPatch("ativar/{id:guid}", Name = "AtivarCompra")]
         [ProducesResponseType(typeof(CompraResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -120,6 +129,7 @@ namespace facilitador_api.API.Controllers
             return Ok("Compra ativada com sucesso.");
         }
 
+        [Authorize(Policy = "Funcionario/Gerente")]
         [HttpDelete("desativar/{id:guid}", Name = "DesativarCompra")]
         [ProducesResponseType(typeof(CompraResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

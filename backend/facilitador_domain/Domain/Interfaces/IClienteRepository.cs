@@ -7,5 +7,6 @@ namespace facilitador_api.Domain.Interfaces
         Task<Cliente?> BuscarPorDocumento(string documento);
         Task<List<Cliente>> BuscarPorNome(string nome);
         Task<Cliente?> BuscarPorEmail(string email);
+        Task<List<Cliente>> BuscarPorEmpresa(Guid empresaId);
     }
 }

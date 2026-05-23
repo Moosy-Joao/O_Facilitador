@@ -1,9 +1,11 @@
 using facilitador_api.Application.Interfaces;
 using facilitador_domain.Domain.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace facilitador_api.API.Controllers
-{
+{ 
+    [Authorize]
     [ApiController]
     [Route("api/v1/pagamentos")]
     public class PagamentoController : ControllerBase
@@ -14,7 +16,7 @@ namespace facilitador_api.API.Controllers
         {
             _service = service;
         }
-
+        [Authorize(Policy = "Funcionario/Gerente")]
         [HttpGet("obter", Name = "ObterPagamentos")]
         [ProducesResponseType(typeof(PagamentoResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -30,6 +32,7 @@ namespace facilitador_api.API.Controllers
             return Ok(resultado);
         }
 
+        [Authorize(Policy = "Funcionario/Gerente")]
         [HttpGet("obterporid/{id:guid}", Name = "ObterPagamentoPorId")]
         [ProducesResponseType(typeof(PagamentoResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -44,7 +47,7 @@ namespace facilitador_api.API.Controllers
 
             return Ok(resultado);
         }
-
+        [Authorize(Policy = "Funcionario/Gerente")]
         [HttpGet("obterporcliente/{clienteId:guid}", Name = "ObterPagamentosPorCliente")]
         [ProducesResponseType(typeof(List<PagamentoResponseDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -59,7 +62,7 @@ namespace facilitador_api.API.Controllers
 
             return Ok(resultado);
         }
-
+        [Authorize(Policy = "Funcionario/Gerente")]
         [HttpGet("obterporempresa/{empresaId:guid}", Name = "ObterPagamentosPorEmpresa")]
         [ProducesResponseType(typeof(List<PagamentoResponseDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -74,7 +77,7 @@ namespace facilitador_api.API.Controllers
 
             return Ok(resultado);
         }
-
+        [Authorize(Policy = "Funcionario/Gerente")]
         [HttpGet("obterpordata", Name = "ObterPagamentosPorData")]
         [ProducesResponseType(typeof(List<PagamentoResponseDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -89,7 +92,7 @@ namespace facilitador_api.API.Controllers
 
             return Ok(resultado);
         }
-
+        [Authorize(Policy = "Funcionario/Gerente")]
         [HttpPost("criar", Name = "CriarPagamento")]
         [ProducesResponseType(typeof(PagamentoResponseDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -104,7 +107,7 @@ namespace facilitador_api.API.Controllers
 
             return Ok("Pagamento criado com sucesso: " + resultado);
         }
-
+        [Authorize(Policy = "Funcionario/Gerente")]
         [HttpPatch("atualizar/{id:guid}", Name = "AtualizarPagamento")]
         [ProducesResponseType(typeof(PagamentoResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -119,7 +122,7 @@ namespace facilitador_api.API.Controllers
 
             return Ok("Pagamento atualizado com sucesso: " + resultado);
         }
-
+        [Authorize(Policy = "Funcionario/Gerente")]
         [HttpPatch("ativar/{id:guid}", Name = "AtivarPagamento")]
         [ProducesResponseType(typeof(PagamentoResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -134,7 +137,7 @@ namespace facilitador_api.API.Controllers
 
             return Ok("Pagamento ativado com sucesso: " + resultado);
         }
-
+        [Authorize(Policy = "Funcionario/Gerente")]
         [HttpDelete("desativar/{id:guid}", Name = "DesativarPagamento")]
         [ProducesResponseType(typeof(PagamentoResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

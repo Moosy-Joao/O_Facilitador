@@ -22,7 +22,6 @@ namespace facilitador_api.Infrastructure.DB
         public DbSet<Compra> Compras { get; set; }
         public DbSet<Pagamento> Pagamentos { get; set; }
 
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(

@@ -7,6 +7,7 @@ namespace facilitador_api.Application.Interfaces
         Task<ClienteResponseDTO?> BuscarPorId(Guid id);
         Task<ClienteResponseDTO?> BuscarPorDocumento(string documento);
         Task<ClienteResponseDTO?> BuscarPorEmail(string email);
+        Task<List<ClienteResponseDTO>> BuscarClientesPorEmpresa(Guid empresaId);
         Task<List<ClienteResponseDTO>> BuscarPorNome(string nome);
         Task<List<ClienteResponseDTO>> BuscarClientes();
         Task<bool> Criar(ClienteCreateDTO dto);

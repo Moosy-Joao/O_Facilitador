@@ -3,16 +3,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace facilitador_api.Controllers
 {
-    [ApiController]
-    [Route("api/v1/paineldados")]
+    //[ApiController]
+    //[Route("api/v1/paineldados")]
     public class PainelDeDadosController : ControllerBase
     {
-        private readonly IPainelDeDadosService _service;
+        //private readonly IPainelDeDadosService _service;
 
-        public PainelDeDadosController(IPainelDeDadosService service)
-        {
-            _service = service;
-        }
+        //public PainelDeDadosController(IPainelDeDadosService service)
+        //{
+        //    _service = service;
+        //}
 
         //[HttpGet("stats")]
         //public async Task<IActionResult> GetStats()

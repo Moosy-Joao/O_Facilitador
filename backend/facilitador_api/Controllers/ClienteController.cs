@@ -1,9 +1,11 @@
 ﻿using facilitador_api.Application.Interfaces;
 using facilitador_domain.Domain.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace facilitador_api.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/v1/cliente")]
     public class ClienteController : ControllerBase
@@ -15,6 +17,7 @@ namespace facilitador_api.API.Controllers
             _service = service;
         }
 
+        [Authorize(Policy = "Funcionario/Gerente")]
         [HttpGet("obter", Name = "ObterClientes")]
         [ProducesResponseType(typeof(ClienteResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -58,6 +61,7 @@ namespace facilitador_api.API.Controllers
             return Ok(resultado);
         }
 
+        [Authorize(Policy = "Funcionario/Gerente")]
         [HttpPatch("atualizar/{id:guid}", Name = "AtualizarCliente")]
         [ProducesResponseType(typeof(ClienteResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -73,6 +77,7 @@ namespace facilitador_api.API.Controllers
             return Ok(resultado);
         }
 
+        [Authorize(Policy = "Funcionario/Gerente")]
         [HttpPost("ativar/{id:guid}", Name = "AtivarCliente")]
         [ProducesResponseType(typeof(ClienteResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -88,6 +93,7 @@ namespace facilitador_api.API.Controllers
             return Ok(resultado);
         }
 
+        [Authorize(Policy = "Funcionario/Gerente")]
         [HttpDelete("desativar/{id:guid}", Name = "DesativarCliente")]
         [ProducesResponseType(typeof(ClienteResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

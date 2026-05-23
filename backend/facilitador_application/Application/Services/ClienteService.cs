@@ -90,6 +90,12 @@ namespace facilitador_api.Application.Services
             var cliente = await _clienteRepository.BuscarPorEmail(email);
             return cliente?.ToResponseDTO();
         }
+        public async Task<List<ClienteResponseDTO>> BuscarClientesPorEmpresa(Guid empresaId)
+        {
+            var clientes = await _clienteRepository.BuscarPorEmpresa(empresaId);
+
+            return clientes.Select(c => c.ToResponseDTO()).ToList();
+        }
 
         public async Task<ClienteResponseDTO?> BuscarPorId(Guid id)
         {
