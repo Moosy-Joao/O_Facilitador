@@ -26,12 +26,7 @@ namespace facilitador_api.API.Controllers
         {
             var resultado = await _service.BuscarClientes();
 
-            if (resultado == null)
-            {
-                return NotFound("Nenhum cliente encontrado: " + resultado);
-            }
-
-            return Ok(resultado);
+            return Ok(resultado ?? new List<ClienteResponseDTO>());
         }
 
         [HttpGet("obterporid/{id:guid}", Name = "ObterClientePorId")]

@@ -21,11 +21,8 @@ namespace facilitador_api.Controllers
         public async Task<IActionResult> ObterEnderecos()
         {
             var resultado = await _service.BuscarEnderecos();
-            if (resultado == null || !resultado.Any())
-            {
-                return NotFound("Nenhum endereço encontrado.");
-            }
-            return Ok(resultado);
+
+            return Ok(resultado ?? new List<EnderecoResponseDTO>());
         }
 
         [HttpGet("obterporid/{id:guid}", Name = "ObterEnderecoPorId")]

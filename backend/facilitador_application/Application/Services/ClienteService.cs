@@ -134,6 +134,12 @@ namespace facilitador_api.Application.Services
                 return false;
             }
 
+            var clienteExistente = await _clienteRepository.BuscarPorEmail(dto.Email);
+            if (clienteExistente != null)
+            {
+                throw new InvalidOperationException("Já existe um cliente cadastrado com este e-mail.");
+            }
+
             var clienteNovo = new Cliente(dto, dto.EmpresaId, dto.EnderecoId);
 
             await _clienteRepository.Cadastrar(clienteNovo);
