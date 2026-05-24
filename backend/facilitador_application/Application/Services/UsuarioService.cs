@@ -98,6 +98,12 @@ namespace facilitador_api.Application.Services
                 return null;
             }
 
+            var usuarioExistente = await _usuarioRepository.BuscarPorEmail(dto.Email);
+            if (usuarioExistente != null)
+            {
+                throw new InvalidOperationException("Já existe um usuário cadastrado com este e-mail.");
+            }
+
             var senhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha);
 
             var usuarioNovo = new Usuario(

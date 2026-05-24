@@ -22,12 +22,7 @@ namespace facilitador_api.API.Controllers
         {
             var resultado = await _service.BuscarEmpresas();
 
-            if (resultado == null || !resultado.Any())
-            {
-                return NotFound("Nenhuma empresa encontrada: " + resultado);
-            }
-
-            return Ok(resultado);
+            return Ok(resultado ?? new List<EmpresaResponseDTO>());
         }
 
         [HttpGet("obterporid/{id:guid}", Name = "ObterEmpresaPorId")]
@@ -36,10 +31,12 @@ namespace facilitador_api.API.Controllers
         public async Task<IActionResult> ObterEmpresaPorId(Guid id)
         {
             var resultado = await _service.BuscarPorId(id);
+
             if (resultado == null)
             {
                 return NotFound("Empresa não encontrada: " + resultado);
             }
+
             return Ok(resultado);
         }
 

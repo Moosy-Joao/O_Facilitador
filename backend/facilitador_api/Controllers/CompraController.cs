@@ -1,8 +1,11 @@
 ﻿using facilitador_api.Application.Interfaces;
+using facilitador_api.Helpers;
 using facilitador_domain.Domain.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using facilitador_api.Helpers;
+
 
 
 namespace facilitador_api.API.Controllers
@@ -29,12 +32,7 @@ namespace facilitador_api.API.Controllers
 
             var resultado = await _service.BuscarPorEmpresa(empresaId);
 
-            if (resultado == null || !resultado.Any())
-            {
-                return NotFound("Nenhuma compra encontrada.");
-            }
-
-            return Ok(resultado);
+            return Ok(resultado ?? new List<CompraResponseDTO>());
         }
         [Authorize(Policy = "Funcionario/Gerente")]
         [HttpGet("obterporid/{id:guid}", Name = "ObterCompraPorId")]
@@ -69,11 +67,6 @@ namespace facilitador_api.API.Controllers
 
             var resultado = await _service.BuscarPorCliente(clienteId);
 
-            if (resultado == null || !resultado.Any())
-            {
-                return NotFound("Nenhuma compra encontrada para o cliente.");
-            }
-
             var existeCompraDeOutraEmpresa = resultado.Any(c => c.EmpresaId != empresaId);
 
             if (existeCompraDeOutraEmpresa)
@@ -81,7 +74,7 @@ namespace facilitador_api.API.Controllers
                 return Forbid("Você não tem permissão para acessar compras de outra empresa.");
             }
 
-            return Ok(resultado);
+            return Ok(resultado ?? new List<CompraResponseDTO>());
         }
 
         [Authorize(Policy = "Funcionario/Gerente")]
@@ -94,12 +87,7 @@ namespace facilitador_api.API.Controllers
 
             var resultado = await _service.BuscarPorEmpresa(empresaId);
 
-            if (resultado == null || !resultado.Any())
-            {
-                return NotFound("Nenhuma compra encontrada para sua empresa.");
-            }
-
-            return Ok(resultado);
+            return Ok(resultado ?? new List<CompraResponseDTO>());
         }
         [Authorize(Policy = "Funcionario/Gerente")]
         [HttpPost("criar", Name = "CriarCompra")]

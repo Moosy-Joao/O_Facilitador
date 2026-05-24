@@ -25,12 +25,7 @@ namespace facilitador_api.Controllers
         {
             var resultado = await _service.BuscarUsuarios();
 
-            if (resultado == null)
-            {
-                return NotFound("Nenhum usuário encontrado: " + resultado);
-            }
-
-            return Ok(resultado);
+            return Ok(resultado ?? new List<UsuarioResponseDTO>());
         }
 
         [HttpGet("obterporid/{id:guid}", Name = "ObterUsuarioPorId")]
@@ -69,7 +64,7 @@ namespace facilitador_api.Controllers
                 return BadRequest("Erro ao criar usuário: " + resultado);
             }
 
-            return Created("Usuário criado com sucesso.", resultado);
+            return Ok(resultado);
         }
 
         [Authorize(Policy = "Gerente")]

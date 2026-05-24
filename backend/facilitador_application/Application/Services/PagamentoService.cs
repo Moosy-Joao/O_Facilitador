@@ -60,7 +60,7 @@ namespace facilitador_api.Application.Services
             return pagamentos.Select(p => p.ToResponseDTO()).ToList();
         }
 
-        public async Task<bool> Criar(PagamentoCreateDTO dto)
+        public async Task<bool> Criar(PagamentoCreateDTO dto, Guid EmpresaId)
         {
             var cliente = await _clienteRepository.BuscarPorId(dto.ClienteId);
             if (cliente == null || !cliente.Ativo)
@@ -68,7 +68,7 @@ namespace facilitador_api.Application.Services
                 throw new Exception("Cliente não encontrado ou inativo.");
             }
 
-            decimal novoSaldo = cliente.Saldo + dto.ValorPagamento;
+            decimal novoSaldo = cliente.Saldo - dto.ValorPagamento;
 
             if (novoSaldo > cliente.LimiteCredito)
             {
@@ -77,7 +77,7 @@ namespace facilitador_api.Application.Services
 
             var pagamento = new Pagamento(
                 clienteId: dto.ClienteId,
-                empresaId: dto.EmpresaId,
+                empresaId: EmpresaId,
                 valorPagamento: dto.ValorPagamento,
                 observacao: dto.Observacao,
                 dataPagamento: dto.DataPagamento

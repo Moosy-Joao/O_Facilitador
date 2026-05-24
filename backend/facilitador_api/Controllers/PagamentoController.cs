@@ -1,11 +1,13 @@
 using facilitador_api.Application.Interfaces;
+using facilitador_api.Helpers;
 using facilitador_domain.Domain.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using facilitador_api.Helpers;
 
 namespace facilitador_api.API.Controllers
-{ 
+{
     [Authorize]
     [ApiController]
     [Route("api/v1/pagamentos")]
@@ -27,12 +29,7 @@ namespace facilitador_api.API.Controllers
 
             var resultado = await _service.BuscarPorEmpresa(empresaId);
 
-            if (resultado == null || !resultado.Any())
-            {
-                return NotFound("Nenhum pagamento encontrado.");
-            }
-
-            return Ok(resultado);
+            return Ok(resultado ?? new List<PagamentoResponseDTO>());
         }
 
         [Authorize(Policy = "Funcionario/Gerente")]
@@ -68,11 +65,6 @@ namespace facilitador_api.API.Controllers
 
             var resultado = await _service.BuscarPorCliente(clienteId);
 
-            if (resultado == null || !resultado.Any())
-            {
-                return NotFound("Nenhum pagamento encontrado para este cliente.");
-            }
-
             var existePagamentoDeOutraEmpresa = resultado.Any(p => p.EmpresaId != empresaId);
 
             if (existePagamentoDeOutraEmpresa)
@@ -80,7 +72,7 @@ namespace facilitador_api.API.Controllers
                 return Forbid("Você não tem permissão para acessar pagamentos de outra empresa.");
             }
 
-            return Ok(resultado);
+            return Ok(resultado ?? new List<PagamentoResponseDTO>());
         }
 
         [Authorize(Policy = "Funcionario/Gerente")]
@@ -93,12 +85,7 @@ namespace facilitador_api.API.Controllers
 
             var resultado = await _service.BuscarPorEmpresa(empresaId);
 
-            if (resultado == null || !resultado.Any())
-            {
-                return NotFound("Nenhum pagamento encontrado para sua empresa.");
-            }
-
-            return Ok(resultado);
+            return Ok(resultado ?? new List<PagamentoResponseDTO>());
         }
 
         [Authorize(Policy = "Funcionario/Gerente")]
@@ -109,12 +96,7 @@ namespace facilitador_api.API.Controllers
         {
             var resultado = await _service.BuscarPorData(dataPagamento);
 
-            if (resultado == null || !resultado.Any())
-            {
-                return NotFound("Nenhum pagamento encontrado para a data: " + resultado);
-            }
-
-            return Ok(resultado);
+            return Ok(resultado ?? new List<PagamentoResponseDTO>());
         }
         [Authorize(Policy = "Funcionario/Gerente")]
         [HttpPost("criar", Name = "CriarPagamento")]
