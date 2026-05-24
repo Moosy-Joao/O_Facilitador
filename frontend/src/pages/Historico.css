@@ -299,7 +299,7 @@
   color: #1a2318;
 }
 
-.btn-form-secondary {
+.estorno-actions .btn-form-secondary {
   flex: 1;
   padding: 0.8rem 1.4rem;
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -312,7 +312,7 @@
   transition: all 0.2s;
 }
 
-.btn-form-secondary:hover {
+.estorno-actions .btn-form-secondary:hover {
   background: rgba(0, 0, 0, 0.06);
   color: #1a2318;
 }
