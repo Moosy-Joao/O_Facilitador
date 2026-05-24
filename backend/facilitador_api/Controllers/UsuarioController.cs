@@ -1,4 +1,5 @@
 ﻿using facilitador_api.Application.Interfaces;
+using facilitador_api.Helpers;
 using facilitador_application.Application.Validators.Usuario;
 using facilitador_domain.Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
@@ -54,17 +55,25 @@ namespace facilitador_api.Controllers
 
             if (!resultadoValidacao.IsValid)
             {
-                return BadRequest(resultadoValidacao.Errors);
+                return BadRequest(resultadoValidacao.Errors.Select(e => e.ErrorMessage));
             }
 
-            var resultado = await _service.Criar(dto);
+            var empresaIdToken = User.ObterEmpresaId();
 
-            if (resultado == null)
+            try
             {
-                return BadRequest("Erro ao criar usuário: " + resultado);
+                var resultado = await _service.Criar(dto, empresaIdToken);
+                return CreatedAtAction(nameof(GetUsuarioPorId), resultado);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, "Erro ao criar usuário: " + ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest("Erro ao criar usuário: " + ex.Message);
             }
 
-            return Ok(resultado);
         }
 
         [Authorize(Policy = "Gerente")]
