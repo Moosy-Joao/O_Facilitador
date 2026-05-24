@@ -14,7 +14,6 @@ namespace facilitador_api.Infrastructure.Repositories
         public async Task<List<Pagamento>> BuscarPorData(DateTime dataPagamento)
         {
             return await _context.Pagamentos
-                .AsNoTracking()
                 .Where(p => p.DataPagamento.Date == dataPagamento.Date)
                 .ToListAsync();
         }
@@ -22,7 +21,6 @@ namespace facilitador_api.Infrastructure.Repositories
         public async Task<List<Pagamento>> BuscarPorEmpresa(Guid empresaId)
         {
             return await _context.Pagamentos
-                .AsNoTracking()
                 .Where(p => p.EmpresaId == empresaId)
                 .ToListAsync();
         }
@@ -30,7 +28,6 @@ namespace facilitador_api.Infrastructure.Repositories
         public async Task<List<Pagamento>> BuscarPorCliente(Guid clienteId)
         {
             return await _context.Pagamentos
-                .AsNoTracking()
                 .Where(p => p.ClienteId == clienteId)
                 .ToListAsync();
         }

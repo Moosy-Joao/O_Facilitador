@@ -17,17 +17,26 @@ namespace facilitador_api.API.Controllers
 
         [HttpPost(Name = "Login")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LoginResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> Login([FromBody] LoginDTO dto)
         {
-            var resultado = await _service.Login(dto);
-
-            if (resultado == null)
+            try
             {
-                return Unauthorized("Email ou senha inválidos.");
-            }
+                var resultado = await _service.Login(dto);
 
-            return Ok(resultado);
+                if (resultado == null)
+                {
+                    return Unauthorized("Email ou senha inválidos.");
+                }
+
+                return Ok(resultado);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, ex.Message);
+            }
         }
     }
 }

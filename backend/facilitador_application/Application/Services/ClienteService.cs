@@ -72,7 +72,7 @@ namespace facilitador_api.Application.Services
             }
 
             // 5. Atualizar timestamp de modificação
-            //cliente.AtualizarModificadoEm(DateTime.UtcNow);
+            cliente.AtualizarModificadoEm(DateTime.UtcNow);
 
             await _clienteRepository.Salvar();
 
@@ -89,6 +89,12 @@ namespace facilitador_api.Application.Services
         {
             var cliente = await _clienteRepository.BuscarPorEmail(email);
             return cliente?.ToResponseDTO();
+        }
+        public async Task<List<ClienteResponseDTO>> BuscarClientesPorEmpresa(Guid empresaId)
+        {
+            var clientes = await _clienteRepository.BuscarPorEmpresa(empresaId);
+
+            return clientes.Select(c => c.ToResponseDTO()).ToList();
         }
 
         public async Task<ClienteResponseDTO?> BuscarPorId(Guid id)
@@ -128,6 +134,12 @@ namespace facilitador_api.Application.Services
                 return false;
             }
 
+            var clienteExistente = await _clienteRepository.BuscarPorEmail(dto.Email);
+            if (clienteExistente != null)
+            {
+                throw new InvalidOperationException("Já existe um cliente cadastrado com este e-mail.");
+            }
+
             var clienteNovo = new Cliente(dto, dto.EmpresaId, dto.EnderecoId);
 
             await _clienteRepository.Cadastrar(clienteNovo);
@@ -162,6 +174,12 @@ namespace facilitador_api.Application.Services
             await _clienteRepository.Salvar();
 
             return true;
+        }
+
+        public async Task<List<ClienteInadimplenteResponseDTO>> ObterInadimplentes(Guid empresaId, int diasAtraso)
+        {
+            if (diasAtraso <= 0) diasAtraso = 30;
+            return await _clienteRepository.BuscarInadimplentesPorEmpresa(empresaId, diasAtraso);
         }
     }
 }

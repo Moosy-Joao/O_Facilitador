@@ -2,6 +2,7 @@
 using facilitador_api.Domain.Interfaces;
 using facilitador_api.Infrastructure.DB;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace facilitador_api.Infrastructure.Repositories
 {
@@ -24,7 +25,7 @@ namespace facilitador_api.Infrastructure.Repositories
 
         public async Task<T?> BuscarPorId(Guid id)
         {
-            return await _dbSet.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
+            return await _dbSet.FirstOrDefaultAsync(e => e.Id == id);
         }
 
         public async virtual Task<List<T>> BuscarTodos()
@@ -72,12 +73,17 @@ namespace facilitador_api.Infrastructure.Repositories
 
         public async Task<bool> Existe(Guid id)
         {
-            return await _dbSet.AsNoTracking().AnyAsync(e => e.Id == id);
+            return await _dbSet.AnyAsync(e => e.Id == id);
         }
 
         public Task Salvar()
         {
             return _context.SaveChangesAsync();
+        }
+
+        public Task<IDbContextTransaction> IniciarTransacao()
+        {
+            return _context.Database.BeginTransactionAsync();
         }
     }
 }

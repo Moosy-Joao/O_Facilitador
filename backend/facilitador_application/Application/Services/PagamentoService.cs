@@ -37,12 +37,20 @@ namespace facilitador_api.Application.Services
         public async Task<List<PagamentoResponseDTO>> BuscarPorCliente(Guid clienteId)
         {
             var pagamentos = await _pagamentoRepository.BuscarPorCliente(clienteId);
-            return pagamentos.Select(p => p.ToResponseDTO()).ToList();
+            return pagamentos.Select(p => new PagamentoResponseDTO
+            {
+                Id = p.Id,
+                ValorPagamento = p.ValorPagamento,
+                Observacao = p.Observacao,
+                Ativo = p.Ativo,
+                CriadoEm = p.CriadoEm
+            }).ToList();
         }
 
         public async Task<List<PagamentoResponseDTO>> BuscarPorEmpresa(Guid empresaId)
         {
             var pagamentos = await _pagamentoRepository.BuscarPorEmpresa(empresaId);
+
             return pagamentos.Select(p => p.ToResponseDTO()).ToList();
         }
 
@@ -52,37 +60,45 @@ namespace facilitador_api.Application.Services
             return pagamentos.Select(p => p.ToResponseDTO()).ToList();
         }
 
-        public async Task<bool> Criar(PagamentoCreateDTO dto)
+        public async Task<bool> Criar(PagamentoCreateDTO dto, Guid EmpresaId)
         {
-            var clienteExiste = await _clienteRepository.Existe(dto.ClienteId);
-            if (!clienteExiste)
+            var cliente = await _clienteRepository.BuscarPorId(dto.ClienteId);
+            if (cliente == null || !cliente.Ativo)
             {
-                return false;
+                throw new Exception("Cliente não encontrado ou inativo.");
             }
 
-            var empresaExiste = await _empresaRepository.Existe(dto.EmpresaId);
-            if (!empresaExiste)
-            {
-                return false;
-            }
+            decimal novoSaldo = cliente.Saldo - dto.ValorPagamento;
 
-            if (dto.ValorPagamento <= 0)
+            if (novoSaldo > cliente.LimiteCredito)
             {
-                return false;
+                novoSaldo = cliente.LimiteCredito;
             }
 
             var pagamento = new Pagamento(
-                dto.ClienteId,
-                dto.EmpresaId,
-                dto.ValorPagamento,
-                dto.Observacao,
-                dto.DataPagamento
+                clienteId: dto.ClienteId,
+                empresaId: EmpresaId,
+                valorPagamento: dto.ValorPagamento,
+                observacao: dto.Observacao,
+                dataPagamento: dto.DataPagamento
             );
 
-            await _pagamentoRepository.Cadastrar(pagamento);
-            await _pagamentoRepository.Salvar();
-
-            return true;
+            var trasacao = await _pagamentoRepository.IniciarTransacao();
+            try
+            {
+                await _pagamentoRepository.Cadastrar(pagamento);
+                cliente.AtualizarSaldo(novoSaldo);
+                await _pagamentoRepository.Salvar();
+                await _clienteRepository.Atualizar(cliente);
+                await _clienteRepository.Salvar();
+                await trasacao.CommitAsync();
+                return true;
+            }
+            catch
+            {
+                await trasacao.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task<bool> Atualizar(Guid id, PagamentoUpdateDTO dto)

@@ -15,15 +15,25 @@ namespace facilitador_api.Controllers
             _service = service;
         }
 
-        [HttpGet("buscar", Name = "ObterEnderecos")]
+        [HttpGet("obter", Name = "ObterEnderecos")]
         [ProducesResponseType(typeof(List<EnderecoResponseDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ObterEnderecos()
         {
             var resultado = await _service.BuscarEnderecos();
-            if (resultado == null || !resultado.Any())
+
+            return Ok(resultado ?? new List<EnderecoResponseDTO>());
+        }
+
+        [HttpGet("obterporid/{id:guid}", Name = "ObterEnderecoPorId")]
+        [ProducesResponseType(typeof(EnderecoResponseDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ObterEnderecoPorId(Guid id)
+        {
+            var resultado = await _service.BuscarPorId(id);
+            if (resultado == null)
             {
-                return NotFound("Nenhum endereço encontrado.");
+                return NotFound("Endereço não encontrado: " + resultado);
             }
             return Ok(resultado);
         }
@@ -54,17 +64,17 @@ namespace facilitador_api.Controllers
             return Ok("Endereço atualizado com sucesso: " + resultado);
         }
 
-        [HttpDelete("deletar/{id:guid}", Name = "DeletarEndereco")]
+        [HttpDelete("desativar/{id:guid}", Name = "DesativarEndereco")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> DeletarEndereco(Guid id)
+        public async Task<IActionResult> DesativarEndereco(Guid id)
         {
             var resultado = await _service.Desativar(id);
             if (!resultado)
             {
-                return BadRequest("Erro ao deletar o endereço: " + resultado);
+                return BadRequest("Erro ao desativar o endereço: " + resultado);
             }
-            return Ok("Endereço deletado com sucesso: " + resultado);
+            return Ok("Endereço desativado com sucesso: " + resultado);
         }
     }
 }

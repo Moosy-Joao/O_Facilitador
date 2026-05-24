@@ -14,7 +14,6 @@ namespace facilitador_api.Infrastructure.Repositories
         public async Task<List<Compra>> BuscarPorEmpresa(Guid empresaId)
         {
             return await _context.Compras
-                .AsNoTracking()
                 .Where(c => c.EmpresaId == empresaId)
                 .ToListAsync();
         }
@@ -22,7 +21,6 @@ namespace facilitador_api.Infrastructure.Repositories
         public async Task<List<Compra>> BuscarPorCliente(Guid clienteId)
         {
             return await _context.Compras
-                .AsNoTracking()
                 .Where(c => c.ClienteId == clienteId)
                 .ToListAsync();
         }

@@ -51,6 +51,7 @@ namespace facilitador_api.Application.Services
                 empresa.AtualizarEndereco(dto.EnderecoId.Value);
             }
 
+            empresa.AtualizarModificadoEm(DateTime.UtcNow);
 
             await _empresaRepository.Salvar();
 

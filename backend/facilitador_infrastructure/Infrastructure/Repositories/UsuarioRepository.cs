@@ -15,7 +15,7 @@ namespace facilitador_api.Infrastructure.Repositories
         {
             return await _context.Usuarios
                 .AsNoTracking()
-                .FirstOrDefaultAsync(u => u.Email == email);
+                .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
         }
 
         public async Task<List<Usuario>> BuscarPorEmpresa(Guid empresaId)

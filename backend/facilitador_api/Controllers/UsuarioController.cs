@@ -1,10 +1,12 @@
 ﻿using facilitador_api.Application.Interfaces;
 using facilitador_application.Application.Validators.Usuario;
 using facilitador_domain.Domain.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace facilitador_api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/v1/usuario")]
     public class UsuarioController : ControllerBase
@@ -23,12 +25,7 @@ namespace facilitador_api.Controllers
         {
             var resultado = await _service.BuscarUsuarios();
 
-            if (resultado == null)
-            {
-                return NotFound("Nenhum usuário encontrado: " + resultado);
-            }
-
-            return Ok(resultado);
+            return Ok(resultado ?? new List<UsuarioResponseDTO>());
         }
 
         [HttpGet("obterporid/{id:guid}", Name = "ObterUsuarioPorId")]
@@ -46,8 +43,9 @@ namespace facilitador_api.Controllers
             return Ok(resultado);
         }
 
+        [Authorize(Policy = "Gerente")]
         [HttpPost("criar", Name = "CriarUsuario")]
-        [ProducesResponseType(typeof(LoginResponseDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(UsuarioResponseDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CriarUsuario(UsuarioCreateDTO dto)
         {
@@ -66,9 +64,10 @@ namespace facilitador_api.Controllers
                 return BadRequest("Erro ao criar usuário: " + resultado);
             }
 
-            return Created("Usuário criado com sucesso.", resultado);
+            return Ok(resultado);
         }
 
+        [Authorize(Policy = "Gerente")]
         [HttpPatch("atualizar/{id:guid}", Name = "AtualizarUsuario")]
         [ProducesResponseType(typeof(UsuarioResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -89,7 +88,7 @@ namespace facilitador_api.Controllers
             }
             return Ok(resultado);
         }
-
+        [Authorize(Policy = "Gerente")]
         [HttpPost("ativar/{id:guid}", Name = "AtivarUsuario")]
         [ProducesResponseType(typeof(UsuarioResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -104,7 +103,7 @@ namespace facilitador_api.Controllers
 
             return Ok(resultado);
         }
-
+        [Authorize(Policy = "Gerente")]
         [HttpDelete("desativar/{id:guid}", Name = "DesativarUsuario")]
         [ProducesResponseType(typeof(UsuarioResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\facilitador_domain\facilitador_domain.csproj" />
+    <ProjectReference Include="..\facilitador_infrastructure\facilitador_infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
