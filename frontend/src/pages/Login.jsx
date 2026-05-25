@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Eye, EyeOff, Lock, Mail, ArrowRight, AlertCircle, CheckCircle, Leaf, User, Briefcase, FileText, Phone, UserPlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Waves from '../components/Waves/Waves';
-import { authLogin, registrarEmpresa, getEmpresaByCNPJ, registrarUsuario, formatCPF, formatPhone, validateCNPJ } from '../services/api';
+import { authLogin, registrarEmpresa, getEmpresaByCNPJ, registrarUsuario, formatPhone, validateCNPJ } from '../services/api';
 import './Login.css';
 
 const Login = () => {
@@ -199,6 +199,7 @@ const Login = () => {
       await new Promise(resolve => setTimeout(resolve, 1200));
       setSuccessMsg(`Um link de recuperação foi enviado para ${email}`);
     } catch (err) {
+      console.error(err);
       setError('Ocorreu um erro ao processar sua solicitação.');
     } finally {
       setLoading(false);

@@ -57,7 +57,9 @@ const getDefaultIds = async () => {
       const empresas = await resEmpresa.json();
       if (empresas && empresas.length > 0) empresaId = empresas[0].id;
     }
-  } catch(e) {}
+  } catch (e) {
+    console.error(e);
+  }
   
   try {
     const resEnd = await fetchWithAuth(`${API_URL}/v1/endereco/obter`);
@@ -65,7 +67,9 @@ const getDefaultIds = async () => {
       const ends = await resEnd.json();
       if (ends && ends.length > 0) enderecoId = ends[0].id;
     }
-  } catch(e) {}
+  } catch (e) {
+    console.error(e);
+  }
 
   return { empresaId, enderecoId };
 };
@@ -304,7 +308,9 @@ export const getTransacoes = async (filtros = {}) => {
        transacoes.forEach(t => {
          t.clienteNome = mapClientes[t.clienteId] || 'Cliente Desconhecido';
        });
-     } catch(e){}
+     } catch (e) {
+       console.error(e);
+     }
   }
 
   transacoes.sort((a, b) => new Date(b.data) - new Date(a.data));
@@ -315,12 +321,16 @@ export const estornarTransacao = async (id) => {
   try {
     const resCompra = await fetchWithAuth(`${API_URL}/v1/compras/desativar/${id}`, { method: 'DELETE' });
     if (resCompra.ok) return { id, status: 'estornado' };
-  } catch(e) {}
+  } catch (e) {
+    console.error(e);
+  }
 
   try {
     const resPag = await fetchWithAuth(`${API_URL}/v1/pagamentos/desativar/${id}`, { method: 'DELETE' });
     if (resPag.ok) return { id, status: 'estornado' };
-  } catch(e) {}
+  } catch (e) {
+    console.error(e);
+  }
 
   throw new Error('Não foi possível estornar a transação');
 };

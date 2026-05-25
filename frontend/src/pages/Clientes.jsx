@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Search,
@@ -26,7 +26,7 @@ const Clientes = () => {
   const [actionMenuId, setActionMenuId] = useState(null);
   const navigate = useNavigate();
 
-  const fetchClientes = async () => {
+  const fetchClientes = useCallback(async () => {
     try {
       const data = await getClientes({
         busca,
@@ -38,13 +38,13 @@ const Clientes = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [busca, filtroStatus]);
 
   useEffect(() => {
     setLoading(true);
     const timer = setTimeout(() => fetchClientes(), 300);
     return () => clearTimeout(timer);
-  }, [busca, filtroStatus]);
+  }, [fetchClientes]);
 
   const handleToggleStatus = async (id) => {
     try {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   History,
   Search,
@@ -18,7 +18,7 @@ const Historico = () => {
   const [filtroTipo, setFiltroTipo] = useState('todos');
   const [showFilterMenu, setShowFilterMenu] = useState(false);
 
-  const fetchTransacoes = async () => {
+  const fetchTransacoes = useCallback(async () => {
     try {
       const data = await getTransacoes({ busca, tipo: filtroTipo });
       setTransacoes(data);
@@ -27,13 +27,13 @@ const Historico = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [busca, filtroTipo]);
 
   useEffect(() => {
     setLoading(true);
     const timer = setTimeout(() => fetchTransacoes(), 300);
     return () => clearTimeout(timer);
-  }, [busca, filtroTipo]);
+  }, [fetchTransacoes]);
 
   const filterLabels = {
     todos: 'Todas',

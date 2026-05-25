@@ -121,6 +121,7 @@ const ClienteNovo = () => {
             setError('Cliente não encontrado');
           }
         } catch (err) {
+          console.error(err);
           setError('Erro ao carregar dados do cliente');
         } finally {
           setLoading(false);
@@ -150,6 +151,7 @@ const ClienteNovo = () => {
             setErrors(prev => ({ ...prev, cep: 'CEP não encontrado' }));
           }
         } catch (err) {
+          console.error(err);
           setErrors(prev => ({ ...prev, cep: 'Erro ao buscar CEP' }));
         }
       }
