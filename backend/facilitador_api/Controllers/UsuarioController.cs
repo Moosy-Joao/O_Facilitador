@@ -19,9 +19,9 @@ namespace facilitador_api.Controllers
             _service = service;
         }
 
+        [Authorize(Policy = "Gerente")]
         [HttpGet("obter", Name = "ObterUsuarios")]
-        [ProducesResponseType(typeof(UsuarioResponseDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(List<UsuarioResponseDTO>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUsuarios()
         {
             var resultado = await _service.BuscarUsuarios();
@@ -29,6 +29,7 @@ namespace facilitador_api.Controllers
             return Ok(resultado ?? new List<UsuarioResponseDTO>());
         }
 
+        [Authorize(Policy = "Gerente")]
         [HttpGet("obterporid/{id:guid}", Name = "ObterUsuarioPorId")]
         [ProducesResponseType(typeof(UsuarioResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -38,7 +39,7 @@ namespace facilitador_api.Controllers
 
             if (resultado == null)
             {
-                return NotFound("Usuário não encontrado: " + resultado);
+                return NotFound("Usuário não encontrado.");
             }
 
             return Ok(resultado);
@@ -46,9 +47,10 @@ namespace facilitador_api.Controllers
 
         [Authorize(Policy = "Gerente")]
         [HttpPost("criar", Name = "CriarUsuario")]
-        [ProducesResponseType(typeof(UsuarioResponseDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(LoginResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CriarUsuario(UsuarioCreateDTO dto)
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> CriarUsuario([FromBody] UsuarioCreateDTO dto)
         {
             var validador = new UsuarioCreateDTOValidator();
             var resultadoValidacao = validador.Validate(dto);
@@ -63,7 +65,13 @@ namespace facilitador_api.Controllers
             try
             {
                 var resultado = await _service.Criar(dto, empresaIdToken);
-                return CreatedAtAction(nameof(GetUsuarioPorId), resultado);
+
+                if (resultado == null)
+                {
+                    return BadRequest("Erro ao criar usuário.");
+                }
+
+                return Ok(resultado);
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -73,33 +81,35 @@ namespace facilitador_api.Controllers
             {
                 return BadRequest("Erro ao criar usuário: " + ex.Message);
             }
-
         }
 
         [Authorize(Policy = "Gerente")]
         [HttpPatch("atualizar/{id:guid}", Name = "AtualizarUsuario")]
-        [ProducesResponseType(typeof(UsuarioResponseDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> AtualizarUsuario(Guid id, UsuarioUpdateDTO dto)
+        public async Task<IActionResult> AtualizarUsuario(Guid id, [FromBody] UsuarioUpdateDTO dto)
         {
             var validador = new UsuarioUpdateDTOValidator();
             var resultadoValidacao = validador.Validate(dto);
 
             if (!resultadoValidacao.IsValid)
             {
-                return BadRequest(resultadoValidacao.Errors);
+                return BadRequest(resultadoValidacao.Errors.Select(e => e.ErrorMessage));
             }
 
             var resultado = await _service.Atualizar(id, dto);
+
             if (resultado == false)
             {
-                return BadRequest("Erro ao atualizar usuário: " + resultado);
+                return BadRequest("Erro ao atualizar usuário.");
             }
+
             return Ok(resultado);
         }
+
         [Authorize(Policy = "Gerente")]
         [HttpPost("ativar/{id:guid}", Name = "AtivarUsuario")]
-        [ProducesResponseType(typeof(UsuarioResponseDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AtivarUsuario(Guid id)
         {
@@ -107,14 +117,15 @@ namespace facilitador_api.Controllers
 
             if (resultado == false)
             {
-                return BadRequest("Erro ao ativar usuário: " + resultado);
+                return BadRequest("Erro ao ativar usuário.");
             }
 
             return Ok(resultado);
         }
+
         [Authorize(Policy = "Gerente")]
         [HttpDelete("desativar/{id:guid}", Name = "DesativarUsuario")]
-        [ProducesResponseType(typeof(UsuarioResponseDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DesativarUsuario(Guid id)
         {
@@ -122,7 +133,7 @@ namespace facilitador_api.Controllers
 
             if (resultado == false)
             {
-                return BadRequest("Erro ao desativar usuário: " + resultado);
+                return BadRequest("Erro ao desativar usuário.");
             }
 
             return Ok(resultado);
