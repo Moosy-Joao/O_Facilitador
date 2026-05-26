@@ -90,12 +90,17 @@ namespace facilitador_api.Application.Services
             return usuarios.Select(c => c.ToResponseDTO()).ToList();
         }
 
-        public async Task<LoginResponseDTO?> Criar(UsuarioCreateDTO dto)
+        public async Task<LoginResponseDTO?> Criar(UsuarioCreateDTO dto, Guid empresaId)
         {
             var empresaExiste = await _empresaRepository.Existe(dto.EmpresaId);
             if (!empresaExiste)
             {
                 return null;
+            }
+
+            if (dto.EmpresaId != empresaId)
+            {
+                throw new UnauthorizedAccessException("O usuário não tem permissão para criar um usuário para esta empresa.");
             }
 
             var usuarioExistente = await _usuarioRepository.BuscarPorEmail(dto.Email);

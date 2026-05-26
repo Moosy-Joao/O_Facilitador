@@ -1,5 +1,6 @@
 ﻿using facilitador_api.Application.Interfaces;
 using facilitador_api.Helpers;
+using facilitador_application.Application.Validators.Cliente;
 using facilitador_domain.Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -70,6 +71,14 @@ namespace facilitador_api.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CriarCliente(ClienteCreateDTO dto)
         {
+            var validador = new ClienteCreateDTOValidator();
+            var resultadoValidacao = validador.Validate(dto);
+
+            if (!resultadoValidacao.IsValid)
+            {
+                return BadRequest(resultadoValidacao.Errors.Select(e => e.ErrorMessage));
+            }
+
             var resultado = await _service.Criar(dto);
 
             if (resultado == false)
@@ -86,6 +95,14 @@ namespace facilitador_api.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AtualizarCliente(Guid id, ClienteUpdateDTO dto)
         {
+            var validador = new ClienteUpdateDTOValidator();
+            var resultadoValidacao = validador.Validate(dto);
+
+            if (!resultadoValidacao.IsValid)
+            {
+                return BadRequest(resultadoValidacao.Errors.Select(e => e.ErrorMessage));
+            }
+
             var resultado = await _service.Atualizar(id, dto);
 
             if (resultado == false)
