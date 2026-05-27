@@ -13,13 +13,15 @@ import {
   AlertTriangle,
   Shield,
   X,
+  RefreshCw,
 } from 'lucide-react';
-import { getClientes, toggleClienteStatus, formatCurrency } from '../services/api';
+import { getClientes, toggleClienteStatus, formatCurrency, sincronizarSaldos } from '../services/api';
 import './Clientes.css';
 
 const Clientes = () => {
   const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   const [busca, setBusca] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('todos');
   const [showFilterMenu, setShowFilterMenu] = useState(false);
@@ -56,6 +58,18 @@ const Clientes = () => {
     }
   };
 
+  const handleSincronizarSaldos = async () => {
+    setSyncing(true);
+    try {
+      await sincronizarSaldos();
+      await fetchClientes();
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   const getStatusInfo = (cliente) => {
     if (!cliente.ativo) return { label: 'Inativo', className: 'status-inativo' };
     if (cliente.saldo > cliente.limiteCredito) return { label: 'Inadimplente', className: 'status-inadimplente' };
@@ -87,10 +101,20 @@ const Clientes = () => {
             {clientes.length} cliente{clientes.length !== 1 ? 's' : ''} encontrado{clientes.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <button className="btn-primary-action" onClick={() => navigate('/clientes/novo')}>
-          <UserPlus size={18} />
-          Novo Cliente
-        </button>
+        <div className="header-actions" style={{ display: 'flex', gap: '12px' }}>
+          <button 
+            className="btn-secondary-action" 
+            onClick={handleSincronizarSaldos}
+            disabled={syncing}
+          >
+            <RefreshCw size={16} className={syncing ? 'spin' : ''} />
+            {syncing ? 'Sincronizando...' : 'Sincronizar Saldos'}
+          </button>
+          <button className="btn-primary-action" onClick={() => navigate('/clientes/novo')}>
+            <UserPlus size={18} />
+            Novo Cliente
+          </button>
+        </div>
       </div>
 
       {/* Filters */}

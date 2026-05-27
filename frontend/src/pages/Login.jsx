@@ -176,7 +176,49 @@ const Login = () => {
         setTimeout(() => navigate('/dashboard'), 3200);
       }
     } catch (err) {
-      setError(err.message || 'Erro ao realizar cadastro. Tente novamente.');
+      const errMsg = err.message || '';
+      try {
+        if (errMsg.startsWith('[') && errMsg.endsWith(']')) {
+          const apiErrors = JSON.parse(errMsg);
+          if (Array.isArray(apiErrors)) {
+            const newFieldErrors = {};
+            const generalErrors = [];
+            
+            apiErrors.forEach(msg => {
+              const lowerMsg = msg.toLowerCase();
+              if (lowerMsg.includes('nome do usuário') || (lowerMsg.includes('usuário') && lowerMsg.includes('nome'))) {
+                newFieldErrors.nomeUsuario = msg;
+              } else if (lowerMsg.includes('nome da empresa') || (lowerMsg.includes('empresa') && lowerMsg.includes('nome'))) {
+                newFieldErrors.nomeEmpresa = msg;
+              } else if (lowerMsg.includes('email') || lowerMsg.includes('e-mail')) {
+                newFieldErrors.emailUsuario = msg;
+              } else if (lowerMsg.includes('senha')) {
+                newFieldErrors.senhaUsuario = msg;
+              } else if (lowerMsg.includes('cnpj')) {
+                newFieldErrors.cnpj = msg;
+              } else if (lowerMsg.includes('telefone')) {
+                newFieldErrors.telefoneEmpresa = msg;
+              } else {
+                generalErrors.push(msg);
+              }
+            });
+
+            if (Object.keys(newFieldErrors).length > 0) {
+              setFieldErrors(newFieldErrors);
+            }
+
+            if (generalErrors.length > 0) {
+              setError(generalErrors.join(' | '));
+            } else {
+              setError('Verifique os erros nos campos do formulário.');
+            }
+            return;
+          }
+        }
+      } catch {
+        // Ignora falha de parse
+      }
+      setError(errMsg || 'Erro ao realizar cadastro. Tente novamente.');
     } finally {
       setLoading(false);
     }

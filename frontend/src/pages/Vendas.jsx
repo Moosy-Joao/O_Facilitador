@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ShoppingCart,
   Search,
@@ -10,11 +10,12 @@ import {
   X,
   User,
 } from 'lucide-react';
-import { getClientes, registrarVenda, formatCurrency } from '../services/api';
+import { getClientes, registrarVenda, formatCurrency, getClienteById } from '../services/api';
 import './Vendas.css';
 
 const Vendas = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [clientes, setClientes] = useState([]);
   const [busca, setBusca] = useState('');
   const [clienteSelecionado, setClienteSelecionado] = useState(null);
@@ -24,6 +25,37 @@ const Vendas = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [showResults, setShowResults] = useState(false);
+
+  const queryParams = new URLSearchParams(location.search);
+  const queryClienteId = queryParams.get('clienteId');
+
+  useEffect(() => {
+    if (queryClienteId) {
+      getClienteById(queryClienteId)
+        .then((c) => {
+          if (c) {
+            setClienteSelecionado(c);
+          }
+        })
+        .catch((err) => console.error('Erro ao carregar cliente por ID:', err));
+    }
+  }, [queryClienteId]);
+
+  const handleAdjust = (amount) => {
+    const currentVal = Number(valor) || 0;
+    const newVal = Math.max(0, currentVal + amount);
+    if (newVal === 0) {
+      setValor('');
+    } else {
+      setValor(newVal % 1 === 0 ? newVal.toString() : newVal.toFixed(2));
+    }
+  };
+
+  const handleQuickAdd = (amount) => {
+    const currentVal = Number(valor) || 0;
+    const newVal = currentVal + amount;
+    setValor(newVal % 1 === 0 ? newVal.toString() : newVal.toFixed(2));
+  };
 
   useEffect(() => {
     if (busca.length >= 2) {
@@ -183,15 +215,42 @@ const Vendas = () => {
             {/* Valor */}
             <div className="form-group">
               <label><ShoppingCart size={16} /> Valor da Venda (R$)</label>
-              <input
-                id="valor-venda"
-                type="number"
-                placeholder="0.00"
-                step="1"
-                min="0.01"
-                value={valor}
-                onChange={(e) => setValor(e.target.value)}
-              />
+              <div className="input-with-adjusters">
+                <button
+                  type="button"
+                  className="btn-value-step minus"
+                  onClick={() => handleAdjust(-1)}
+                  disabled={!valor || Number(valor) <= 0}
+                  title="Diminuir R$ 1,00"
+                >
+                  -
+                </button>
+                <input
+                  id="valor-venda"
+                  type="number"
+                  placeholder="0.00"
+                  step="0.01"
+                  min="0.01"
+                  value={valor}
+                  onChange={(e) => setValor(e.target.value)}
+                  className="value-input"
+                />
+                <button
+                  type="button"
+                  className="btn-value-step plus"
+                  onClick={() => handleAdjust(1)}
+                  title="Aumentar R$ 1,00"
+                >
+                  +
+                </button>
+              </div>
+              <div className="value-presets">
+                <button type="button" className="preset-chip" onClick={() => handleQuickAdd(5)}>+R$ 5</button>
+                <button type="button" className="preset-chip" onClick={() => handleQuickAdd(10)}>+R$ 10</button>
+                <button type="button" className="preset-chip" onClick={() => handleQuickAdd(50)}>+R$ 50</button>
+                <button type="button" className="preset-chip" onClick={() => handleQuickAdd(100)}>+R$ 100</button>
+                <button type="button" className="preset-chip clear" onClick={() => setValor('')}>Limpar</button>
+              </div>
             </div>
 
             {/* Descrição */}

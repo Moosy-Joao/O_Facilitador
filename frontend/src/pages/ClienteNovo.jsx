@@ -246,7 +246,50 @@ const ClienteNovo = () => {
       setSuccess(true);
       setTimeout(() => navigate('/clientes'), 2000);
     } catch (err) {
-      setError(err.message || (isEditMode ? 'Erro ao atualizar cliente e endereço' : 'Erro ao cadastrar cliente'));
+      const errMsg = err.message || '';
+      try {
+        if (errMsg.startsWith('[') && errMsg.endsWith(']')) {
+          const apiErrors = JSON.parse(errMsg);
+          if (Array.isArray(apiErrors)) {
+            const newFieldErrors = {};
+            const generalErrors = [];
+            
+            apiErrors.forEach(msg => {
+              const lowerMsg = msg.toLowerCase();
+              if (lowerMsg.includes('nome')) {
+                newFieldErrors.nome = msg;
+              } else if (lowerMsg.includes('email') || lowerMsg.includes('e-mail')) {
+                newFieldErrors.email = msg;
+              } else if (lowerMsg.includes('cpf') || lowerMsg.includes('cnpj') || lowerMsg.includes('documento')) {
+                newFieldErrors.documento = msg;
+              } else if (lowerMsg.includes('telefone')) {
+                newFieldErrors.telefone = msg;
+              } else if (lowerMsg.includes('limite') || lowerMsg.includes('crédito')) {
+                newFieldErrors.limiteCredito = msg;
+              } else {
+                generalErrors.push(msg);
+              }
+            });
+
+            if (Object.keys(newFieldErrors).length > 0) {
+              setErrors(newFieldErrors);
+              if (newFieldErrors.nome || newFieldErrors.email || newFieldErrors.documento || newFieldErrors.telefone || newFieldErrors.limiteCredito) {
+                setStep(1);
+              }
+            }
+
+            if (generalErrors.length > 0) {
+              setError(generalErrors.join(' | '));
+            } else {
+              setError('Verifique os erros nos campos do formulário.');
+            }
+            return;
+          }
+        }
+      } catch {
+        // Ignora falha de parse do JSON
+      }
+      setError(errMsg || (isEditMode ? 'Erro ao atualizar cliente e endereço' : 'Erro ao cadastrar cliente'));
     } finally {
       setLoading(false);
     }
@@ -381,7 +424,7 @@ const ClienteNovo = () => {
                   name="limiteCredito"
                   type="number"
                   placeholder="1000.00"
-                  step="1"
+                  step="0.01"
                   min="0"
                   value={form.limiteCredito}
                   onChange={handleChange}

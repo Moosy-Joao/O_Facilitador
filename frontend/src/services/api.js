@@ -46,20 +46,27 @@ export const isAuthenticated = () => {
   return !!localStorage.getItem('auth_token');
 };
 
+const getEmpresaIdFromToken = () => {
+  const token = localStorage.getItem('auth_token');
+  if (!token) return null;
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    const payload = JSON.parse(jsonPayload);
+    return payload.empresaId || null;
+  } catch (e) {
+    console.error('Erro ao decodificar token:', e);
+    return null;
+  }
+};
+
 // Helper para pegar um ID default de Endereço/Empresa para não quebrar a FK
 const getDefaultIds = async () => {
-  let empresaId = '00000000-0000-0000-0000-000000000000';
+  let empresaId = getEmpresaIdFromToken() || '00000000-0000-0000-0000-000000000000';
   let enderecoId = '00000000-0000-0000-0000-000000000000';
-  
-  try {
-    const resEmpresa = await fetchWithAuth(`${API_URL}/v1/empresa/obter`);
-    if (resEmpresa.ok) {
-      const empresas = await resEmpresa.json();
-      if (empresas && empresas.length > 0) empresaId = empresas[0].id;
-    }
-  } catch (e) {
-    console.error(e);
-  }
   
   try {
     const resEnd = await fetchWithAuth(`${API_URL}/v1/endereco/obter`);
@@ -117,16 +124,57 @@ export const getClienteById = async (id) => {
   return clientes.find(c => c.id === id) || null;
 };
 
+export const criarEndereco = async (enderecoData) => {
+  const dto = {
+    pais: enderecoData.pais || 'Brasil',
+    estado: enderecoData.estado || '',
+    cidade: enderecoData.cidade || '',
+    bairro: enderecoData.bairro || '',
+    rua: enderecoData.rua || '',
+    numero: enderecoData.numero || '',
+    cep: enderecoData.cep || ''
+  };
+  const res = await fetchWithAuth(`${API_URL}/v1/endereco/criar`, {
+    method: 'POST',
+    body: JSON.stringify(dto)
+  });
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(txt || 'Erro ao criar endereço');
+  }
+  return await res.json(); // retorna { id, pais, estado, ... }
+};
+
 export const criarCliente = async (data) => {
-  const { empresaId, enderecoId } = await getDefaultIds();
+  // 1. Criar o endereço do cliente e obter o ID gerado
+  let enderecoId;
+  try {
+    const enderecoCriado = await criarEndereco({
+      pais: data.pais || 'Brasil',
+      estado: data.estado || '',
+      cidade: data.cidade || '',
+      bairro: data.bairro || '',
+      rua: data.rua || '',
+      numero: data.numero || '',
+      cep: data.cep || ''
+    });
+    enderecoId = enderecoCriado.id;
+  } catch (e) {
+    console.warn('Erro ao criar endereço, usando fallback:', e);
+    // Fallback: pega o primeiro endereço disponível
+    const { enderecoId: fallbackId } = await getDefaultIds();
+    enderecoId = fallbackId;
+  }
+
+  const empresaId = getEmpresaIdFromToken() || '00000000-0000-0000-0000-000000000000';
 
   const dto = {
     nome: data.nome,
     email: data.email,
     documento: data.documento,
     telefone: (data.telefone || '').replace(/\D/g, ''),
-    saldo: data.saldo || 0,
-    limiteCredito: data.limiteCredito || 0,
+    saldo: isNaN(Number(data.saldo)) ? 0 : Number(data.saldo),
+    limiteCredito: isNaN(Number(data.limiteCredito)) ? 0 : Number(data.limiteCredito),
     enderecoId: enderecoId,
     empresaId: empresaId
   };
@@ -139,13 +187,17 @@ export const criarCliente = async (data) => {
      const txt = await res.text();
      throw new Error(txt || 'Erro ao criar cliente');
   }
-  return await res.json(); 
+  // O backend retorna true (bool) - tratar adequadamente
+  const body = await res.text();
+  try { return JSON.parse(body); } catch { return body; }
 };
 
 export const atualizarCliente = async (id, data) => {
   const dto = { 
     ...data,
-    telefone: (data.telefone || '').replace(/\D/g, '')
+    telefone: (data.telefone || '').replace(/\D/g, ''),
+    saldo: data.saldo !== undefined ? (isNaN(Number(data.saldo)) ? 0 : Number(data.saldo)) : undefined,
+    limiteCredito: data.limiteCredito !== undefined ? (isNaN(Number(data.limiteCredito)) ? 0 : Number(data.limiteCredito)) : undefined
   };
   const res = await fetchWithAuth(`${API_URL}/v1/cliente/atualizar/${id}`, {
     method: 'PATCH',
@@ -195,6 +247,42 @@ export const toggleClienteStatus = async (id) => {
   return cliente;
 };
 
+export const sincronizarSaldos = async () => {
+  // 1. Obter todos os clientes
+  const resClientes = await fetchWithAuth(`${API_URL}/v1/cliente/obter`);
+  if (!resClientes.ok) throw new Error('Erro ao carregar clientes para sincronização');
+  const clientes = await resClientes.json();
+
+  // 2. Obter todas as compras (vendas)
+  const resCompras = await fetchWithAuth(`${API_URL}/v1/compras/obter`);
+  if (!resCompras.ok) throw new Error('Erro ao carregar compras para sincronização');
+  const compras = await resCompras.json();
+
+  // 3. Obter todos os pagamentos
+  const resPagamentos = await fetchWithAuth(`${API_URL}/v1/pagamentos/obter`);
+  if (!resPagamentos.ok) throw new Error('Erro ao carregar pagamentos para sincronização');
+  const pagamentos = await resPagamentos.json();
+
+  // 4. Recalcular e atualizar o saldo de cada cliente no banco de dados
+  for (const cliente of clientes) {
+    const totalCompras = compras
+      .filter(c => c.ativo && c.clienteId === cliente.id)
+      .reduce((sum, c) => sum + (c.valor || 0), 0);
+
+    const totalPagamentos = pagamentos
+      .filter(p => p.ativo && p.clienteId === cliente.id)
+      .reduce((sum, p) => sum + (p.valorPagamento || 0), 0);
+
+    const saldoCorreto = totalCompras - totalPagamentos;
+
+    // Atualiza apenas se houver diferença
+    if (Math.abs(cliente.saldo - saldoCorreto) > 0.001) {
+      await atualizarCliente(cliente.id, { saldo: saldoCorreto });
+    }
+  }
+  return true;
+};
+
 /* ─────────── Vendas / Compras ─────────── */
 
 export const registrarVenda = async (clienteId, valor, descricao) => {
@@ -216,8 +304,20 @@ export const registrarVenda = async (clienteId, valor, descricao) => {
     const txt = await res.text();
     throw new Error(txt || 'Erro ao registrar venda');
   }
+
+  // Atualizar saldo do cliente no frontend após venda com sucesso
+  try {
+    const cliente = await getClienteById(clienteId);
+    if (cliente) {
+      const novoSaldo = (cliente.saldo || 0) + Number(valor);
+      await atualizarCliente(clienteId, { saldo: novoSaldo });
+    }
+  } catch (err) {
+    console.warn('Erro ao atualizar saldo após venda:', err);
+  }
   
-  return await res.json();
+  const body = await res.text();
+  try { return JSON.parse(body); } catch { return body; }
 };
 
 /* ─────────── Pagamentos ─────────── */
@@ -242,7 +342,19 @@ export const registrarPagamento = async (clienteId, valor, observacao) => {
     throw new Error(txt || 'Erro ao registrar pagamento');
   }
 
-  return await res.json();
+  // Atualizar saldo do cliente no frontend após pagamento com sucesso
+  try {
+    const cliente = await getClienteById(clienteId);
+    if (cliente) {
+      const novoSaldo = (cliente.saldo || 0) - Number(valor);
+      await atualizarCliente(clienteId, { saldo: novoSaldo });
+    }
+  } catch (err) {
+    console.warn('Erro ao atualizar saldo após pagamento:', err);
+  }
+
+  const body = await res.text();
+  try { return JSON.parse(body); } catch { return body; }
 };
 
 /* ─────────── Histórico / Transações ─────────── */
@@ -305,6 +417,24 @@ export const getTransacoes = async (filtros = {}) => {
        const clientes = await getClientes();
        const mapClientes = {};
        clientes.forEach(c => { mapClientes[c.id] = c.nome; });
+
+       // Para IDs não encontrados na lista da empresa, busca individualmente como fallback
+       const idsDesconhecidos = [...new Set(
+         transacoes
+           .filter(t => !mapClientes[t.clienteId])
+           .map(t => t.clienteId)
+       )];
+
+       for (const clienteId of idsDesconhecidos) {
+         try {
+           const res = await fetchWithAuth(`${API_URL}/v1/cliente/obterporid/${clienteId}`);
+           if (res.ok) {
+             const cliente = await res.json();
+             if (cliente && cliente.nome) mapClientes[clienteId] = cliente.nome;
+           }
+         } catch (_) { /* ignora erros individuais */ }
+       }
+
        transacoes.forEach(t => {
          t.clienteNome = mapClientes[t.clienteId] || 'Cliente Desconhecido';
        });
