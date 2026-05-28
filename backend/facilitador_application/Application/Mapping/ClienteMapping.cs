@@ -1,4 +1,4 @@
-﻿using facilitador_api.Domain.Entities;
+using facilitador_api.Domain.Entities;
 using facilitador_domain.Domain.DTOs;
 
 namespace facilitador_api.Application.Mapping
@@ -12,6 +12,7 @@ namespace facilitador_api.Application.Mapping
             return new ClienteResponseDTO
             {
                 Id = cliente.Id,
+                EmpresaId = cliente.EmpresaId,
                 Nome = cliente.Nome,
                 Email = cliente.Email,
                 Documento = cliente.Documento,

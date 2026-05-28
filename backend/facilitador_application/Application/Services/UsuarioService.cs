@@ -1,4 +1,4 @@
-﻿using facilitador_api.Application.Interfaces;
+using facilitador_api.Application.Interfaces;
 using facilitador_api.Application.Mapping;
 using facilitador_api.Domain.Entities;
 using facilitador_api.Domain.Interfaces;
@@ -98,7 +98,15 @@ namespace facilitador_api.Application.Services
                 return null;
             }
 
-            if (dto.EmpresaId != empresaId)
+            if (empresaId == Guid.Empty)
+            {
+                var usuariosDaEmpresa = await _usuarioRepository.BuscarPorEmpresa(dto.EmpresaId);
+                if (usuariosDaEmpresa.Any())
+                {
+                    throw new UnauthorizedAccessException("O usuário não tem permissão para criar um usuário para esta empresa.");
+                }
+            }
+            else if (dto.EmpresaId != empresaId)
             {
                 throw new UnauthorizedAccessException("O usuário não tem permissão para criar um usuário para esta empresa.");
             }
@@ -127,7 +135,7 @@ namespace facilitador_api.Application.Services
             );
 
             var expiraEm = DateTime.UtcNow.AddMinutes(expirationMinutes);
-            var token = GerarToken(usuarioNovo.Id, usuarioNovo.Email, expiraEm);
+            var token = GerarToken(usuarioNovo.Id, usuarioNovo.EmpresaId, usuarioNovo.Email, usuarioNovo.Cargo.ToString(), expiraEm);
 
             return new LoginResponseDTO
             {
@@ -152,7 +160,7 @@ namespace facilitador_api.Application.Services
             return true;
         }
 
-        private string GerarToken(Guid usuarioId, string email, DateTime expiraEm)
+        private string GerarToken(Guid usuarioId, Guid empresaId, string email, string cargo, DateTime expiraEm)
         {
             var jwtKey = _configuration["Jwt:Key"];
             var jwtIssuer = _configuration["Jwt:Issuer"];
@@ -167,7 +175,10 @@ namespace facilitador_api.Application.Services
             {
                 new Claim(JwtRegisteredClaimNames.Sub, usuarioId.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, email),
-                new Claim("usuarioId", usuarioId.ToString())
+                new Claim("usuarioId", usuarioId.ToString()),
+                new Claim("empresaId", empresaId.ToString()),
+                new Claim("cargo", cargo),
+                new Claim(ClaimTypes.Role, cargo)
             };
 
             var chave = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));

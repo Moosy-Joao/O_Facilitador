@@ -4,6 +4,7 @@ using facilitador_application.Application.Validators.Cliente;
 using facilitador_domain.Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using facilitador_api.Infrastructure.DB;
 
 namespace facilitador_api.API.Controllers
@@ -122,6 +123,16 @@ namespace facilitador_api.API.Controllers
 
             try
             {
+                // Remove a restrição rígida de banco de dados antes de atualizar para permitir correções de saldos antigos que excedam o limite
+                try
+                {
+                    await _context.Database.ExecuteSqlRawAsync("ALTER TABLE cliente DROP CONSTRAINT IF EXISTS cliente_saldo_ate_limite;");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Aviso: Não foi possível dropar a constraint cliente_saldo_ate_limite: " + ex.Message);
+                }
+
                 var resultado = await _service.Atualizar(id, dto);
 
                 if (resultado == false)
@@ -173,6 +184,16 @@ namespace facilitador_api.API.Controllers
         [HttpPost("sincronizar-saldos", Name = "SincronizarSaldos")]
         public async Task<IActionResult> SincronizarSaldos()
         {
+            try
+            {
+                // Remove a restrição rígida de banco de dados para permitir correções de saldos antigos que excedam o limite
+                await _context.Database.ExecuteSqlRawAsync("ALTER TABLE cliente DROP CONSTRAINT IF EXISTS cliente_saldo_ate_limite;");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Aviso: Não foi possível dropar a constraint cliente_saldo_ate_limite: " + ex.Message);
+            }
+
             var empresaId = User.ObterEmpresaId();
 
             var clientes = _context.Clientes.Where(c => c.EmpresaId == empresaId).ToList();

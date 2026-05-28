@@ -1,4 +1,4 @@
-﻿using facilitador_api.Application.Interfaces;
+using facilitador_api.Application.Interfaces;
 using facilitador_api.Application.Mapping;
 using facilitador_api.Domain.Entities;
 using facilitador_api.Domain.Interfaces;
@@ -77,14 +77,14 @@ namespace facilitador_api.Application.Services
             return enderecos.Select(e => e.ToResponseDTO()).ToList();
         }
 
-        public async Task<bool> Criar(EnderecoCreateDTO dto)
+        public async Task<EnderecoResponseDTO?> Criar(EnderecoCreateDTO dto)
         {
             var enderecoNovo = new Endereco(dto);
 
             await _enderecoRepository.Cadastrar(enderecoNovo);
             await _enderecoRepository.Salvar();
 
-            return true;
+            return enderecoNovo.ToResponseDTO();
         }
 
         public async Task<bool> Ativar(Guid id)

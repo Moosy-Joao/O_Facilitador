@@ -1,4 +1,4 @@
-﻿using facilitador_api.Application.Interfaces;
+using facilitador_api.Application.Interfaces;
 using facilitador_api.Application.Mapping;
 using facilitador_api.Domain.Entities;
 using facilitador_api.Domain.Interfaces;
@@ -37,14 +37,7 @@ namespace facilitador_api.Application.Services
         public async Task<List<PagamentoResponseDTO>> BuscarPorCliente(Guid clienteId)
         {
             var pagamentos = await _pagamentoRepository.BuscarPorCliente(clienteId);
-            return pagamentos.Select(p => new PagamentoResponseDTO
-            {
-                Id = p.Id,
-                ValorPagamento = p.ValorPagamento,
-                Observacao = p.Observacao,
-                Ativo = p.Ativo,
-                CriadoEm = p.CriadoEm
-            }).ToList();
+            return pagamentos.Select(p => p.ToResponseDTO()).ToList();
         }
 
         public async Task<List<PagamentoResponseDTO>> BuscarPorEmpresa(Guid empresaId)
@@ -67,13 +60,12 @@ namespace facilitador_api.Application.Services
             {
                 throw new Exception("Cliente não encontrado ou inativo.");
             }
+            if (dto.ValorPagamento > cliente.Saldo)
+            {
+                throw new Exception($"O valor do pagamento excede o saldo devedor do cliente (Saldo devedor: {cliente.Saldo:C}).");
+            }
 
             decimal novoSaldo = cliente.Saldo - dto.ValorPagamento;
-
-            if (novoSaldo > cliente.LimiteCredito)
-            {
-                novoSaldo = cliente.LimiteCredito;
-            }
 
             var pagamento = new Pagamento(
                 clienteId: dto.ClienteId,
