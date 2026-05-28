@@ -1,4 +1,4 @@
-﻿using facilitador_api.Application.Interfaces;
+using facilitador_api.Application.Interfaces;
 using facilitador_api.Application.Mapping;
 using facilitador_api.Domain.Entities;
 using facilitador_api.Domain.Interfaces;
@@ -32,11 +32,25 @@ namespace facilitador_api.Application.Services
             if (!string.IsNullOrWhiteSpace(dto.Nome))
             { cliente.AtualizarNome(dto.Nome); }
 
-            if (!string.IsNullOrWhiteSpace(dto.Email))
-            { cliente.AtualizarEmail(dto.Email); }
+            if (!string.IsNullOrWhiteSpace(dto.Email) && dto.Email != cliente.Email)
+            {
+                var clienteExistenteEmail = await _clienteRepository.BuscarPorEmail(dto.Email);
+                if (clienteExistenteEmail != null && clienteExistenteEmail.Id != id)
+                {
+                    throw new InvalidOperationException("Já existe um cliente cadastrado com este e-mail.");
+                }
+                cliente.AtualizarEmail(dto.Email);
+            }
 
-            if (!string.IsNullOrWhiteSpace(dto.Documento))
-            { cliente.AtualizarDocumento(dto.Documento); }
+            if (!string.IsNullOrWhiteSpace(dto.Documento) && dto.Documento != cliente.Documento)
+            {
+                var clientesDaEmpresa = await _clienteRepository.BuscarPorEmpresa(cliente.EmpresaId);
+                if (clientesDaEmpresa.Any(c => c.Id != id && c.Documento == dto.Documento))
+                {
+                    throw new InvalidOperationException("Já existe um cliente cadastrado com este documento para esta empresa.");
+                }
+                cliente.AtualizarDocumento(dto.Documento);
+            }
 
             if (!string.IsNullOrWhiteSpace(dto.Telefone))
             { cliente.AtualizarTelefone(dto.Telefone); }
@@ -138,6 +152,12 @@ namespace facilitador_api.Application.Services
             if (clienteExistente != null)
             {
                 throw new InvalidOperationException("Já existe um cliente cadastrado com este e-mail.");
+            }
+
+            var clientesDaEmpresa = await _clienteRepository.BuscarPorEmpresa(dto.EmpresaId);
+            if (clientesDaEmpresa.Any(c => c.Documento == dto.Documento))
+            {
+                throw new InvalidOperationException("Já existe um cliente cadastrado com este documento para esta empresa.");
             }
 
             var clienteNovo = new Cliente(dto, dto.EmpresaId, dto.EnderecoId);
