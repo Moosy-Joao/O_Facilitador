@@ -65,14 +65,10 @@ namespace facilitador_api.API.Controllers
 
             var resultado = await _service.BuscarPorCliente(clienteId);
 
-            var existePagamentoDeOutraEmpresa = resultado.Any(p => p.EmpresaId != empresaId);
+            // Filtra apenas pagamentos da empresa autenticada
+            var pagamentosDaEmpresa = resultado.Where(p => p.EmpresaId == empresaId).ToList();
 
-            if (existePagamentoDeOutraEmpresa)
-            {
-                return Forbid("Você não tem permissão para acessar pagamentos de outra empresa.");
-            }
-
-            return Ok(resultado ?? new List<PagamentoResponseDTO>());
+            return Ok(pagamentosDaEmpresa);
         }
 
         [Authorize(Policy = "Funcionario/Gerente")]
@@ -94,9 +90,14 @@ namespace facilitador_api.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ObterPagamentosPorData([FromQuery] DateTime dataPagamento)
         {
+            var empresaId = User.ObterEmpresaId();
+
             var resultado = await _service.BuscarPorData(dataPagamento);
 
-            return Ok(resultado ?? new List<PagamentoResponseDTO>());
+            // Filtra apenas pagamentos da empresa autenticada
+            var pagamentosDaEmpresa = resultado.Where(p => p.EmpresaId == empresaId).ToList();
+
+            return Ok(pagamentosDaEmpresa);
         }
         [Authorize(Policy = "Funcionario/Gerente")]
         [HttpPost("criar", Name = "CriarPagamento")]

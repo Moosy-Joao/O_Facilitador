@@ -1,4 +1,4 @@
-﻿using facilitador_api.Application.Interfaces;
+using facilitador_api.Application.Interfaces;
 using facilitador_api.Helpers;
 using facilitador_application.Application.Validators.Usuario;
 using facilitador_domain.Domain.DTOs;
@@ -45,7 +45,7 @@ namespace facilitador_api.Controllers
             return Ok(resultado);
         }
 
-        [Authorize(Policy = "Gerente")]
+        [AllowAnonymous]
         [HttpPost("criar", Name = "CriarUsuario")]
         [ProducesResponseType(typeof(LoginResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -60,7 +60,18 @@ namespace facilitador_api.Controllers
                 return BadRequest(resultadoValidacao.Errors.Select(e => e.ErrorMessage));
             }
 
-            var empresaIdToken = User.ObterEmpresaId();
+            Guid empresaIdToken = Guid.Empty;
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                try
+                {
+                    empresaIdToken = User.ObterEmpresaId();
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    // Mantém Guid.Empty se não conseguir extrair
+                }
+            }
 
             try
             {
