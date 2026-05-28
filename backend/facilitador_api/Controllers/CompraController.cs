@@ -1,4 +1,4 @@
-﻿using facilitador_api.Application.Interfaces;
+using facilitador_api.Application.Interfaces;
 using facilitador_api.Helpers;
 using facilitador_domain.Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
@@ -67,14 +67,10 @@ namespace facilitador_api.API.Controllers
 
             var resultado = await _service.BuscarPorCliente(clienteId);
 
-            var existeCompraDeOutraEmpresa = resultado.Any(c => c.EmpresaId != empresaId);
+            // Filtra apenas compras da empresa autenticada
+            var comprasDaEmpresa = resultado.Where(c => c.EmpresaId == empresaId).ToList();
 
-            if (existeCompraDeOutraEmpresa)
-            {
-                return Forbid("Você não tem permissão para acessar compras de outra empresa.");
-            }
-
-            return Ok(resultado ?? new List<CompraResponseDTO>());
+            return Ok(comprasDaEmpresa);
         }
 
         [Authorize(Policy = "Funcionario/Gerente")]

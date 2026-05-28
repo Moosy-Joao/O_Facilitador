@@ -1,7 +1,7 @@
-﻿using facilitador_application.Application.Interfaces;
-using Microsoft.AspNetCore.Mvc;
 using facilitador_api.Helpers;
+using facilitador_application.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace facilitador_api.Controllers
 {

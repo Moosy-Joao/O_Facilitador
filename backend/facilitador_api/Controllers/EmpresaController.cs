@@ -1,4 +1,4 @@
-﻿using facilitador_api.Application.Interfaces;
+using facilitador_api.Application.Interfaces;
 using facilitador_domain.Domain.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
@@ -45,14 +45,21 @@ namespace facilitador_api.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CriarEmpresa(EmpresaCreateDTO dto)
         {
-            var resultado = await _service.Criar(dto);
-
-            if (!resultado)
+            try
             {
-                return BadRequest("Erro ao criar a empresa: " + resultado);
-            }
+                var resultado = await _service.Criar(dto);
 
-            return Ok("Empresa criada com sucesso: " + resultado);
+                if (!resultado)
+                {
+                    return BadRequest("Erro ao criar a empresa.");
+                }
+
+                return Ok("Empresa criada com sucesso: " + resultado);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new[] { ex.Message });
+            }
         }
 
         [HttpPut("atualizar/{id:guid}", Name = "AtualizarEmpresa")]
@@ -60,12 +67,19 @@ namespace facilitador_api.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AtualizarEmpresa(Guid id, EmpresaUpdateDTO dto)
         {
-            var resultado = await _service.Atualizar(id, dto);
-            if (!resultado)
+            try
             {
-                return BadRequest("Erro ao atualizar a empresa: " + resultado);
+                var resultado = await _service.Atualizar(id, dto);
+                if (!resultado)
+                {
+                    return BadRequest("Erro ao atualizar a empresa.");
+                }
+                return Ok("Empresa atualizada com sucesso: " + resultado);
             }
-            return Ok("Empresa atualizada com sucesso: " + resultado);
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new[] { ex.Message });
+            }
         }
 
         [HttpPut("ativar/{id:guid}", Name = "AtivarEmpresa")]
