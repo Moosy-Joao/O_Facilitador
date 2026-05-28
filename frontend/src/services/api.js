@@ -195,10 +195,21 @@ export const criarCliente = async (data) => {
 export const atualizarCliente = async (id, data) => {
   const dto = { 
     ...data,
-    telefone: (data.telefone || '').replace(/\D/g, ''),
-    saldo: data.saldo !== undefined ? (isNaN(Number(data.saldo)) ? 0 : Number(data.saldo)) : undefined,
-    limiteCredito: data.limiteCredito !== undefined ? (isNaN(Number(data.limiteCredito)) ? 0 : Number(data.limiteCredito)) : undefined
   };
+
+  if (data.telefone !== undefined) {
+    const cleanPhone = (data.telefone || '').replace(/\D/g, '');
+    dto.telefone = cleanPhone === '' ? null : cleanPhone;
+  }
+
+  if (data.saldo !== undefined) {
+    dto.saldo = isNaN(Number(data.saldo)) ? 0 : Number(data.saldo);
+  }
+
+  if (data.limiteCredito !== undefined) {
+    dto.limiteCredito = isNaN(Number(data.limiteCredito)) ? 0 : Number(data.limiteCredito);
+  }
+
   const res = await fetchWithAuth(`${API_URL}/v1/cliente/atualizar/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(dto)
@@ -398,20 +409,6 @@ export const getTransacoes = async (filtros = {}) => {
     console.error('Erro ao buscar transacoes:', err);
   }
 
-  if (filtros.clienteId) {
-    transacoes = transacoes.filter(t => t.clienteId === filtros.clienteId);
-  }
-  if (filtros.tipo && filtros.tipo !== 'todos') {
-    transacoes = transacoes.filter(t => t.tipo === filtros.tipo);
-  }
-  if (filtros.busca) {
-    const q = filtros.busca.toLowerCase();
-    transacoes = transacoes.filter(t =>
-      (t.clienteNome && t.clienteNome.toLowerCase().includes(q)) ||
-      (t.descricao && t.descricao.toLowerCase().includes(q))
-    );
-  }
-
   if (transacoes.length > 0) {
      try {
        const clientes = await getClientes();
@@ -441,6 +438,20 @@ export const getTransacoes = async (filtros = {}) => {
      } catch (e) {
        console.error(e);
      }
+  }
+
+  if (filtros.clienteId) {
+    transacoes = transacoes.filter(t => t.clienteId === filtros.clienteId);
+  }
+  if (filtros.tipo && filtros.tipo !== 'todos') {
+    transacoes = transacoes.filter(t => t.tipo === filtros.tipo);
+  }
+  if (filtros.busca) {
+    const q = filtros.busca.toLowerCase();
+    transacoes = transacoes.filter(t =>
+      (t.clienteNome && t.clienteNome.toLowerCase().includes(q)) ||
+      (t.descricao && t.descricao.toLowerCase().includes(q))
+    );
   }
 
   transacoes.sort((a, b) => new Date(b.data) - new Date(a.data));

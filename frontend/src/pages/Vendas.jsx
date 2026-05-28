@@ -93,6 +93,12 @@ const Vendas = () => {
       return;
     }
 
+    const creditoDisponivel = clienteSelecionado.limiteCredito - clienteSelecionado.saldo;
+    if (Number(valor) > creditoDisponivel) {
+      setError(`O valor da venda excede o crédito disponível do cliente (${formatCurrency(creditoDisponivel)})`);
+      return;
+    }
+
     setLoading(true);
     try {
       await registrarVenda(clienteSelecionado.id, Number(valor), descricao);

@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
   History,
   Search,
@@ -12,28 +13,29 @@ import { getTransacoes, formatCurrency, formatDateTime } from '../services/api';
 import './Historico.css';
 
 const Historico = () => {
-  const [transacoes, setTransacoes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [busca, setBusca] = useState('');
+  const [buscaInput, setBuscaInput] = useState('');
+  const [buscaDebounced, setBuscaDebounced] = useState('');
   const [filtroTipo, setFiltroTipo] = useState('todos');
   const [showFilterMenu, setShowFilterMenu] = useState(false);
 
-  const fetchTransacoes = useCallback(async () => {
-    try {
-      const data = await getTransacoes({ busca, tipo: filtroTipo });
-      setTransacoes(data);
-    } catch (err) {
-      console.error('Erro ao buscar transações:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [busca, filtroTipo]);
-
+  // Debounce buscaInput para buscaDebounced
   useEffect(() => {
-    setLoading(true);
-    const timer = setTimeout(() => fetchTransacoes(), 300);
+    const timer = setTimeout(() => {
+      setBuscaDebounced(buscaInput);
+    }, 300);
     return () => clearTimeout(timer);
-  }, [fetchTransacoes]);
+  }, [buscaInput]);
+
+  // React Query para buscar transações
+  const { data: transacoes = [], isLoading } = useQuery({
+    queryKey: ['transacoes', buscaDebounced, filtroTipo],
+    queryFn: () => getTransacoes({ busca: buscaDebounced, tipo: filtroTipo }),
+  });
+
+  const handleClear = () => {
+    setBuscaInput('');
+    setBuscaDebounced('');
+  };
 
   const filterLabels = {
     todos: 'Todas',
@@ -92,12 +94,12 @@ const Historico = () => {
             id="search-historico"
             type="text"
             placeholder="Buscar por cliente ou descrição..."
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
+            value={buscaInput}
+            onChange={(e) => setBuscaInput(e.target.value)}
             className="search-input"
           />
-          {busca && (
-            <button className="search-clear" onClick={() => setBusca('')}>
+          {buscaInput && (
+            <button className="search-clear" onClick={handleClear}>
               <X size={14} />
             </button>
           )}
@@ -129,14 +131,14 @@ const Historico = () => {
       </div>
 
       {/* Transaction List */}
-      {transacoes.length === 0 && !loading ? (
+      {transacoes.length === 0 && !isLoading ? (
         <div className="empty-state">
           <History size={48} strokeWidth={1} />
           <h3>Nenhuma transação encontrada</h3>
           <p>Ajuste os filtros ou registre novas vendas/pagamentos.</p>
         </div>
       ) : (
-        <div className="historico-list" style={{ opacity: loading ? 0.6 : 1, transition: 'opacity 0.2s' }}>
+        <div className="historico-list" style={{ opacity: isLoading ? 0.6 : 1, transition: 'opacity 0.2s' }}>
           {transacoes.map((t, i) => (
             <div
               key={t.id}

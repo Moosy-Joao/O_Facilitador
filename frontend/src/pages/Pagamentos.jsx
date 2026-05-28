@@ -117,6 +117,11 @@ const Pagamentos = () => {
       return;
     }
 
+    if (Number(valor) > clienteSelecionado.saldo) {
+      setError(`O valor do pagamento não pode ser maior que o saldo devedor do cliente (${formatCurrency(clienteSelecionado.saldo)})`);
+      return;
+    }
+
     setLoading(true);
     try {
       await registrarPagamento(clienteSelecionado.id, Number(valor), observacao);
