@@ -212,72 +212,7 @@
   margin-top: -0.1rem;
 }
 
-/* ── Form Actions ── */
-.form-actions {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 0.75rem;
-  justify-content: flex-end;
-}
-
-.btn-form-primary {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.8rem 1.6rem;
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: #ffffff;
-  border: none;
-  border-radius: 14px;
-  font-size: 0.92rem;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 4px 16px rgba(34, 197, 94, 0.3);
-  transition: all 0.25s ease;
-}
-
-.btn-form-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(34, 197, 94, 0.4);
-}
-
-.btn-form-primary.is-loading {
-  opacity: 0.7;
-  pointer-events: none;
-}
-
-.btn-spinner {
-  width: 18px;
-  height: 18px;
-  border: 2.5px solid rgba(255, 255, 255, 0.4);
-  border-top-color: #ffffff;
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.btn-form-secondary {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.8rem 1.4rem;
-  background: rgba(0, 0, 0, 0.03);
-  color: #4b5548;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 14px;
-  font-size: 0.92rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-form-secondary:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: #1a2318;
-}
+/* Form actions and buttons styles are now defined globally in index.css */
 
 /* ── Success Screen ── */
 .success-screen {
@@ -344,14 +279,7 @@
     padding: 1.5rem;
   }
 
-  .form-actions {
-    flex-direction: column-reverse;
-  }
 
-  .btn-form-primary,
-  .btn-form-secondary {
-    justify-content: center;
-  }
 
   .step-line-wrap {
     width: 50px;

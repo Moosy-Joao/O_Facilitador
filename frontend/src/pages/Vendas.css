@@ -341,3 +341,109 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Custom Numeric Value Adjusters ── */
+.input-with-adjusters {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.input-with-adjusters input.value-input {
+  flex: 1;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a2318;
+  height: 48px;
+}
+
+.btn-value-step {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  color: #16a34a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.btn-value-step:hover:not(:disabled) {
+  border-color: rgba(34, 197, 94, 0.4);
+  background: rgba(34, 197, 94, 0.04);
+  transform: translateY(-1px);
+}
+
+.btn-value-step:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn-value-step:disabled {
+  opacity: 0.5;
+  color: #94a392;
+  cursor: not-allowed;
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Value Quick Presets */
+.value-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.preset-chip {
+  padding: 0.45rem 0.85rem;
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #4b5548;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.preset-chip:hover {
+  background: rgba(34, 197, 94, 0.08);
+  border-color: rgba(34, 197, 94, 0.2);
+  color: #16a34a;
+}
+
+.preset-chip:active {
+  transform: scale(0.96);
+}
+
+.preset-chip.clear {
+  margin-left: auto;
+  background: rgba(239, 68, 68, 0.04);
+  border-color: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.preset-chip.clear:hover {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+/* Hide native number spinners */
+.value-input::-webkit-outer-spin-button,
+.value-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.value-input[type=number] {
+  -moz-appearance: textfield;
+}

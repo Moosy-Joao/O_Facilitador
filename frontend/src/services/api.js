@@ -46,26 +46,37 @@ export const isAuthenticated = () => {
   return !!localStorage.getItem('auth_token');
 };
 
+const getEmpresaIdFromToken = () => {
+  const token = localStorage.getItem('auth_token');
+  if (!token) return null;
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    const payload = JSON.parse(jsonPayload);
+    return payload.empresaId || null;
+  } catch (e) {
+    console.error('Erro ao decodificar token:', e);
+    return null;
+  }
+};
+
 // Helper para pegar um ID default de Endereço/Empresa para não quebrar a FK
 const getDefaultIds = async () => {
-  let empresaId = '00000000-0000-0000-0000-000000000000';
+  let empresaId = getEmpresaIdFromToken() || '00000000-0000-0000-0000-000000000000';
   let enderecoId = '00000000-0000-0000-0000-000000000000';
   
   try {
-    const resEmpresa = await fetchWithAuth(`${API_URL}/v1/empresa`);
-    if (resEmpresa.ok) {
-      const empresas = await resEmpresa.json();
-      if (empresas && empresas.length > 0) empresaId = empresas[0].id;
-    }
-  } catch(e) {}
-  
-  try {
-    const resEnd = await fetchWithAuth(`${API_URL}/v1/endereco`);
+    const resEnd = await fetchWithAuth(`${API_URL}/v1/endereco/obter`);
     if (resEnd.ok) {
       const ends = await resEnd.json();
       if (ends && ends.length > 0) enderecoId = ends[0].id;
     }
-  } catch(e) {}
+  } catch (e) {
+    console.error(e);
+  }
 
   return { empresaId, enderecoId };
 };
@@ -88,7 +99,7 @@ export const authLogin = async (email, senha) => {
 /* ─────────── Clientes ─────────── */
 
 export const getClientes = async (filtros = {}) => {
-  const res = await fetchWithAuth(`${API_URL}/v1/cliente`);
+  const res = await fetchWithAuth(`${API_URL}/v1/cliente/obter`);
   if (!res.ok) throw new Error('Erro ao buscar clientes');
   let result = await res.json();
 
@@ -113,21 +124,62 @@ export const getClienteById = async (id) => {
   return clientes.find(c => c.id === id) || null;
 };
 
+export const criarEndereco = async (enderecoData) => {
+  const dto = {
+    pais: enderecoData.pais || 'Brasil',
+    estado: enderecoData.estado || '',
+    cidade: enderecoData.cidade || '',
+    bairro: enderecoData.bairro || '',
+    rua: enderecoData.rua || '',
+    numero: enderecoData.numero || '',
+    cep: enderecoData.cep || ''
+  };
+  const res = await fetchWithAuth(`${API_URL}/v1/endereco/criar`, {
+    method: 'POST',
+    body: JSON.stringify(dto)
+  });
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(txt || 'Erro ao criar endereço');
+  }
+  return await res.json(); // retorna { id, pais, estado, ... }
+};
+
 export const criarCliente = async (data) => {
-  const { empresaId, enderecoId } = await getDefaultIds();
+  // 1. Criar o endereço do cliente e obter o ID gerado
+  let enderecoId;
+  try {
+    const enderecoCriado = await criarEndereco({
+      pais: data.pais || 'Brasil',
+      estado: data.estado || '',
+      cidade: data.cidade || '',
+      bairro: data.bairro || '',
+      rua: data.rua || '',
+      numero: data.numero || '',
+      cep: data.cep || ''
+    });
+    enderecoId = enderecoCriado.id;
+  } catch (e) {
+    console.warn('Erro ao criar endereço, usando fallback:', e);
+    // Fallback: pega o primeiro endereço disponível
+    const { enderecoId: fallbackId } = await getDefaultIds();
+    enderecoId = fallbackId;
+  }
+
+  const empresaId = getEmpresaIdFromToken() || '00000000-0000-0000-0000-000000000000';
 
   const dto = {
     nome: data.nome,
     email: data.email,
     documento: data.documento,
-    telefone: data.telefone || '',
-    saldo: data.saldo || 0,
-    limiteCredito: data.limiteCredito || 0,
+    telefone: (data.telefone || '').replace(/\D/g, ''),
+    saldo: isNaN(Number(data.saldo)) ? 0 : Number(data.saldo),
+    limiteCredito: isNaN(Number(data.limiteCredito)) ? 0 : Number(data.limiteCredito),
     enderecoId: enderecoId,
     empresaId: empresaId
   };
 
-  const res = await fetchWithAuth(`${API_URL}/v1/cliente`, {
+  const res = await fetchWithAuth(`${API_URL}/v1/cliente/criar`, {
     method: 'POST',
     body: JSON.stringify(dto)
   });
@@ -135,12 +187,30 @@ export const criarCliente = async (data) => {
      const txt = await res.text();
      throw new Error(txt || 'Erro ao criar cliente');
   }
-  return await res.json(); 
+  // O backend retorna true (bool) - tratar adequadamente
+  const body = await res.text();
+  try { return JSON.parse(body); } catch { return body; }
 };
 
 export const atualizarCliente = async (id, data) => {
-  const dto = { ...data };
-  const res = await fetchWithAuth(`${API_URL}/v1/cliente/${id}`, {
+  const dto = { 
+    ...data,
+  };
+
+  if (data.telefone !== undefined) {
+    const cleanPhone = (data.telefone || '').replace(/\D/g, '');
+    dto.telefone = cleanPhone === '' ? null : cleanPhone;
+  }
+
+  if (data.saldo !== undefined) {
+    dto.saldo = isNaN(Number(data.saldo)) ? 0 : Number(data.saldo);
+  }
+
+  if (data.limiteCredito !== undefined) {
+    dto.limiteCredito = isNaN(Number(data.limiteCredito)) ? 0 : Number(data.limiteCredito);
+  }
+
+  const res = await fetchWithAuth(`${API_URL}/v1/cliente/atualizar/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(dto)
   });
@@ -161,7 +231,7 @@ export const atualizarEndereco = async (id, data) => {
     numero: data.numero || '',
     cep: data.cep || ''
   };
-  const res = await fetchWithAuth(`${API_URL}/v1/endereco?id=${id}`, {
+  const res = await fetchWithAuth(`${API_URL}/v1/endereco/atualizar/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(dto)
   });
@@ -177,14 +247,51 @@ export const toggleClienteStatus = async (id) => {
   if (!cliente) throw new Error('Cliente não encontrado');
 
   const method = cliente.ativo ? 'DELETE' : 'POST';
+  const urlSuffix = cliente.ativo ? `desativar/${id}` : `ativar/${id}`;
 
-  const res = await fetchWithAuth(`${API_URL}/v1/cliente/${id}`, {
+  const res = await fetchWithAuth(`${API_URL}/v1/cliente/${urlSuffix}`, {
     method: method
   });
   if (!res.ok) throw new Error('Erro ao alterar status do cliente');
   
   cliente.ativo = !cliente.ativo;
   return cliente;
+};
+
+export const sincronizarSaldos = async () => {
+  // 1. Obter todos os clientes
+  const resClientes = await fetchWithAuth(`${API_URL}/v1/cliente/obter`);
+  if (!resClientes.ok) throw new Error('Erro ao carregar clientes para sincronização');
+  const clientes = await resClientes.json();
+
+  // 2. Obter todas as compras (vendas)
+  const resCompras = await fetchWithAuth(`${API_URL}/v1/compras/obter`);
+  if (!resCompras.ok) throw new Error('Erro ao carregar compras para sincronização');
+  const compras = await resCompras.json();
+
+  // 3. Obter todos os pagamentos
+  const resPagamentos = await fetchWithAuth(`${API_URL}/v1/pagamentos/obter`);
+  if (!resPagamentos.ok) throw new Error('Erro ao carregar pagamentos para sincronização');
+  const pagamentos = await resPagamentos.json();
+
+  // 4. Recalcular e atualizar o saldo de cada cliente no banco de dados
+  for (const cliente of clientes) {
+    const totalCompras = compras
+      .filter(c => c.ativo && c.clienteId === cliente.id)
+      .reduce((sum, c) => sum + (c.valor || 0), 0);
+
+    const totalPagamentos = pagamentos
+      .filter(p => p.ativo && p.clienteId === cliente.id)
+      .reduce((sum, p) => sum + (p.valorPagamento || 0), 0);
+
+    const saldoCorreto = totalCompras - totalPagamentos;
+
+    // Atualiza apenas se houver diferença
+    if (Math.abs(cliente.saldo - saldoCorreto) > 0.001) {
+      await atualizarCliente(cliente.id, { saldo: saldoCorreto });
+    }
+  }
+  return true;
 };
 
 /* ─────────── Vendas / Compras ─────────── */
@@ -199,7 +306,7 @@ export const registrarVenda = async (clienteId, valor, descricao) => {
     empresaId 
   };
 
-  const res = await fetchWithAuth(`${API_URL}/v1/compras`, {
+  const res = await fetchWithAuth(`${API_URL}/v1/compras/criar`, {
     method: 'POST',
     body: JSON.stringify(dto)
   });
@@ -208,8 +315,20 @@ export const registrarVenda = async (clienteId, valor, descricao) => {
     const txt = await res.text();
     throw new Error(txt || 'Erro ao registrar venda');
   }
+
+  // Atualizar saldo do cliente no frontend após venda com sucesso
+  try {
+    const cliente = await getClienteById(clienteId);
+    if (cliente) {
+      const novoSaldo = (cliente.saldo || 0) + Number(valor);
+      await atualizarCliente(clienteId, { saldo: novoSaldo });
+    }
+  } catch (err) {
+    console.warn('Erro ao atualizar saldo após venda:', err);
+  }
   
-  return await res.json();
+  const body = await res.text();
+  try { return JSON.parse(body); } catch { return body; }
 };
 
 /* ─────────── Pagamentos ─────────── */
@@ -224,7 +343,7 @@ export const registrarPagamento = async (clienteId, valor, observacao) => {
     dataPagamento: new Date().toISOString() 
   };
 
-  const res = await fetchWithAuth(`${API_URL}/v1/pagamentos`, {
+  const res = await fetchWithAuth(`${API_URL}/v1/pagamentos/criar`, {
     method: 'POST',
     body: JSON.stringify(dto)
   });
@@ -234,7 +353,19 @@ export const registrarPagamento = async (clienteId, valor, observacao) => {
     throw new Error(txt || 'Erro ao registrar pagamento');
   }
 
-  return await res.json();
+  // Atualizar saldo do cliente no frontend após pagamento com sucesso
+  try {
+    const cliente = await getClienteById(clienteId);
+    if (cliente) {
+      const novoSaldo = (cliente.saldo || 0) - Number(valor);
+      await atualizarCliente(clienteId, { saldo: novoSaldo });
+    }
+  } catch (err) {
+    console.warn('Erro ao atualizar saldo após pagamento:', err);
+  }
+
+  const body = await res.text();
+  try { return JSON.parse(body); } catch { return body; }
 };
 
 /* ─────────── Histórico / Transações ─────────── */
@@ -243,10 +374,10 @@ export const getTransacoes = async (filtros = {}) => {
   let transacoes = [];
 
   try {
-    const resCompras = await fetchWithAuth(`${API_URL}/v1/compras`);
+    const resCompras = await fetchWithAuth(`${API_URL}/v1/compras/obter`);
     if (resCompras.ok) {
       const compras = await resCompras.json();
-      const formatadas = compras.map(c => ({
+      const formatadas = compras.filter(c => c.ativo).map(c => ({
         id: c.id,
         tipo: 'venda',
         clienteId: c.clienteId,
@@ -254,15 +385,15 @@ export const getTransacoes = async (filtros = {}) => {
         valor: c.valor,
         descricao: c.descricao,
         data: c.criadoEm || new Date().toISOString(),
-        status: c.ativo ? 'concluido' : 'estornado'
+        status: 'concluido'
       }));
       transacoes = [...transacoes, ...formatadas];
     }
 
-    const resPagamentos = await fetchWithAuth(`${API_URL}/v1/pagamentos`);
+    const resPagamentos = await fetchWithAuth(`${API_URL}/v1/pagamentos/obter`);
     if (resPagamentos.ok) {
       const pagamentos = await resPagamentos.json();
-      const formPagamentos = pagamentos.map(p => ({
+      const formPagamentos = pagamentos.filter(p => p.ativo).map(p => ({
         id: p.id,
         tipo: 'pagamento',
         clienteId: p.clienteId,
@@ -270,12 +401,43 @@ export const getTransacoes = async (filtros = {}) => {
         valor: p.valorPagamento,
         descricao: p.observacao || 'Pagamento',
         data: p.dataPagamento || p.criadoEm || new Date().toISOString(),
-        status: p.ativo ? 'concluido' : 'estornado'
+        status: 'concluido'
       }));
       transacoes = [...transacoes, ...formPagamentos];
     }
   } catch (err) {
     console.error('Erro ao buscar transacoes:', err);
+  }
+
+  if (transacoes.length > 0) {
+     try {
+       const clientes = await getClientes();
+       const mapClientes = {};
+       clientes.forEach(c => { mapClientes[c.id] = c.nome; });
+
+       // Para IDs não encontrados na lista da empresa, busca individualmente como fallback
+       const idsDesconhecidos = [...new Set(
+         transacoes
+           .filter(t => !mapClientes[t.clienteId])
+           .map(t => t.clienteId)
+       )];
+
+       for (const clienteId of idsDesconhecidos) {
+         try {
+           const res = await fetchWithAuth(`${API_URL}/v1/cliente/obterporid/${clienteId}`);
+           if (res.ok) {
+             const cliente = await res.json();
+             if (cliente && cliente.nome) mapClientes[clienteId] = cliente.nome;
+           }
+         } catch (_) { /* ignora erros individuais */ }
+       }
+
+       transacoes.forEach(t => {
+         t.clienteNome = mapClientes[t.clienteId] || 'Cliente Desconhecido';
+       });
+     } catch (e) {
+       console.error(e);
+     }
   }
 
   if (filtros.clienteId) {
@@ -292,31 +454,24 @@ export const getTransacoes = async (filtros = {}) => {
     );
   }
 
-  if (transacoes.length > 0) {
-     try {
-       const clientes = await getClientes();
-       const mapClientes = {};
-       clientes.forEach(c => { mapClientes[c.id] = c.nome; });
-       transacoes.forEach(t => {
-         t.clienteNome = mapClientes[t.clienteId] || 'Cliente Desconhecido';
-       });
-     } catch(e){}
-  }
-
   transacoes.sort((a, b) => new Date(b.data) - new Date(a.data));
   return transacoes;
 };
 
 export const estornarTransacao = async (id) => {
   try {
-    const resCompra = await fetchWithAuth(`${API_URL}/v1/compras/${id}`, { method: 'DELETE' });
+    const resCompra = await fetchWithAuth(`${API_URL}/v1/compras/desativar/${id}`, { method: 'DELETE' });
     if (resCompra.ok) return { id, status: 'estornado' };
-  } catch(e) {}
+  } catch (e) {
+    console.error(e);
+  }
 
   try {
-    const resPag = await fetchWithAuth(`${API_URL}/v1/pagamentos/${id}`, { method: 'DELETE' });
+    const resPag = await fetchWithAuth(`${API_URL}/v1/pagamentos/desativar/${id}`, { method: 'DELETE' });
     if (resPag.ok) return { id, status: 'estornado' };
-  } catch(e) {}
+  } catch (e) {
+    console.error(e);
+  }
 
   throw new Error('Não foi possível estornar a transação');
 };
@@ -324,19 +479,19 @@ export const estornarTransacao = async (id) => {
 /* ─────────── Dashboard ─────────── */
 
 export const getDashboardStats = async () => {
-  const res = await fetchWithAuth(`${API_URL}/Dashboard/stats`);
+  const res = await fetchWithAuth(`${API_URL}/v1/paineldados/dados`);
   if (!res.ok) throw new Error('Erro ao buscar stats do dashboard');
   return await res.json();
 };
 
 export const getDashboardTransactions = async () => {
-  const res = await fetchWithAuth(`${API_URL}/Dashboard/transactions`);
+  const res = await fetchWithAuth(`${API_URL}/v1/paineldados/transacoes`);
   if (!res.ok) throw new Error('Erro ao buscar transacoes do dashboard');
   return await res.json();
 };
 
 export const getDashboardChart = async () => {
-  const res = await fetchWithAuth(`${API_URL}/Dashboard/chart`);
+  const res = await fetchWithAuth(`${API_URL}/v1/paineldados/grafico`);
   if (!res.ok) throw new Error('Erro ao buscar grafico do dashboard');
   return await res.json();
 };
@@ -447,7 +602,7 @@ export const registrarEmpresa = async (data) => {
     telefone: data.telefoneEmpresa || '',
     enderecoId: enderecoId
   };
-  const res = await fetch(`${API_URL}/v1/empresa`, {
+  const res = await fetch(`${API_URL}/v1/empresa/criar`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(dto)
@@ -460,7 +615,7 @@ export const registrarEmpresa = async (data) => {
 };
 
 export const getEmpresaByCNPJ = async (cnpj) => {
-  const res = await fetch(`${API_URL}/v1/empresa`);
+  const res = await fetch(`${API_URL}/v1/empresa/obter`);
   if (!res.ok) throw new Error('Erro ao buscar empresas');
   const empresas = await res.json();
   const cleanCNPJ = cnpj.replace(/\D/g, '');
@@ -475,7 +630,7 @@ export const registrarUsuario = async (data) => {
     cargo: 0, // Administrador
     empresaId: data.empresaId
   };
-  const res = await fetch(`${API_URL}/v1/usuario`, {
+  const res = await fetch(`${API_URL}/v1/usuario/criar`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(dto)

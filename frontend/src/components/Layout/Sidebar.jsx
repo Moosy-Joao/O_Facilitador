@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   Users,
@@ -31,7 +31,6 @@ const Topbar = () => {
   const [indicatorStyle, setIndicatorStyle] = useState({});
   const navRef = useRef(null);
   const location = useLocation();
-  const navigate = useNavigate();
 
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
