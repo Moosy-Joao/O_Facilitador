@@ -1,4 +1,5 @@
 using facilitador_application.Application.Validators.Utils;
+using facilitador_application.Application.Validators.Utils.facilitador_application.Application.Validators.Utils;
 using facilitador_domain.Domain.DTOs;
 using FluentValidation;
 
@@ -14,7 +15,7 @@ namespace facilitador_application.Application.Validators.Cliente
                 .MaximumLength(100).WithMessage("O nome deve ter no máximo 100 caracteres.");
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("O email é obrigatório.")
-                .EmailAddress().WithMessage("O email deve ser válido.");
+                .Must(ValidarEmail.Validar).WithMessage("O email deve ser válido.");
             RuleFor(x => x.Documento)
                 .NotEmpty().WithMessage("O CPF é obrigatório.")
                 .Must(ValidarDocumento.ValidarCPFouCNPJ).WithMessage("O Documento deve estar no formato de CPF ou CNPJ.");
