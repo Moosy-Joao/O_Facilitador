@@ -1,4 +1,4 @@
-﻿using facilitador_domain.Domain.Enums;
+using facilitador_domain.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace facilitador_domain.Domain.DTOs
@@ -49,5 +49,22 @@ namespace facilitador_domain.Domain.DTOs
         public DateTime CriadoEm { get; set; }
         public DateTime ModificadoEm { get; set; }
 
+    }
+
+    public class EsqueciSenhaDTO
+    {
+        [Required(ErrorMessage = "O campo 'Email' é obrigatório.")]
+        [EmailAddress(ErrorMessage = "Informe um e-mail válido.")]
+        public string Email { get; set; } = string.Empty;
+    }
+
+    public class ResetarSenhaDTO
+    {
+        [Required(ErrorMessage = "O token de redefinição é obrigatório.")]
+        public string Token { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "A nova senha é obrigatória.")]
+        [MinLength(6, ErrorMessage = "A senha deve ter no mínimo 6 caracteres.")]
+        public string NovaSenha { get; set; } = string.Empty;
     }
 }
