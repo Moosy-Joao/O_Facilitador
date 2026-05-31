@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Eye, EyeOff, Lock, Mail, ArrowRight, AlertCircle, CheckCircle, Leaf, User, Briefcase, FileText, Phone, UserPlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Waves from '../components/Waves/Waves';
-import { authLogin, registrarEmpresa, getEmpresaByCNPJ, registrarUsuario, formatPhone, validateCNPJ } from '../services/api';
+import { authLogin, registrarEmpresa, getEmpresaByCNPJ, registrarUsuario, formatPhone, validateCNPJ, isGerente } from '../services/api';
 import './Login.css';
 
 const Login = () => {
@@ -77,7 +77,7 @@ const Login = () => {
         };
         
         localStorage.setItem('user', JSON.stringify(userData));
-        navigate('/dashboard');
+        navigate(isGerente() ? '/dashboard' : '/clientes');
       }
     } catch (err) {
       setError(err.message || 'Credenciais inválidas. Tente novamente.');

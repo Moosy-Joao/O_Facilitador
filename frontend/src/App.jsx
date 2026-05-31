@@ -8,8 +8,9 @@ import Pagamentos from './pages/Pagamentos';
 import Historico from './pages/Historico';
 import ClienteDetalhes from './pages/ClienteDetalhes';
 import Inadimplentes from './pages/Inadimplentes';
+import Funcionarios from './pages/Funcionarios';
 import AppLayout from './components/Layout/AppLayout';
-import { isAuthenticated } from './services/api';
+import { isAuthenticated, isGerente } from './services/api';
 
 /**
  * Componente de rota protegida.
@@ -17,6 +18,14 @@ import { isAuthenticated } from './services/api';
  */
 const PrivateRoute = ({ children }) => {
   return isAuthenticated() ? children : <Navigate to="/" replace />;
+};
+
+/**
+ * Componente de rota protegida para o Dashboard.
+ * Redireciona funcionários para a lista de clientes.
+ */
+const DashboardRoute = () => {
+  return isGerente() ? <Dashboard /> : <Navigate to="/clientes" replace />;
 };
 
 function App() {
@@ -28,7 +37,7 @@ function App() {
 
         {/* Authenticated routes (with sidebar layout) */}
         <Route element={<PrivateRoute><AppLayout /></PrivateRoute>}>
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<DashboardRoute />} />
           <Route path="/clientes" element={<Clientes />} />
           <Route path="/clientes/novo" element={<ClienteNovo />} />
           <Route path="/clientes/editar/:id" element={<ClienteNovo />} />
@@ -37,6 +46,7 @@ function App() {
           <Route path="/vendas" element={<Vendas />} />
           <Route path="/pagamentos" element={<Pagamentos />} />
           <Route path="/historico" element={<Historico />} />
+          <Route path="/funcionarios" element={<Funcionarios />} />
         </Route>
 
         {/* Catch all */}

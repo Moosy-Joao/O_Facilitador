@@ -641,3 +641,81 @@ export const registrarUsuario = async (data) => {
   }
   return await res.json(); // Retorna o token de login para entrar direto!
 };
+
+export const getCargoFromToken = () => {
+  const token = localStorage.getItem('auth_token');
+  if (!token) return null;
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    const payload = JSON.parse(jsonPayload);
+    return payload.cargo || null;
+  } catch (e) {
+    console.error('Erro ao decodificar token:', e);
+    return null;
+  }
+};
+
+export const isGerente = () => {
+  const cargo = getCargoFromToken();
+  return cargo === 'Administrador' || cargo === 'Gerente';
+};
+
+export const getUsuarios = async () => {
+  const res = await fetchWithAuth(`${API_URL}/v1/usuario/obter`);
+  if (!res.ok) throw new Error('Erro ao buscar funcionários');
+  return await res.json();
+};
+
+export const criarFuncionario = async (data) => {
+  const empresaId = getEmpresaIdFromToken();
+  const dto = {
+    nome: data.nome,
+    email: data.email,
+    senha: data.senha,
+    cargo: Number(data.cargo), // 1 = Gerente, 2 = Funcionario
+    empresaId: empresaId
+  };
+  const res = await fetchWithAuth(`${API_URL}/v1/usuario/criar`, {
+    method: 'POST',
+    body: JSON.stringify(dto)
+  });
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(txt || 'Erro ao criar funcionário');
+  }
+  return await res.json();
+};
+
+export const atualizarFuncionario = async (id, data) => {
+  const dto = {
+    nome: data.nome,
+    email: data.email,
+    cargo: data.cargo !== undefined ? Number(data.cargo) : undefined
+  };
+  if (data.senha) {
+    dto.senha = data.senha;
+  }
+  const res = await fetchWithAuth(`${API_URL}/v1/usuario/atualizar/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(dto)
+  });
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(txt || 'Erro ao atualizar funcionário');
+  }
+  return true;
+};
+
+export const toggleFuncionarioStatus = async (id, ativo) => {
+  const urlSuffix = ativo ? `ativar/${id}` : `desativar/${id}`;
+  const method = ativo ? 'POST' : 'DELETE';
+  const res = await fetchWithAuth(`${API_URL}/v1/usuario/${urlSuffix}`, {
+    method: method
+  });
+  if (!res.ok) throw new Error('Erro ao alterar status do funcionário');
+  return true;
+};
