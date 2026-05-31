@@ -9,6 +9,7 @@ import Historico from './pages/Historico';
 import ClienteDetalhes from './pages/ClienteDetalhes';
 import Inadimplentes from './pages/Inadimplentes';
 import Funcionarios from './pages/Funcionarios';
+import ResetarSenha from './pages/ResetarSenha';
 import AppLayout from './components/Layout/AppLayout';
 import { isAuthenticated, isGerente } from './services/api';
 
@@ -34,6 +35,7 @@ function App() {
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<Login />} />
+        <Route path="/resetar-senha" element={<ResetarSenha />} />
 
         {/* Authenticated routes (with sidebar layout) */}
         <Route element={<PrivateRoute><AppLayout /></PrivateRoute>}>

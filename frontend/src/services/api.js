@@ -96,6 +96,32 @@ export const authLogin = async (email, senha) => {
   return await res.json();
 };
 
+export const recuperarSenha = async (email) => {
+  const res = await fetch(`${API_URL}/v1/usuario/esqueci-senha`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  });
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    throw new Error(errText || 'Erro ao processar solicitação.');
+  }
+  return true;
+};
+
+export const resetarSenha = async (token, novaSenha) => {
+  const res = await fetch(`${API_URL}/v1/usuario/resetar-senha`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, novaSenha })
+  });
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    throw new Error(errText || 'O link de redefinição expirou ou é inválido.');
+  }
+  return true;
+};
+
 /* ─────────── Clientes ─────────── */
 
 export const getClientes = async (filtros = {}) => {

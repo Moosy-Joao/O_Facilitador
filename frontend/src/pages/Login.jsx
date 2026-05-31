@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Eye, EyeOff, Lock, Mail, ArrowRight, AlertCircle, CheckCircle, Leaf, User, Briefcase, FileText, Phone, UserPlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Waves from '../components/Waves/Waves';
-import { authLogin, registrarEmpresa, getEmpresaByCNPJ, registrarUsuario, formatPhone, validateCNPJ, isGerente } from '../services/api';
+import { authLogin, registrarEmpresa, getEmpresaByCNPJ, registrarUsuario, formatPhone, validateCNPJ, isGerente, recuperarSenha } from '../services/api';
 import './Login.css';
 
 const Login = () => {
@@ -237,12 +237,11 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // Simula a requisição para a API
-      await new Promise(resolve => setTimeout(resolve, 1200));
-      setSuccessMsg(`Um link de recuperação foi enviado para ${email}`);
+      await recuperarSenha(email);
+      setSuccessMsg(`Uma senha temporária foi enviada com sucesso para ${email}`);
     } catch (err) {
       console.error(err);
-      setError('Ocorreu um erro ao processar sua solicitação.');
+      setError(err.message || 'Ocorreu um erro ao processar sua solicitação.');
     } finally {
       setLoading(false);
     }
