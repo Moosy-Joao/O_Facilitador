@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Eye, EyeOff, Lock, Mail, ArrowRight, AlertCircle, CheckCircle, Leaf, User, Briefcase, FileText, Phone, UserPlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Waves from '../components/Waves/Waves';
-import { authLogin, registrarEmpresa, getEmpresaByCNPJ, registrarUsuario, formatCPF, formatPhone, validateCNPJ } from '../services/api';
+import { authLogin, registrarEmpresa, getEmpresaByCNPJ, registrarUsuario, formatPhone, validateCNPJ } from '../services/api';
 import './Login.css';
 
 const Login = () => {
@@ -23,6 +23,7 @@ const Login = () => {
   const [nomeEmpresa, setNomeEmpresa] = useState('');
   const [cnpj, setCnpj] = useState('');
   const [telefoneEmpresa, setTelefoneEmpresa] = useState('');
+  const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
 
   const navigate = useNavigate();
 
@@ -105,11 +106,19 @@ const Login = () => {
       newErrors.emailUsuario = 'E-mail inválido';
       hasErrors = true;
     }
+    const hasUpper = /[A-Z]/.test(senhaUsuario);
+    const hasLower = /[a-z]/.test(senhaUsuario);
+    const hasDigit = /[0-9]/.test(senhaUsuario);
+    const hasSpecial = /[^A-Za-z0-9]/.test(senhaUsuario);
+
     if (!senhaUsuario.trim()) {
       newErrors.senhaUsuario = 'Senha é obrigatória';
       hasErrors = true;
     } else if (senhaUsuario.length < 6) {
       newErrors.senhaUsuario = 'A senha deve ter no mínimo 6 caracteres';
+      hasErrors = true;
+    } else if (!hasUpper || !hasLower || !hasDigit || !hasSpecial) {
+      newErrors.senhaUsuario = 'A senha deve conter letras maiúsculas, minúsculas, números e caracteres especiais';
       hasErrors = true;
     }
     if (!nomeEmpresa.trim()) {
@@ -163,11 +172,53 @@ const Login = () => {
           name: nomeUsuario
         };
         localStorage.setItem('user', JSON.stringify(userData));
-        setSuccessMsg('Cadastro realizado com sucesso! Redirecionando...');
-        setTimeout(() => navigate('/dashboard'), 1500);
+        setShowSuccessOverlay(true);
+        setTimeout(() => navigate('/dashboard'), 3200);
       }
     } catch (err) {
-      setError(err.message || 'Erro ao realizar cadastro. Tente novamente.');
+      const errMsg = err.message || '';
+      try {
+        if (errMsg.startsWith('[') && errMsg.endsWith(']')) {
+          const apiErrors = JSON.parse(errMsg);
+          if (Array.isArray(apiErrors)) {
+            const newFieldErrors = {};
+            const generalErrors = [];
+            
+            apiErrors.forEach(msg => {
+              const lowerMsg = msg.toLowerCase();
+              if (lowerMsg.includes('nome do usuário') || (lowerMsg.includes('usuário') && lowerMsg.includes('nome'))) {
+                newFieldErrors.nomeUsuario = msg;
+              } else if (lowerMsg.includes('nome da empresa') || (lowerMsg.includes('empresa') && lowerMsg.includes('nome'))) {
+                newFieldErrors.nomeEmpresa = msg;
+              } else if (lowerMsg.includes('email') || lowerMsg.includes('e-mail')) {
+                newFieldErrors.emailUsuario = msg;
+              } else if (lowerMsg.includes('senha')) {
+                newFieldErrors.senhaUsuario = msg;
+              } else if (lowerMsg.includes('cnpj')) {
+                newFieldErrors.cnpj = msg;
+              } else if (lowerMsg.includes('telefone')) {
+                newFieldErrors.telefoneEmpresa = msg;
+              } else {
+                generalErrors.push(msg);
+              }
+            });
+
+            if (Object.keys(newFieldErrors).length > 0) {
+              setFieldErrors(newFieldErrors);
+            }
+
+            if (generalErrors.length > 0) {
+              setError(generalErrors.join(' | '));
+            } else {
+              setError('Verifique os erros nos campos do formulário.');
+            }
+            return;
+          }
+        }
+      } catch {
+        // Ignora falha de parse
+      }
+      setError(errMsg || 'Erro ao realizar cadastro. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -190,6 +241,7 @@ const Login = () => {
       await new Promise(resolve => setTimeout(resolve, 1200));
       setSuccessMsg(`Um link de recuperação foi enviado para ${email}`);
     } catch (err) {
+      console.error(err);
       setError('Ocorreu um erro ao processar sua solicitação.');
     } finally {
       setLoading(false);
@@ -369,7 +421,7 @@ const Login = () => {
               </div>
 
               <div className="field">
-                <label htmlFor="senhaUsuario">Senha Secreta</label>
+                <label htmlFor="senhaUsuario">Senha</label>
                 <div className={`field-input ${fieldErrors.senhaUsuario ? 'has-error' : ''}`}>
                   <Lock size={18} className="field-icon" />
                   <input
@@ -411,7 +463,7 @@ const Login = () => {
               <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
                 <div className="field" style={{ flex: 1 }}>
                   <label htmlFor="cnpj">CNPJ</label>
-                  <div className={`field-input ${fieldErrors.cnpj ? 'has-error' : ''}`}>
+                  <div className={`field-input ${fieldErrors.cnpj ? 'has-error' : ''}`} style={{ whiteSpace: 'nowrap' }}>
                     <FileText size={18} className="field-icon" />
                     <input
                       id="cnpj"
@@ -480,6 +532,23 @@ const Login = () => {
           </footer>
         </div>
       </main>
+
+      {/* Success Fullscreen Overlay */}
+      {showSuccessOverlay && (
+        <div className="success-fullscreen-overlay">
+          <div className="overlay-glow" />
+          <div className="overlay-content">
+            <div className="overlay-badge">
+              <CheckCircle size={48} strokeWidth={1.5} className="overlay-check" />
+            </div>
+            <h1 className="overlay-title">Empresa Criada!</h1>
+            <p className="overlay-subtitle">Sincronizando os dados iniciais do painel...</p>
+            <div className="progress-bar-container">
+              <div className="progress-bar-fill" />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -276,7 +276,7 @@
   }
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1140px) {
   .topbar-link-label {
     display: none;
   }

@@ -1,11 +1,11 @@
 using facilitador_api.Application.Interfaces;
 using facilitador_api.Helpers;
+using facilitador_api.Infrastructure.DB;
 using facilitador_application.Application.Validators.Cliente;
 using facilitador_domain.Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using facilitador_api.Infrastructure.DB;
 
 namespace facilitador_api.API.Controllers
 {
@@ -61,14 +61,12 @@ namespace facilitador_api.API.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> ObterInadimplentes([FromQuery] Guid empresaId, [FromQuery] int diasAtraso = 30)
         {
-            // Validação simples
             if (empresaId == Guid.Empty)
                 return BadRequest("O parâmetro 'empresaId' é obrigatório.");
 
             if (diasAtraso < 1)
                 return BadRequest("O parâmetro 'diasAtraso' deve ser maior que zero.");
 
-            // Verifica se o usuário autenticado pertence à empresa solicitada
             var empresaDoToken = User.ObterEmpresaId();
             if (empresaDoToken != empresaId)
                 return Forbid("Você não tem permissão para acessar dados de outra empresa.");

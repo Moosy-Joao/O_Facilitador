@@ -67,6 +67,7 @@ const BentoChart = ({ data }) => {
 const Dashboard = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [stats, setStats] = useState({
     totalReceber: 0,
     totalReceberVar: 0,
@@ -82,34 +83,41 @@ const Dashboard = () => {
 
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const [statsData, movData, chartDataRes] = await Promise.all([
-          getDashboardStats().catch(() => ({
-            totalReceber: 0,
-            totalReceberVar: 0,
-            inadimplentes: 0,
-            inadimplentesValor: 0,
-            totalClientes: 0,
-            novosClientesSemana: 0,
-            vendasHoje: 0,
-            pagamentosHoje: 0,
-          })),
-          getDashboardTransactions().catch(() => []),
-          getDashboardChart().catch(() => [])
-        ]);
+  const fetchDashboardData = async (isBackground = false) => {
+    if (!isBackground) setLoading(true);
+    else setRefreshing(true);
 
-        setStats(statsData);
-        setMovimentacoes(movData);
-        setChartData(chartDataRes);
-      } catch (error) {
-        console.error("Erro ao buscar dados do dashboard:", error);
-      } finally {
-        setLoading(false);
+    try {
+      const [statsData, movData, chartDataRes] = await Promise.all([
+        getDashboardStats().catch(() => ({
+          totalReceber: 0,
+          totalReceberVar: 0,
+          inadimplentes: 0,
+          inadimplentesValor: 0,
+          totalClientes: 0,
+          novosClientesSemana: 0,
+          vendasHoje: 0,
+          pagamentosHoje: 0,
+        })),
+        getDashboardTransactions().catch(() => []),
+        getDashboardChart().catch(() => [])
+      ]);
+
+      setStats(statsData);
+      setMovimentacoes(movData);
+      setChartData(chartDataRes);
+    } catch (error) {
+      console.error("Erro ao buscar dados do dashboard:", error);
+    } finally {
+      if (!isBackground) setLoading(false);
+      else {
+        // Add a micro-delay for premium motion feel
+        setTimeout(() => setRefreshing(false), 800);
       }
-    };
+    }
+  };
 
+  useEffect(() => {
     fetchDashboardData();
   }, []);
 
@@ -129,13 +137,17 @@ const Dashboard = () => {
           <h1 className="greeting">Olá, {user.name || user.Name || 'Gestor'}</h1>
           <p className="greeting-sub">Aqui está o resumo do seu negócio hoje.</p>
         </div>
-        <button className="btn-refresh" onClick={() => window.location.reload()} disabled={loading}>
-          <RefreshCw size={16} className={loading ? 'spin-anim' : ''} />
-          {loading ? 'Sincronizando...' : 'Atualizar'}
+        <button 
+          className="btn-refresh" 
+          onClick={() => fetchDashboardData(true)} 
+          disabled={loading || refreshing}
+        >
+          <RefreshCw size={16} className={loading || refreshing ? 'spin-anim' : ''} />
+          {loading || refreshing ? 'Sincronizando...' : 'Atualizar'}
         </button>
       </div>
 
-      <div className="bento-grid">
+      <div className={`bento-grid ${refreshing ? 'grid-refreshing' : ''}`}>
         
         {/* HERO METRIC: Total a Receber */}
         <div className="bento-box hero-box">

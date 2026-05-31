@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Search,
   UserPlus,
@@ -10,50 +11,72 @@ import {
   Edit3,
   UserX,
   UserCheck,
-  AlertTriangle,
-  Shield,
   X,
+  RefreshCw,
 } from 'lucide-react';
-import { getClientes, toggleClienteStatus, formatCurrency } from '../services/api';
+import { getClientes, toggleClienteStatus, formatCurrency, sincronizarSaldos } from '../services/api';
 import './Clientes.css';
 
 const Clientes = () => {
-  const [clientes, setClientes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [busca, setBusca] = useState('');
+  const queryClient = useQueryClient();
+  const [buscaInput, setBuscaInput] = useState('');
+  const [buscaDebounced, setBuscaDebounced] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('todos');
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [actionMenuId, setActionMenuId] = useState(null);
   const navigate = useNavigate();
 
-  const fetchClientes = async () => {
-    try {
-      const data = await getClientes({
-        busca,
-        status: filtroStatus === 'todos' ? undefined : filtroStatus,
-      });
-      setClientes(data);
-    } catch (err) {
-      console.error('Erro ao buscar clientes:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Debounce buscaInput para buscaDebounced
   useEffect(() => {
-    setLoading(true);
-    const timer = setTimeout(() => fetchClientes(), 300);
+    const timer = setTimeout(() => {
+      setBuscaDebounced(buscaInput);
+    }, 300);
     return () => clearTimeout(timer);
-  }, [busca, filtroStatus]);
+  }, [buscaInput]);
 
-  const handleToggleStatus = async (id) => {
-    try {
-      await toggleClienteStatus(id);
-      await fetchClientes();
+  // Query para buscar clientes
+  const { data: clientes = [], isLoading } = useQuery({
+    queryKey: ['clientes', buscaDebounced, filtroStatus],
+    queryFn: () => getClientes({
+      busca: buscaDebounced,
+      status: filtroStatus === 'todos' ? undefined : filtroStatus,
+    }),
+  });
+
+  // Mutation para toggle status de ativo/inativo
+  const toggleStatusMutation = useMutation({
+    mutationFn: toggleClienteStatus,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clientes'] });
       setActionMenuId(null);
-    } catch (err) {
+    },
+    onError: (err) => {
       alert(err.message);
     }
+  });
+
+  // Mutation para sincronizar saldos dos clientes
+  const sincronizarSaldosMutation = useMutation({
+    mutationFn: sincronizarSaldos,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clientes'] });
+    },
+    onError: (err) => {
+      alert(err.message);
+    }
+  });
+
+  const handleToggleStatus = (id) => {
+    toggleStatusMutation.mutate(id);
+  };
+
+  const handleSincronizarSaldos = () => {
+    sincronizarSaldosMutation.mutate();
+  };
+
+  const handleClear = () => {
+    setBuscaInput('');
+    setBuscaDebounced('');
   };
 
   const getStatusInfo = (cliente) => {
@@ -75,8 +98,6 @@ const Clientes = () => {
     inadimplente: 'Inadimplentes',
   };
 
-
-
   return (
     <div className="clientes-page">
       {/* Header */}
@@ -87,10 +108,20 @@ const Clientes = () => {
             {clientes.length} cliente{clientes.length !== 1 ? 's' : ''} encontrado{clientes.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <button className="btn-primary-action" onClick={() => navigate('/clientes/novo')}>
-          <UserPlus size={18} />
-          Novo Cliente
-        </button>
+        <div className="header-actions" style={{ display: 'flex', gap: '12px' }}>
+          <button 
+            className="btn-secondary-action" 
+            onClick={handleSincronizarSaldos}
+            disabled={sincronizarSaldosMutation.isPending}
+          >
+            <RefreshCw size={16} className={sincronizarSaldosMutation.isPending ? 'spin' : ''} />
+            {sincronizarSaldosMutation.isPending ? 'Sincronizando...' : 'Sincronizar Saldos'}
+          </button>
+          <button className="btn-primary-action" onClick={() => navigate('/clientes/novo')}>
+            <UserPlus size={18} />
+            Novo Cliente
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -101,12 +132,12 @@ const Clientes = () => {
             id="search-clientes"
             type="text"
             placeholder="Buscar por nome, CPF ou email..."
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
+            value={buscaInput}
+            onChange={(e) => setBuscaInput(e.target.value)}
             className="search-input"
           />
-          {busca && (
-            <button className="search-clear" onClick={() => setBusca('')}>
+          {buscaInput && (
+            <button className="search-clear" onClick={handleClear}>
               <X size={14} />
             </button>
           )}
@@ -138,14 +169,14 @@ const Clientes = () => {
       </div>
 
       {/* Table */}
-      {clientes.length === 0 && !loading ? (
+      {clientes.length === 0 && !isLoading ? (
         <div className="empty-state">
           <Search size={48} strokeWidth={1} />
           <h3>Nenhum cliente encontrado</h3>
           <p>Tente ajustar os filtros ou cadastre um novo cliente.</p>
         </div>
       ) : (
-        <div className="clientes-table-wrap" style={{ opacity: loading ? 0.6 : 1, transition: 'opacity 0.2s' }}>
+        <div className="clientes-table-wrap" style={{ opacity: isLoading ? 0.6 : 1, transition: 'opacity 0.2s' }}>
           <table className="clientes-table" id="clientes-table">
             <thead>
               <tr>
@@ -225,7 +256,7 @@ const Clientes = () => {
                             <button onClick={() => { navigate(`/clientes/editar/${cliente.id}`); }}>
                               <Edit3 size={14} /> Editar
                             </button>
-                            <button onClick={() => handleToggleStatus(cliente.id)}>
+                            <button onClick={() => handleToggleStatus(cliente.id)} disabled={toggleStatusMutation.isPending}>
                               {cliente.ativo ? (
                                 <><UserX size={14} /> Desativar</>
                               ) : (
