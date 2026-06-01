@@ -1,6 +1,6 @@
 ﻿namespace facilitador_application.Application.Validators.Utils
 {
-    internal class ValidarDocumento
+    public class ValidarDocumento
     {
         // Valida CNPJ tradicional (somente dígitos)
         private static bool ValidarCNPJ(string cnpj)
@@ -9,8 +9,8 @@
             if (cnpj.Length != 14) return false;
             if (cnpj.All(c => c == cnpj[0])) return false;
 
-            int[] multiplicador1 = { 5, 4, 3, 2, 7, 6, 5, 4, 3, 2, 7, 6 };
-            int[] multiplicador2 = { 6, 5, 4, 3, 2, 7, 6, 5, 4, 3, 2, 7, 6 };
+            int[] multiplicador1 = { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
+            int[] multiplicador2 = { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
 
             string tempCnpj = cnpj.Substring(0, 12);
             int soma = tempCnpj.Select((t, i) => int.Parse(t.ToString()) * multiplicador1[i]).Sum();
@@ -51,8 +51,8 @@
                 return (char)('A' + valor - 10);
             }
 
-            int[] pesos1 = { 5, 4, 3, 2, 7, 6, 5, 4, 3, 2, 7, 6 }; // 12 posições
-            int[] pesos2 = { 6, 5, 4, 3, 2, 7, 6, 5, 4, 3, 2, 7, 6 }; // 13 posições
+            int[] pesos1 = { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
+            int[] pesos2 = { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
 
             string baseCnpj = cnpj.Substring(0, 12);
 
