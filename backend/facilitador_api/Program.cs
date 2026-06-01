@@ -22,12 +22,9 @@ builder.Services.AddCors(options =>
                 "http://localhost:5173",
                 "http://192.168.1.100:8080",
                 "http://localhost:5238",
-<<<<<<< HEAD
                 "https://o-facilitador.vercel.app",
                 "https://o-facilitador.up.railway.app"
-=======
-                "https://o-facilitador.vercel.app"
->>>>>>> 554da20c58ffec99d8778750e50c0c45535bbfd9
+
             )
             .AllowAnyMethod()
             .AllowAnyHeader()
