@@ -149,5 +149,40 @@ namespace facilitador_api.Controllers
 
             return Ok(resultado);
         }
+
+        [AllowAnonymous]
+        [HttpPost("esqueci-senha", Name = "EsqueciSenha")]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> EsqueciSenha([FromBody] EsqueciSenhaDTO dto)
+        {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Email))
+            {
+                return BadRequest("O e-mail deve ser informado.");
+            }
+
+            var resultado = await _service.EsqueciSenha(dto.Email);
+            return Ok(resultado);
+        }
+
+        [AllowAnonymous]
+        [HttpPost("resetar-senha", Name = "ResetarSenha")]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ResetarSenha([FromBody] ResetarSenhaDTO dto)
+        {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Token) || string.IsNullOrWhiteSpace(dto.NovaSenha))
+            {
+                return BadRequest("O token e a nova senha devem ser informados.");
+            }
+
+            var resultado = await _service.ResetarSenha(dto.Token, dto.NovaSenha);
+            if (!resultado)
+            {
+                return BadRequest("O link de redefinição de senha é inválido ou expirou.");
+            }
+
+            return Ok(resultado);
+        }
     }
 }

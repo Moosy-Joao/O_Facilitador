@@ -1,4 +1,4 @@
-﻿using facilitador_domain.Domain.DTOs;
+using facilitador_domain.Domain.DTOs;
 
 namespace facilitador_api.Application.Interfaces
 {
@@ -10,5 +10,7 @@ namespace facilitador_api.Application.Interfaces
         Task<bool> Atualizar(Guid id, UsuarioUpdateDTO dto);
         Task<bool> Ativar(Guid id);
         Task<bool> Desativar(Guid id);
+        Task<bool> EsqueciSenha(string email);
+        Task<bool> ResetarSenha(string token, string novaSenha);
     }
 }
