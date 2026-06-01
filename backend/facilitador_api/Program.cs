@@ -17,12 +17,19 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Permissao", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://192.168.1.100:8080", "http://localhost:5238") // <- "http://[IP]:[PORTA]" para permitir acesso de um IP específico
-              .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials();
+        policy
+            .WithOrigins(
+                "http://localhost:5173",
+                "http://192.168.1.100:8080",
+                "http://localhost:5238",
+                "https://o-facilitador.vercel.app",
+                "https://o-facilitador.up.railway.app"
+            )
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
     });
-}); ;
+});
 
 // Banco de dados
 builder.Services.AddDbContext<ConnectionContext>(options =>
