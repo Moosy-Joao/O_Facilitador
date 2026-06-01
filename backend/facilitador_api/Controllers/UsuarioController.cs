@@ -1,4 +1,4 @@
-﻿using facilitador_api.Application.Interfaces;
+using facilitador_api.Application.Interfaces;
 using facilitador_api.Helpers;
 using facilitador_application.Application.Validators.Usuario;
 using facilitador_domain.Domain.DTOs;
@@ -45,7 +45,7 @@ namespace facilitador_api.Controllers
             return Ok(resultado);
         }
 
-        [Authorize(Policy = "Gerente")]
+        [AllowAnonymous]
         [HttpPost("criar", Name = "CriarUsuario")]
         [ProducesResponseType(typeof(LoginResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -60,7 +60,18 @@ namespace facilitador_api.Controllers
                 return BadRequest(resultadoValidacao.Errors.Select(e => e.ErrorMessage));
             }
 
-            var empresaIdToken = User.ObterEmpresaId();
+            Guid empresaIdToken = Guid.Empty;
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                try
+                {
+                    empresaIdToken = User.ObterEmpresaId();
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    // Mantém Guid.Empty se não conseguir extrair
+                }
+            }
 
             try
             {
@@ -134,6 +145,41 @@ namespace facilitador_api.Controllers
             if (resultado == false)
             {
                 return BadRequest("Erro ao desativar usuário.");
+            }
+
+            return Ok(resultado);
+        }
+
+        [AllowAnonymous]
+        [HttpPost("esqueci-senha", Name = "EsqueciSenha")]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> EsqueciSenha([FromBody] EsqueciSenhaDTO dto)
+        {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Email))
+            {
+                return BadRequest("O e-mail deve ser informado.");
+            }
+
+            var resultado = await _service.EsqueciSenha(dto.Email);
+            return Ok(resultado);
+        }
+
+        [AllowAnonymous]
+        [HttpPost("resetar-senha", Name = "ResetarSenha")]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ResetarSenha([FromBody] ResetarSenhaDTO dto)
+        {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Token) || string.IsNullOrWhiteSpace(dto.NovaSenha))
+            {
+                return BadRequest("O token e a nova senha devem ser informados.");
+            }
+
+            var resultado = await _service.ResetarSenha(dto.Token, dto.NovaSenha);
+            if (!resultado)
+            {
+                return BadRequest("O link de redefinição de senha é inválido ou expirou.");
             }
 
             return Ok(resultado);

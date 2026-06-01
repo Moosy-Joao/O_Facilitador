@@ -1,4 +1,4 @@
-﻿using facilitador_api.Infrastructure.DB;
+using facilitador_api.Infrastructure.DB;
 using facilitador_application.Application.Interfaces;
 using facilitador_domain.Domain.DTOs;
 using Microsoft.EntityFrameworkCore;
@@ -14,11 +14,11 @@ namespace facilitador_application.Application.Services
             _context = context;
         }
 
-        public async Task<PainelDeDadosDTO> ObterDados()
+        public async Task<PainelDeDadosDTO> ObterDados(Guid empresaId)
         {
-            var totalClientes = await _context.Clientes.CountAsync(c => c.Ativo);
-            var comprasQuery = _context.Compras.Where(c => c.Ativo);
-            var pagamentosQuery = _context.Pagamentos.Where(p => p.Ativo);
+            var totalClientes = await _context.Clientes.CountAsync(c => c.Ativo && c.EmpresaId == empresaId);
+            var comprasQuery = _context.Compras.Where(c => c.Ativo && c.EmpresaId == empresaId);
+            var pagamentosQuery = _context.Pagamentos.Where(p => p.Ativo && p.EmpresaId == empresaId);
 
             var totalReceber = await comprasQuery.SumAsync(c => c.Valor) -
                                await pagamentosQuery.SumAsync(p => p.ValorPagamento);
@@ -27,14 +27,14 @@ namespace facilitador_application.Application.Services
             var vendasHoje = await comprasQuery.Where(c => c.CriadoEm >= today).SumAsync(c => c.Valor);
             var pagamentosHoje = await pagamentosQuery.Where(p => p.DataPagamento >= today).SumAsync(p => p.ValorPagamento);
 
-            var clientesList = await _context.Clientes.Where(c => c.Ativo).ToListAsync();
+            var clientesList = await _context.Clientes.Where(c => c.Ativo && c.EmpresaId == empresaId).ToListAsync();
             var inadimplentes = clientesList.Count(c => c.Saldo > c.LimiteCredito);
             var inadimplentesValor = clientesList
                 .Where(c => c.Saldo > c.LimiteCredito)
                 .Sum(c => c.Saldo - c.LimiteCredito);
 
             var startOfWeek = today.AddDays(-(int)DateTime.UtcNow.DayOfWeek);
-            var novosClientesSemana = await _context.Clientes.CountAsync(c => c.CriadoEm >= startOfWeek);
+            var novosClientesSemana = await _context.Clientes.CountAsync(c => c.CriadoEm >= startOfWeek && c.EmpresaId == empresaId);
 
             return new PainelDeDadosDTO
             {
@@ -48,11 +48,11 @@ namespace facilitador_application.Application.Services
             };
         }
 
-        public async Task<List<PainelDeTransacoesDTO>> ObterTransacoesRecentes()
+        public async Task<List<PainelDeTransacoesDTO>> ObterTransacoesRecentes(Guid empresaId)
         {
             var compras = await _context.Compras
                 .Include(c => c.Cliente)
-                .Where(c => c.Ativo)
+                .Where(c => c.Ativo && c.EmpresaId == empresaId)
                 .OrderByDescending(c => c.CriadoEm)
                 .Take(5)
                 .Select(c => new PainelDeTransacoesDTO
@@ -69,7 +69,7 @@ namespace facilitador_application.Application.Services
 
             var pagamentos = await _context.Pagamentos
                 .Include(p => p.Cliente)
-                .Where(p => p.Ativo)
+                .Where(p => p.Ativo && p.EmpresaId == empresaId)
                 .OrderByDescending(p => p.DataPagamento)
                 .Take(5)
                 .Select(p => new PainelDeTransacoesDTO
@@ -93,11 +93,11 @@ namespace facilitador_application.Application.Services
             return todas;
         }
 
-        public async Task<List<PainelDeGraficosDTO>> ObterDadosGraficoVendas()
+        public async Task<List<PainelDeGraficosDTO>> ObterDadosGraficoVendas(Guid empresaId)
         {
             var trintaDiasAtras = DateTime.UtcNow.Date.AddDays(-30);
             var compras = await _context.Compras
-                .Where(c => c.Ativo && c.CriadoEm >= trintaDiasAtras)
+                .Where(c => c.Ativo && c.CriadoEm >= trintaDiasAtras && c.EmpresaId == empresaId)
                 .GroupBy(c => c.CriadoEm.Date)
                 .Select(g => new { Data = g.Key, Valor = g.Sum(c => c.Valor) })
                 .ToListAsync();

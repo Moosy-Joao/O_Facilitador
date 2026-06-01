@@ -1,4 +1,4 @@
-﻿using facilitador_api.Application.Interfaces;
+using facilitador_api.Application.Interfaces;
 using facilitador_api.Application.Mapping;
 using facilitador_api.Domain.Entities;
 using facilitador_api.Domain.Interfaces;
@@ -33,8 +33,13 @@ namespace facilitador_api.Application.Services
             {
                 empresa.AtualizarEmail(dto.Email);
             }
-            if (!string.IsNullOrWhiteSpace(dto.CNPJ))
+            if (!string.IsNullOrWhiteSpace(dto.CNPJ) && dto.CNPJ != empresa.CNPJ)
             {
+                var empresaExistente = await _empresaRepository.BuscarPorCNPJ(dto.CNPJ);
+                if (empresaExistente != null && empresaExistente.Id != id)
+                {
+                    throw new InvalidOperationException("Já existe uma empresa cadastrada com este CNPJ.");
+                }
                 empresa.AtualizarCNPJ(dto.CNPJ);
             }
             if (!string.IsNullOrWhiteSpace(dto.Telefone))
@@ -93,6 +98,12 @@ namespace facilitador_api.Application.Services
             if (!endereco)
             {
                 return false;
+            }
+
+            var empresaExistente = await _empresaRepository.BuscarPorCNPJ(dto.CNPJ);
+            if (empresaExistente != null)
+            {
+                throw new InvalidOperationException("Já existe uma empresa cadastrada com este CNPJ.");
             }
 
             var empresa = new Empresa(dto, dto.EnderecoId);

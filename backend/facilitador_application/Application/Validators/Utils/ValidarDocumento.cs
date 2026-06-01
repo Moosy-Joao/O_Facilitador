@@ -9,8 +9,8 @@
             if (cnpj.Length != 14) return false;
             if (cnpj.All(c => c == cnpj[0])) return false;
 
-            int[] multiplicador1 = { 5, 4, 3, 2, 7, 6, 5, 4, 3, 2 };
-            int[] multiplicador2 = { 6, 5, 4, 3, 2, 7, 6, 5, 4, 3, 2 };
+            int[] multiplicador1 = { 5, 4, 3, 2, 7, 6, 5, 4, 3, 2, 7, 6 };
+            int[] multiplicador2 = { 6, 5, 4, 3, 2, 7, 6, 5, 4, 3, 2, 7, 6 };
 
             string tempCnpj = cnpj.Substring(0, 12);
             int soma = tempCnpj.Select((t, i) => int.Parse(t.ToString()) * multiplicador1[i]).Sum();

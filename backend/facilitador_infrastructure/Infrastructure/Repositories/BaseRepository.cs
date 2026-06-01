@@ -1,4 +1,4 @@
-﻿using facilitador_api.Domain.Entities;
+using facilitador_api.Domain.Entities;
 using facilitador_api.Domain.Interfaces;
 using facilitador_api.Infrastructure.DB;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +23,7 @@ namespace facilitador_api.Infrastructure.Repositories
             return Task.CompletedTask;
         }
 
-        public async Task<T?> BuscarPorId(Guid id)
+        public async virtual Task<T?> BuscarPorId(Guid id)
         {
             return await _dbSet.FirstOrDefaultAsync(e => e.Id == id);
         }

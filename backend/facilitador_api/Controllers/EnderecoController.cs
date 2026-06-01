@@ -1,4 +1,4 @@
-﻿using facilitador_api.Application.Interfaces;
+using facilitador_api.Application.Interfaces;
 using facilitador_domain.Domain.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
@@ -44,11 +44,11 @@ namespace facilitador_api.Controllers
         public async Task<IActionResult> CriarEndereco(EnderecoCreateDTO dto)
         {
             var resultado = await _service.Criar(dto);
-            if (!resultado)
+            if (resultado == null)
             {
-                return BadRequest("Erro ao criar o endereço: " + resultado);
+                return BadRequest("Erro ao criar o endereço.");
             }
-            return Ok("Endereço criado com sucesso: " + resultado);
+            return Ok(resultado);
         }
 
         [HttpPatch("atualizar/{id:guid}", Name = "AtualizarEndereco")]

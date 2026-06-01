@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace facilitador_domain.Domain.DTOs
 {
@@ -55,6 +55,7 @@ namespace facilitador_domain.Domain.DTOs
     public class ClienteResponseDTO
     {
         public Guid Id { get; set; }
+        public Guid EmpresaId { get; set; }
         public string Nome { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Documento { get; set; } = string.Empty;

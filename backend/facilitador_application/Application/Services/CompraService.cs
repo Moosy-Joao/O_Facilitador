@@ -1,4 +1,4 @@
-﻿using facilitador_api.Application.Interfaces;
+using facilitador_api.Application.Interfaces;
 using facilitador_api.Application.Mapping;
 using facilitador_api.Domain.Entities;
 using facilitador_api.Domain.Interfaces;
@@ -77,6 +77,13 @@ namespace facilitador_api.Application.Services
                 return false;
             }
 
+            decimal novoSaldo = cliente.Saldo + dto.Valor;
+
+            if (novoSaldo > cliente.LimiteCredito)
+            {
+                throw new Exception($"O valor da venda excede o limite de crédito disponível do cliente (Crédito disponível: {(cliente.LimiteCredito - cliente.Saldo):C}).");
+            }
+
             var compra = new Compra(
                 dto.Valor,
                 dto.Descricao,
@@ -85,10 +92,22 @@ namespace facilitador_api.Application.Services
                 empresaId
             );
 
-            await _compraRepository.Cadastrar(compra);
-            await _compraRepository.Salvar();
-
-            return true;
+            var transacao = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                await _compraRepository.Cadastrar(compra);
+                cliente.AtualizarSaldo(novoSaldo);
+                await _compraRepository.Salvar();
+                await _clienteRepository.Atualizar(cliente);
+                await _clienteRepository.Salvar();
+                await transacao.CommitAsync();
+                return true;
+            }
+            catch
+            {
+                await transacao.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task<bool> Atualizar(Guid id, CompraUpdateDTO dto)

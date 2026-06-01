@@ -1,8 +1,13 @@
-﻿using facilitador_application.Application.Interfaces;
+using facilitador_api.Helpers;
+using facilitador_application.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using facilitador_api.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace facilitador_api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/v1/paineldados")]
     public class PainelDeDadosController : ControllerBase
@@ -19,7 +24,8 @@ namespace facilitador_api.Controllers
         {
             try
             {
-                var dados = await _service.ObterDados();
+                var empresaId = User.ObterEmpresaId();
+                var dados = await _service.ObterDados(empresaId);
                 return Ok(dados);
             }
             catch (Exception ex)
@@ -33,7 +39,8 @@ namespace facilitador_api.Controllers
         {
             try
             {
-                var transacoes = await _service.ObterTransacoesRecentes();
+                var empresaId = User.ObterEmpresaId();
+                var transacoes = await _service.ObterTransacoesRecentes(empresaId);
                 return Ok(transacoes);
             }
             catch (Exception)
@@ -47,7 +54,8 @@ namespace facilitador_api.Controllers
         {
             try
             {
-                var grafico = await _service.ObterDadosGraficoVendas();
+                var empresaId = User.ObterEmpresaId();
+                var grafico = await _service.ObterDadosGraficoVendas(empresaId);
                 return Ok(grafico);
             }
             catch (Exception)

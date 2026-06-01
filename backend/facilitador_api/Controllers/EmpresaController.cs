@@ -1,4 +1,5 @@
-﻿using facilitador_api.Application.Interfaces;
+using facilitador_api.Application.Interfaces;
+using facilitador_application.Application.Validators.Empresa;
 using facilitador_domain.Domain.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
@@ -45,6 +46,14 @@ namespace facilitador_api.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CriarEmpresa(EmpresaCreateDTO dto)
         {
+            var validador = new EmpresaCreateDTOValidator();
+            var resultadoValidacao = validador.Validate(dto);
+
+            if (!resultadoValidacao.IsValid)
+            {
+                return BadRequest(resultadoValidacao.Errors.Select(e => e.ErrorMessage));
+            }
+
             var resultado = await _service.Criar(dto);
 
             if (!resultado)
@@ -60,12 +69,19 @@ namespace facilitador_api.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AtualizarEmpresa(Guid id, EmpresaUpdateDTO dto)
         {
-            var resultado = await _service.Atualizar(id, dto);
-            if (!resultado)
+            try
             {
-                return BadRequest("Erro ao atualizar a empresa: " + resultado);
+                var resultado = await _service.Atualizar(id, dto);
+                if (!resultado)
+                {
+                    return BadRequest("Erro ao atualizar a empresa.");
+                }
+                return Ok("Empresa atualizada com sucesso: " + resultado);
             }
-            return Ok("Empresa atualizada com sucesso: " + resultado);
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new[] { ex.Message });
+            }
         }
 
         [HttpPut("ativar/{id:guid}", Name = "AtivarEmpresa")]
