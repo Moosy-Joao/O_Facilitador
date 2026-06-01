@@ -12,17 +12,23 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Adicionar serviço de CORS
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Permissao", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://192.168.1.100:8080", "http://localhost:5238") // <- "http://[IP]:[PORTA]" para permitir acesso de um IP específico
-              .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials();
+        policy
+            .WithOrigins(
+                "http://localhost:5173",
+                "http://192.168.1.100:8080",
+                "http://localhost:5238",
+                "https://o-facilitador.vercel.app"
+            )
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
     });
-}); ;
+});
 
 // Banco de dados
 builder.Services.AddDbContext<ConnectionContext>(options =>
@@ -52,19 +58,13 @@ var jwtIssuer = builder.Configuration["Jwt:Issuer"];
 var jwtAudience = builder.Configuration["Jwt:Audience"];
 
 if (string.IsNullOrWhiteSpace(jwtKey))
-{
     throw new InvalidOperationException("JWT Key não configurada.");
-}
 
 if (string.IsNullOrWhiteSpace(jwtIssuer))
-{
     throw new InvalidOperationException("JWT Issuer não configurado.");
-}
 
 if (string.IsNullOrWhiteSpace(jwtAudience))
-{
     throw new InvalidOperationException("JWT Audience não configurado.");
-}
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -112,17 +112,18 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-
 var app = builder.Build();
 
 // Swagger
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// CORS
+// Rota raiz
+app.MapGet("/", () => Results.Ok("API O Facilitador online"));
+
+// Middlewares
 app.UseCors("Permissao");
 
-// Autenticação/autorização
 app.UseAuthentication();
 app.UseAuthorization();
 
