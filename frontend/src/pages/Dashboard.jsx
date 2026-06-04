@@ -246,18 +246,18 @@ const Dashboard = () => {
           <div className="bento-list">
             {movimentacoes.map((m) => (
               <div key={m.id} className="bento-list-item">
-                <div className={`bento-avatar ${m.type === 'venda' ? 'venda-bg' : 'pag-bg'}`}>
+                <div className={`bento-avatar ${m.tipo === 'venda' ? 'venda-bg' : 'pag-bg'}`}>
                    {m.cliente.charAt(0)}
                 </div>
                 <div className="bento-list-info">
                   <span className="bento-list-name">{m.cliente}</span>
                   <span className="bento-list-type">
-                    {m.type === 'venda' ? 'Venda registrada' : 'Pagamento recebido'}
+                    {m.tipo === 'venda' ? 'Venda registrada' : 'Pagamento recebido'}
                   </span>
                 </div>
                 <div className="bento-list-right">
-                  <span className={`bento-list-val ${m.type === 'venda' ? 'val-out' : 'val-in'}`}>
-                    {m.type === 'venda' ? '' : '+'}{formatCurrency(m.valor)}
+                  <span className={`bento-list-val ${m.tipo === 'venda' ? 'val-out' : 'val-in'}`}>
+                    {m.tipo === 'venda' ? '' : '+'}{formatCurrency(m.valor)}
                   </span>
                   <span className="bento-list-time">{m.hora}</span>
                 </div>

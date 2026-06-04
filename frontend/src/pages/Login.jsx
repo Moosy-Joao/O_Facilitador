@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Eye, EyeOff, Lock, Mail, ArrowRight, AlertCircle, CheckCircle, Leaf, User, Briefcase, FileText, Phone, UserPlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Waves from '../components/Waves/Waves';
-import { authLogin, registrarEmpresa, getEmpresaByCNPJ, registrarUsuario, formatPhone, validateCNPJ } from '../services/api';
+import { authLogin, registrarEmpresa, getEmpresaByCNPJ, registrarUsuario, formatPhone, validateCNPJ, isGerente, recuperarSenha } from '../services/api';
 import './Login.css';
 
 const Login = () => {
@@ -77,7 +77,7 @@ const Login = () => {
         };
         
         localStorage.setItem('user', JSON.stringify(userData));
-        navigate('/dashboard');
+        navigate(isGerente() ? '/dashboard' : '/clientes');
       }
     } catch (err) {
       setError(err.message || 'Credenciais inválidas. Tente novamente.');
@@ -143,13 +143,13 @@ const Login = () => {
       // 1. Criar a Empresa
       await registrarEmpresa({
         nomeEmpresa,
-        cnpj: cnpj.replace(/\D/g, ''),
+        cnpj: cnpj.replace(/[^A-Za-z0-9]/g, '').toUpperCase(),
         emailEmpresa: emailUsuario,
         telefoneEmpresa: telefoneEmpresa.replace(/\D/g, '')
       });
 
       // 2. Buscar o ID da Empresa criada pelo CNPJ
-      const empresa = await getEmpresaByCNPJ(cnpj.replace(/\D/g, ''));
+      const empresa = await getEmpresaByCNPJ(cnpj.replace(/[^A-Za-z0-9]/g, '').toUpperCase());
       if (!empresa) {
         throw new Error('Empresa cadastrada, mas não encontrada no banco.');
       }
@@ -237,12 +237,11 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // Simula a requisição para a API
-      await new Promise(resolve => setTimeout(resolve, 1200));
-      setSuccessMsg(`Um link de recuperação foi enviado para ${email}`);
+      await recuperarSenha(email);
+      setSuccessMsg(`Uma senha temporária foi enviada com sucesso para ${email}`);
     } catch (err) {
       console.error(err);
-      setError('Ocorreu um erro ao processar sua solicitação.');
+      setError(err.message || 'Ocorreu um erro ao processar sua solicitação.');
     } finally {
       setLoading(false);
     }
@@ -471,12 +470,12 @@ const Login = () => {
                       placeholder="00.000.000/0000-00"
                       value={cnpj}
                       onChange={(e) => {
-                        const clean = e.target.value.replace(/\D/g, '').slice(0, 14);
+                        const clean = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 14);
                         let formatted = clean;
-                        if (clean.length > 2) formatted = clean.replace(/^(\d{2})(\d)/, '$1.$2');
-                        if (clean.length > 5) formatted = formatted.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
-                        if (clean.length > 8) formatted = formatted.replace(/^(\d{2})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3/$4');
-                        if (clean.length > 12) formatted = formatted.replace(/^(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})(\d)/, '$1.$2.$3/$4-$5');
+                        if (clean.length > 2) formatted = clean.replace(/^([A-Z0-9]{2})([A-Z0-9])/, '$1.$2');
+                        if (clean.length > 5) formatted = formatted.replace(/^([A-Z0-9]{2})\.([A-Z0-9]{3})([A-Z0-9])/, '$1.$2.$3');
+                        if (clean.length > 8) formatted = formatted.replace(/^([A-Z0-9]{2})\.([A-Z0-9]{3})\.([A-Z0-9]{3})([A-Z0-9])/, '$1.$2.$3/$4');
+                        if (clean.length > 12) formatted = formatted.replace(/^([A-Z0-9]{2})\.([A-Z0-9]{3})\.([A-Z0-9]{3})\/([A-Z0-9]{4})([A-Z0-9])/, '$1.$2.$3/$4-$5');
                         setCnpj(formatted);
                       }}
                     />

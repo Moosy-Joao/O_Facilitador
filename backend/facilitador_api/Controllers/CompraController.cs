@@ -3,8 +3,6 @@ using facilitador_api.Helpers;
 using facilitador_domain.Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using facilitador_api.Helpers;
 
 
 

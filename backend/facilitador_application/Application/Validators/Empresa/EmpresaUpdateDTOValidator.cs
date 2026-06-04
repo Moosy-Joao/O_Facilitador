@@ -1,4 +1,4 @@
-﻿using facilitador_application.Application.Validators.Utils;
+using facilitador_application.Application.Validators.Utils;
 using facilitador_application.Application.Validators.Utils.facilitador_application.Application.Validators.Utils;
 using facilitador_domain.Domain.DTOs;
 using FluentValidation;
@@ -21,7 +21,7 @@ namespace facilitador_application.Application.Validators.Empresa
                 .When(x => x.CNPJ != null);
             RuleFor(x => x.Telefone)
                 .Matches(@"^\+?\d{10,15}$").WithMessage("O telefone deve conter apenas dígitos e pode incluir um '+' no início.")
-                .When(x => x.Telefone != null);
+                .When(x => !string.IsNullOrEmpty(x.Telefone));
         }
     }
 }

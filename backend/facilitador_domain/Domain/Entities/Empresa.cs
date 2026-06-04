@@ -7,7 +7,7 @@ namespace facilitador_api.Domain.Entities
         public string Nome { get; private set; }
         public string CNPJ { get; private set; }
         public string Email { get; private set; }
-        public string Telefone { get; private set; }
+        public string? Telefone { get; private set; }
         // Relacionamento com Endereco
         public Guid EnderecoId { get; private set; }
         public Endereco Endereco { get; private set; }
@@ -18,7 +18,7 @@ namespace facilitador_api.Domain.Entities
 
         public Empresa() { }
 
-        public Empresa(string nome, string cnpj, string telefone, string email, Guid enderecoId)
+        public Empresa(string nome, string cnpj, string? telefone, string email, Guid enderecoId)
         {
             Nome = nome;
             CNPJ = cnpj;
@@ -45,7 +45,7 @@ namespace facilitador_api.Domain.Entities
 
         public void AtualizarEmail(string email) => Email = email;
 
-        public void AtualizarTelefone(string telefone) => Telefone = telefone;
+        public void AtualizarTelefone(string? telefone) => Telefone = telefone;
 
         public void AtualizarEndereco(Guid enderecoId) => EnderecoId = enderecoId;
     }

@@ -8,7 +8,7 @@
   left: 50%;
   transform: translateX(-50%);
   width: calc(100% - 3rem);
-  max-width: 1120px;
+  max-width: 1200px;
   height: 56px;
   display: flex;
   align-items: center;
@@ -136,7 +136,7 @@
   font-size: 0.85rem;
   font-weight: 600;
   color: #4b5548;
-  max-width: 100px;
+  max-width: 75px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -276,7 +276,7 @@
   }
 }
 
-@media (max-width: 1140px) {
+@media (max-width: 1240px) {
   .topbar-link-label {
     display: none;
   }

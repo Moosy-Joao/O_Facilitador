@@ -12,8 +12,9 @@ import {
   Menu,
   X,
   ShieldAlert,
+  Shield,
 } from 'lucide-react';
-import { logout } from '../../services/api';
+import { logout, isGerente } from '../../services/api';
 import './Sidebar.css';
 
 const navItems = [
@@ -24,6 +25,7 @@ const navItems = [
   { to: '/vendas', icon: ShoppingCart, label: 'Venda' },
   { to: '/pagamentos', icon: CreditCard, label: 'Pagamento' },
   { to: '/historico', icon: History, label: 'Histórico' },
+  { to: '/funcionarios', icon: Shield, label: 'Equipe' },
 ];
 
 const Topbar = () => {
@@ -33,6 +35,14 @@ const Topbar = () => {
   const location = useLocation();
 
   const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+  // Filtra itens de navegação dependendo do cargo (esconde "Painel" e "Equipe" de funcionários comuns)
+  const filteredNavItems = navItems.filter((item) => {
+    if (item.to === '/dashboard' || item.to === '/funcionarios') {
+      return isGerente();
+    }
+    return true;
+  });
 
   // Exact match — /clientes should NOT match /clientes/novo
   const isItemActive = (itemPath) => location.pathname === itemPath;
@@ -52,7 +62,7 @@ const Topbar = () => {
       }
     });
     return () => cancelAnimationFrame(rafId);
-  }, [location.pathname]);
+  }, [location.pathname, filteredNavItems.length]);
 
   const handleLogout = () => {
     logout();
@@ -72,7 +82,7 @@ const Topbar = () => {
         {/* Center — Nav pill bar */}
         <nav className="topbar-nav" ref={navRef}>
           <div className="topbar-indicator" style={indicatorStyle} />
-          {navItems.map((item) => (
+          {filteredNavItems.map((item) => (
             <Link
               key={item.to}
               to={item.to}
@@ -90,7 +100,9 @@ const Topbar = () => {
             <div className="topbar-avatar">
               {(user.nome || user.name || user.email || 'U').charAt(0).toUpperCase()}
             </div>
-            <span className="topbar-user-name">{user.nome || user.name || user.email || 'Usuário'}</span>
+            <span className="topbar-user-name" title={user.nome || user.name || user.email || 'Usuário'}>
+              {user.nome || user.name || (user.email ? user.email.split('@')[0] : '') || 'Usuário'}
+            </span>
           </div>
           <button className="topbar-logout" onClick={handleLogout} title="Sair">
             <LogOut size={16} strokeWidth={1.9} />
@@ -110,7 +122,7 @@ const Topbar = () => {
       {mobileOpen && (
         <div className="mobile-drawer-overlay" onClick={() => setMobileOpen(false)}>
           <nav className="mobile-drawer" onClick={(e) => e.stopPropagation()}>
-            {navItems.map((item) => (
+            {filteredNavItems.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
@@ -133,4 +145,3 @@ const Topbar = () => {
 };
 
 export default Topbar;
-

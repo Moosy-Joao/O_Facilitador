@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace facilitador_domain.Domain.DTOs
 {
@@ -17,8 +17,7 @@ namespace facilitador_domain.Domain.DTOs
 
     public class EmpresaCreateDTO : EmpresaDTO
     {
-        [Phone]
-        public string Telefone { get; set; } = string.Empty;
+        public string? Telefone { get; set; }
 
         // Chaves estrangeiras
         public Guid EnderecoId { get; set; }
