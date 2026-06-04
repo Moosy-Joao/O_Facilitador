@@ -42,9 +42,10 @@ namespace facilitador_api.Domain.Entities
             Documento = dto.Documento;
             Telefone = dto.Telefone;
             EnderecoId = enderecoId;
-            Saldo = dto.Saldo;
+
+            Saldo = 0;
             LimiteCredito = dto.LimiteCredito;
-            EnderecoId = enderecoId;
+            Inadimplente = false;
         }
 
         public void AtualizarNome(string nome) => Nome = nome;
