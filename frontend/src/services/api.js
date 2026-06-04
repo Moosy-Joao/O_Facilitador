@@ -720,7 +720,7 @@ export const registrarUsuario = async (data) => {
     nome: data.nomeUsuario,
     email: data.emailUsuario,
     senha: data.senhaUsuario,
-    cargo: 0, // Administrador
+    cargo: 1, // Gerente
     empresaId: data.empresaId
   };
   const res = await fetch(`${API_URL}/v1/usuario/criar`, {

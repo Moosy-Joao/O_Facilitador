@@ -18,9 +18,6 @@ namespace facilitador_domain.Domain.DTOs
 
     public class ClienteCreateDTO : ClienteDTO
     {
-        [Required(ErrorMessage = "O campo 'Saldo' é obrigatório.")]
-        public decimal Saldo { get; set; }
-
         [Required(ErrorMessage = "O campo 'LimiteCredito' é obrigatório.")]
         public decimal LimiteCredito { get; set; }
 
