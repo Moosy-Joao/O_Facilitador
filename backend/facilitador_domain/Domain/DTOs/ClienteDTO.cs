@@ -24,6 +24,8 @@ namespace facilitador_domain.Domain.DTOs
         [Phone]
         public string Telefone { get; set; } = string.Empty;
 
+        public decimal? Saldo { get; set; }
+
         // Chaves estrangeiras
         [Required(ErrorMessage = "O campo 'Endereco' é obrigatório.")]
         public Guid EnderecoId { get; set; }
