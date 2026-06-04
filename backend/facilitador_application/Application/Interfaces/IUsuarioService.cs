@@ -4,7 +4,7 @@ namespace facilitador_api.Application.Interfaces
 {
     public interface IUsuarioService
     {
-        Task<List<UsuarioResponseDTO>> BuscarUsuarios();
+        Task<List<UsuarioResponseDTO>> BuscarUsuarios(Guid? empresaId = null);
         Task<UsuarioResponseDTO?> BuscarPorId(Guid id);
         Task<LoginResponseDTO?> Criar(UsuarioCreateDTO dto, Guid empresaId);
         Task<bool> Atualizar(Guid id, UsuarioUpdateDTO dto);

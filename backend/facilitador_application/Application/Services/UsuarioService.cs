@@ -84,9 +84,17 @@ namespace facilitador_api.Application.Services
             return usuario?.ToResponseDTO();
         }
 
-        public async Task<List<UsuarioResponseDTO>> BuscarUsuarios()
+        public async Task<List<UsuarioResponseDTO>> BuscarUsuarios(Guid? empresaId = null)
         {
-            var usuarios = await _usuarioRepository.BuscarTodos();
+            List<Usuario> usuarios;
+            if (empresaId.HasValue && empresaId.Value != Guid.Empty)
+            {
+                usuarios = await _usuarioRepository.BuscarPorEmpresa(empresaId.Value);
+            }
+            else
+            {
+                usuarios = await _usuarioRepository.BuscarTodos();
+            }
             return usuarios.Select(c => c.ToResponseDTO()).ToList();
         }
 

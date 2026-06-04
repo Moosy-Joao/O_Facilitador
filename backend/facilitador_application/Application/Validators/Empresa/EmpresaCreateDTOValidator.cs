@@ -1,4 +1,4 @@
-﻿using facilitador_application.Application.Validators.Utils;
+using facilitador_application.Application.Validators.Utils;
 using facilitador_application.Application.Validators.Utils.facilitador_application.Application.Validators.Utils;
 using facilitador_domain.Domain.DTOs;
 using FluentValidation;
@@ -20,8 +20,8 @@ namespace facilitador_application.Application.Validators.Empresa
                 .NotEmpty().WithMessage("O CNPJ é obrigatório.")
                 .Must(ValidarDocumento.ValidarCPFouCNPJ).WithMessage("O CNPJ deve estar no formato válido.");
             RuleFor(x => x.Telefone)
-                .NotEmpty().WithMessage("O telefone é obrigatório.")
-                .Matches(@"^\+?\d{10,15}$").WithMessage("O telefone deve conter apenas dígitos e pode incluir um '+' no início.");
+                .Matches(@"^\+?\d{10,15}$").WithMessage("O telefone deve conter apenas dígitos e pode incluir um '+' no início.")
+                .When(x => !string.IsNullOrEmpty(x.Telefone));
         }
     }
 }

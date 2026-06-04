@@ -4,6 +4,7 @@ using facilitador_application.Application.Validators.Usuario;
 using facilitador_domain.Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using facilitador_domain.Domain.Enums;
 
 namespace facilitador_api.Controllers
 {
@@ -24,7 +25,8 @@ namespace facilitador_api.Controllers
         [ProducesResponseType(typeof(List<UsuarioResponseDTO>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUsuarios()
         {
-            var resultado = await _service.BuscarUsuarios();
+            var empresaId = User.ObterEmpresaId();
+            var resultado = await _service.BuscarUsuarios(empresaId);
 
             return Ok(resultado ?? new List<UsuarioResponseDTO>());
         }
@@ -33,6 +35,7 @@ namespace facilitador_api.Controllers
         [HttpGet("obterporid/{id:guid}", Name = "ObterUsuarioPorId")]
         [ProducesResponseType(typeof(UsuarioResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GetUsuarioPorId(Guid id)
         {
             var resultado = await _service.BuscarPorId(id);
@@ -40,6 +43,12 @@ namespace facilitador_api.Controllers
             if (resultado == null)
             {
                 return NotFound("Usuário não encontrado.");
+            }
+
+            var empresaId = User.ObterEmpresaId();
+            if (resultado.EmpresaId != empresaId)
+            {
+                return Forbid("Você não tem permissão para acessar dados deste usuário.");
             }
 
             return Ok(resultado);
@@ -73,6 +82,34 @@ namespace facilitador_api.Controllers
                 }
             }
 
+            if (User.Identity?.IsAuthenticated != true)
+            {
+                if (dto.Cargo != CargoUsuario.Gerente)
+                {
+                    return BadRequest("No cadastro inicial de empresa, o usuário deve ser criado com o cargo de Gerente.");
+                }
+            }
+            else
+            {
+                try
+                {
+                    var cargoToken = User.ObterCargo();
+                    if (cargoToken != "Administrador" && cargoToken != "Gerente" && cargoToken != "0" && cargoToken != "1")
+                    {
+                        return StatusCode(StatusCodes.Status403Forbidden, "Apenas gerentes ou administradores podem cadastrar novos colaboradores.");
+                    }
+
+                    if ((cargoToken == "Gerente" || cargoToken == "1") && dto.Cargo == CargoUsuario.Administrador)
+                    {
+                        return BadRequest("Um gerente não tem permissão para criar um usuário Administrador.");
+                    }
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden, "Erro ao validar permissões do usuário.");
+                }
+            }
+
             try
             {
                 var resultado = await _service.Criar(dto, empresaIdToken);
@@ -98,6 +135,7 @@ namespace facilitador_api.Controllers
         [HttpPatch("atualizar/{id:guid}", Name = "AtualizarUsuario")]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> AtualizarUsuario(Guid id, [FromBody] UsuarioUpdateDTO dto)
         {
             var validador = new UsuarioUpdateDTOValidator();
@@ -106,6 +144,27 @@ namespace facilitador_api.Controllers
             if (!resultadoValidacao.IsValid)
             {
                 return BadRequest(resultadoValidacao.Errors.Select(e => e.ErrorMessage));
+            }
+
+            var usuario = await _service.BuscarPorId(id);
+            if (usuario == null)
+            {
+                return NotFound("Usuário não encontrado.");
+            }
+
+            var empresaId = User.ObterEmpresaId();
+            if (usuario.EmpresaId != empresaId)
+            {
+                return Forbid("Você não tem permissão para atualizar este usuário.");
+            }
+
+            var cargoToken = User.ObterCargo();
+            if (dto.Cargo.HasValue && dto.Cargo.Value == CargoUsuario.Administrador)
+            {
+                if (cargoToken != "Administrador" && cargoToken != "0")
+                {
+                    return BadRequest("Apenas administradores podem definir o cargo como Administrador.");
+                }
             }
 
             var resultado = await _service.Atualizar(id, dto);
@@ -122,8 +181,21 @@ namespace facilitador_api.Controllers
         [HttpPost("ativar/{id:guid}", Name = "AtivarUsuario")]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> AtivarUsuario(Guid id)
         {
+            var usuario = await _service.BuscarPorId(id);
+            if (usuario == null)
+            {
+                return NotFound("Usuário não encontrado.");
+            }
+
+            var empresaId = User.ObterEmpresaId();
+            if (usuario.EmpresaId != empresaId)
+            {
+                return Forbid("Você não tem permissão para ativar este usuário.");
+            }
+
             var resultado = await _service.Ativar(id);
 
             if (resultado == false)
@@ -138,8 +210,21 @@ namespace facilitador_api.Controllers
         [HttpDelete("desativar/{id:guid}", Name = "DesativarUsuario")]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> DesativarUsuario(Guid id)
         {
+            var usuario = await _service.BuscarPorId(id);
+            if (usuario == null)
+            {
+                return NotFound("Usuário não encontrado.");
+            }
+
+            var empresaId = User.ObterEmpresaId();
+            if (usuario.EmpresaId != empresaId)
+            {
+                return Forbid("Você não tem permissão para desativar este usuário.");
+            }
+
             var resultado = await _service.Desativar(id);
 
             if (resultado == false)

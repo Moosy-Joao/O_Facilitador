@@ -143,13 +143,13 @@ const Login = () => {
       // 1. Criar a Empresa
       await registrarEmpresa({
         nomeEmpresa,
-        cnpj: cnpj.replace(/\D/g, ''),
+        cnpj: cnpj.replace(/[^A-Za-z0-9]/g, '').toUpperCase(),
         emailEmpresa: emailUsuario,
         telefoneEmpresa: telefoneEmpresa.replace(/\D/g, '')
       });
 
       // 2. Buscar o ID da Empresa criada pelo CNPJ
-      const empresa = await getEmpresaByCNPJ(cnpj.replace(/\D/g, ''));
+      const empresa = await getEmpresaByCNPJ(cnpj.replace(/[^A-Za-z0-9]/g, '').toUpperCase());
       if (!empresa) {
         throw new Error('Empresa cadastrada, mas não encontrada no banco.');
       }
@@ -470,12 +470,12 @@ const Login = () => {
                       placeholder="00.000.000/0000-00"
                       value={cnpj}
                       onChange={(e) => {
-                        const clean = e.target.value.replace(/\D/g, '').slice(0, 14);
+                        const clean = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 14);
                         let formatted = clean;
-                        if (clean.length > 2) formatted = clean.replace(/^(\d{2})(\d)/, '$1.$2');
-                        if (clean.length > 5) formatted = formatted.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
-                        if (clean.length > 8) formatted = formatted.replace(/^(\d{2})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3/$4');
-                        if (clean.length > 12) formatted = formatted.replace(/^(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})(\d)/, '$1.$2.$3/$4-$5');
+                        if (clean.length > 2) formatted = clean.replace(/^([A-Z0-9]{2})([A-Z0-9])/, '$1.$2');
+                        if (clean.length > 5) formatted = formatted.replace(/^([A-Z0-9]{2})\.([A-Z0-9]{3})([A-Z0-9])/, '$1.$2.$3');
+                        if (clean.length > 8) formatted = formatted.replace(/^([A-Z0-9]{2})\.([A-Z0-9]{3})\.([A-Z0-9]{3})([A-Z0-9])/, '$1.$2.$3/$4');
+                        if (clean.length > 12) formatted = formatted.replace(/^([A-Z0-9]{2})\.([A-Z0-9]{3})\.([A-Z0-9]{3})\/([A-Z0-9]{4})([A-Z0-9])/, '$1.$2.$3/$4-$5');
                         setCnpj(formatted);
                       }}
                     />

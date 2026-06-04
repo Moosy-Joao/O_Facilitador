@@ -146,6 +146,15 @@ export const getClientes = async (filtros = {}) => {
 };
 
 export const getClienteById = async (id) => {
+  try {
+    const res = await fetchWithAuth(`${API_URL}/v1/cliente/obterporid/${id}`);
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (e) {
+    console.warn('Erro ao buscar cliente por ID direto, usando fallback:', e);
+  }
+  // Fallback: busca na lista geral
   const clientes = await getClientes();
   return clientes.find(c => c.id === id) || null;
 };
@@ -485,16 +494,43 @@ export const getTransacoes = async (filtros = {}) => {
 };
 
 export const estornarTransacao = async (id) => {
+  let clienteId = null;
+
+  // Tenta estornar como compra (venda)
   try {
+    // Primeiro, busca os dados da compra para obter o clienteId
+    const resGet = await fetchWithAuth(`${API_URL}/v1/compras/obterporid/${id}`);
+    if (resGet.ok) {
+      const compra = await resGet.json();
+      clienteId = compra.clienteId;
+    }
     const resCompra = await fetchWithAuth(`${API_URL}/v1/compras/desativar/${id}`, { method: 'DELETE' });
-    if (resCompra.ok) return { id, status: 'estornado' };
+    if (resCompra.ok) {
+      // Recalcular saldo do cliente após estorno
+      if (clienteId) {
+        try { await sincronizarSaldos(); } catch (_) {}
+      }
+      return { id, status: 'estornado' };
+    }
   } catch (e) {
     console.error(e);
   }
 
+  // Tenta estornar como pagamento
   try {
+    const resGet = await fetchWithAuth(`${API_URL}/v1/pagamentos/obterporid/${id}`);
+    if (resGet.ok) {
+      const pagamento = await resGet.json();
+      clienteId = pagamento.clienteId;
+    }
     const resPag = await fetchWithAuth(`${API_URL}/v1/pagamentos/desativar/${id}`, { method: 'DELETE' });
-    if (resPag.ok) return { id, status: 'estornado' };
+    if (resPag.ok) {
+      // Recalcular saldo do cliente após estorno
+      if (clienteId) {
+        try { await sincronizarSaldos(); } catch (_) {}
+      }
+      return { id, status: 'estornado' };
+    }
   } catch (e) {
     console.error(e);
   }
@@ -583,38 +619,69 @@ export const formatCEP = (val) => {
 
 export const validateCNPJ = (cnpj) => {
   if (!cnpj) return false;
-  const clean = cnpj.replace(/\D/g, '');
+  const clean = cnpj.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
   if (clean.length !== 14) return false;
-  if (/^(\d)\1{13}$/.test(clean)) return false;
 
-  let size = clean.length - 2;
-  let numbers = clean.substring(0, size);
-  const digits = clean.substring(size);
-  let sum = 0;
-  let pos = size - 7;
+  // Se for CNPJ numérico tradicional
+  if (/^\d+$/.test(clean)) {
+    if (/^(\d)\1{13}$/.test(clean)) return false;
+    let size = 12;
+    let numbers = clean.substring(0, size);
+    const digits = clean.substring(size);
+    let sum = 0;
+    let pos = size - 7;
+    for (let i = size; i >= 1; i--) {
+      sum += parseInt(numbers.charAt(size - i)) * pos--;
+      if (pos < 2) pos = 9;
+    }
+    let result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
+    if (result !== parseInt(digits.charAt(0))) return false;
 
-  for (let i = size; i >= 1; i--) {
-    sum += parseInt(numbers.charAt(size - i)) * pos--;
-    if (pos < 2) pos = 9;
+    size = 13;
+    numbers = clean.substring(0, size);
+    sum = 0;
+    pos = size - 7;
+    for (let i = size; i >= 1; i--) {
+      sum += parseInt(numbers.charAt(size - i)) * pos--;
+      if (pos < 2) pos = 9;
+    }
+    result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
+    if (result !== parseInt(digits.charAt(1))) return false;
+    return true;
   }
 
-  let result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
-  if (result !== parseInt(digits.charAt(0))) return false;
+  // Se for CNPJ alfanumérico novo
+  const charToValue = (c) => {
+    if (/[0-9]/.test(c)) return c.charCodeAt(0) - 48;
+    return c.charCodeAt(0) - 65 + 10;
+  };
 
-  size = size + 1;
-  numbers = clean.substring(0, size);
-  sum = 0;
-  pos = size - 7;
+  const valueToChar = (valor) => {
+    if (valor >= 0 && valor <= 9) return String.fromCharCode(48 + valor);
+    return String.fromCharCode(65 + valor - 10);
+  };
 
-  for (let i = size; i >= 1; i--) {
-    sum += parseInt(numbers.charAt(size - i)) * pos--;
-    if (pos < 2) pos = 9;
+  const pesos1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+  const pesos2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+
+  const baseCnpj = clean.substring(0, 12);
+
+  let soma = 0;
+  for (let i = 0; i < 12; i++) {
+    soma += charToValue(baseCnpj[i]) * pesos1[i];
   }
+  let resto = soma % 11;
+  let digito1 = resto < 2 ? 0 : 11 - resto;
+  if (digito1 !== charToValue(clean[12])) return false;
 
-  result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
-  if (result !== parseInt(digits.charAt(1))) return false;
-
-  return true;
+  const baseComPrimeiro = baseCnpj + valueToChar(digito1);
+  soma = 0;
+  for (let i = 0; i < 13; i++) {
+    soma += charToValue(baseComPrimeiro[i]) * pesos2[i];
+  }
+  resto = soma % 11;
+  let digito2 = resto < 2 ? 0 : 11 - resto;
+  return digito2 === charToValue(clean[13]);
 };
 
 /* ─────────── Sign Up / Cadastro ─────────── */
