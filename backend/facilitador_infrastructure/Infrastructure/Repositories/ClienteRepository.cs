@@ -75,7 +75,7 @@ public class ClienteRepository : BaseRepository<Cliente>, IClienteRepository
                 .ToListAsync();
 
             decimal acumuladoPagamentos = totalPagamentos;
-            Compra? oldestUnpaidPurchase = null;
+            Compra? compraMarisAntiga = null;
 
             foreach (var compra in compras)
             {
@@ -85,14 +85,14 @@ public class ClienteRepository : BaseRepository<Cliente>, IClienteRepository
                 }
                 else
                 {
-                    oldestUnpaidPurchase = compra;
+                    compraMarisAntiga = compra;
                     break;
                 }
             }
 
-            if (oldestUnpaidPurchase == null) continue;
+            if (compraMarisAntiga == null) continue;
 
-            var diasAtrasoCliente = (int)(DateTime.UtcNow.Date - oldestUnpaidPurchase.CriadoEm.Date).TotalDays;
+            var diasAtrasoCliente = (int)(DateTime.UtcNow.Date - compraMarisAntiga.CriadoEm.Date).TotalDays;
             if (diasAtrasoCliente >= diasAtraso)
             {
                 result.Add(new ClienteInadimplenteResponseDTO
@@ -128,7 +128,7 @@ public class ClienteRepository : BaseRepository<Cliente>, IClienteRepository
             .ToListAsync();
 
         decimal acumuladoPagamentos = totalPagamentos;
-        Compra? oldestUnpaidPurchase = null;
+        Compra? compraMarisAntiga = null;
 
         foreach (var compra in compras)
         {
@@ -138,14 +138,14 @@ public class ClienteRepository : BaseRepository<Cliente>, IClienteRepository
             }
             else
             {
-                oldestUnpaidPurchase = compra;
+                compraMarisAntiga = compra;
                 break;
             }
         }
 
-        if (oldestUnpaidPurchase == null) return false;
+        if (compraMarisAntiga == null) return false;
 
-        var diasAtrasoCliente = (int)(DateTime.UtcNow.Date - oldestUnpaidPurchase.CriadoEm.Date).TotalDays;
+        var diasAtrasoCliente = (int)(DateTime.UtcNow.Date - compraMarisAntiga.CriadoEm.Date).TotalDays;
         return diasAtrasoCliente >= diasAtraso;
     }
 
