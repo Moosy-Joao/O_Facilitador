@@ -1,3 +1,4 @@
+using facilitador_application.Application.Validators.Utils.facilitador_application.Application.Validators.Utils;
 using facilitador_application.Application.Validators.Utils;
 using facilitador_domain.Domain.DTOs;
 using FluentValidation;
