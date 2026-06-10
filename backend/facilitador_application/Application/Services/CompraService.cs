@@ -77,7 +77,7 @@ namespace facilitador_api.Application.Services
                 return false;
             }
 
-            decimal novoSaldo = cliente.Saldo - dto.Valor;
+            decimal novoSaldo = cliente.Saldo + dto.Valor;
 
             if (novoSaldo > cliente.LimiteCredito)
             {
