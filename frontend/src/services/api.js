@@ -333,38 +333,35 @@ export const sincronizarSaldos = async () => {
 
 export const registrarVenda = async (clienteId, valor, descricao) => {
   const { empresaId } = await getDefaultIds();
-  const dto = { 
-    valor: Number(valor), 
-    descricao, 
-    numeroNota: 'N/A', 
-    clienteId, 
-    empresaId 
+
+  const dto = {
+    valor: Number(valor),
+    descricao,
+    numeroNota: 'N/A',
+    clienteId,
+    empresaId
   };
 
   const res = await fetchWithAuth(`${API_URL}/v1/compras/criar`, {
     method: 'POST',
     body: JSON.stringify(dto)
   });
-  
+
   if (!res.ok) {
     const txt = await res.text();
     throw new Error(txt || 'Erro ao registrar venda');
   }
 
-  // Atualizar saldo do cliente no frontend após venda com sucesso
-  try {
-    const cliente = await getClienteById(clienteId);
-    if (cliente) {
-      const novoSaldo = (cliente.saldo || 0) + Number(valor);
-      await atualizarCliente(clienteId, { saldo: novoSaldo });
-    }
-  } catch (err) {
-    console.warn('Erro ao atualizar saldo após venda:', err);
-  }
-  
   const body = await res.text();
-  try { return JSON.parse(body); } catch { return body; }
+
+  try {
+    return JSON.parse(body);
+  } catch {
+    return body;
+  }
 };
+
+  
 
 /* ─────────── Pagamentos ─────────── */
 
