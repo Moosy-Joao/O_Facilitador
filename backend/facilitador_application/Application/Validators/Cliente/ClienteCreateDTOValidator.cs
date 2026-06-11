@@ -25,6 +25,9 @@ namespace facilitador_application.Application.Validators.Cliente
             RuleFor(x => x.LimiteCredito)
                 .GreaterThanOrEqualTo(0).WithMessage("O limite de crédito deve ser maior ou igual a zero.")
                 .LessThanOrEqualTo(99999999.99M).WithMessage("O limite de crédito deve ser menor ou igual a 99.999.999,99.");
+            RuleFor(x => x.Saldo)
+                .GreaterThanOrEqualTo(0).WithMessage("O saldo deve ser maior ou igual a zero.")
+                .LessThanOrEqualTo(99999999.99M).WithMessage("O saldo deve ser menor ou igual a 99.999.999,99.");
         }
     }
 }
